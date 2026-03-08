@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Page Not Found | Kehinde Ogunlowo</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #e2e8f0;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        a { color: #00d4ff; text-decoration: none; transition: color 0.2s; }
+        a:hover { color: #10b981; }
+        code { font-family: 'JetBrains Mono', monospace; }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(10, 14, 26, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            padding: 0 2rem;
+        }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 64px;
+        }
+        .nav-logo { font-weight: 700; font-size: 1.1rem; color: #e2e8f0; letter-spacing: -0.02em; }
+        .nav-logo span { color: #00d4ff; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: #94a3b8; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: #00d4ff; }
+
+        .error-page {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% 30%, rgba(0, 212, 255, 0.05) 0%, transparent 60%);
+        }
+        .error-content { max-width: 600px; }
+        .error-code {
+            font-size: clamp(5rem, 12vw, 8rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #00d4ff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        .error-title {
+            font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;
+        }
+        .error-desc {
+            color: #94a3b8; font-size: 1rem; margin-bottom: 2rem; line-height: 1.7;
+        }
+        .error-desc code {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #00d4ff;
+        }
+        .error-buttons {
+            display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.75rem;
+            background: linear-gradient(135deg, #00d4ff, #0091b3);
+            color: #0a0e1a; font-weight: 600; font-size: 0.95rem;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0, 212, 255, 0.25); color: #0a0e1a; }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.75rem;
+            background: transparent;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #00d4ff; font-weight: 600; font-size: 0.95rem;
+            border-radius: 8px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-secondary:hover { background: rgba(0, 212, 255, 0.08); border-color: #00d4ff; }
+
+        .suggested-posts h3 {
+            font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+            color: #94a3b8;
+        }
+        .suggested-list { list-style: none; text-align: left; }
+        .suggested-list li {
+            padding: 0.75rem 1rem;
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: border-color 0.2s;
+        }
+        .suggested-list li:hover { border-color: rgba(0, 212, 255, 0.25); }
+        .suggested-list a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .suggested-list a:hover { color: #00d4ff; }
+        .suggested-list .post-cat {
+            font-size: 0.7rem; color: #00d4ff; text-transform: uppercase;
+            letter-spacing: 0.04em; font-weight: 500;
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        footer a { color: #94a3b8; }
+
+        @media (max-width: 480px) {
+            .nav-links { gap: 0.8rem; }
+            .nav-links a { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">K<span>.</span>Ogunlowo</a>
+            <ul class="nav-links">
+                <li><a href="/blog/">Blog</a></li>
+                <li><a href="/about.html">About</a></li>
+                <li><a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a></li>
+                <li><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="error-page">
+        <div class="error-content">
+            <div class="error-code">404</div>
+            <h1 class="error-title">Page Not Found</h1>
+            <p class="error-desc">
+                The page you're looking for doesn't exist or has been moved.
+                If you believe this is an error, check the URL or navigate back to the homepage.
+            </p>
+            <div class="error-buttons">
+                <a href="/" class="btn-primary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                    Go Home
+                </a>
+                <a href="/blog/" class="btn-secondary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    Browse Blog
+                </a>
+            </div>
+            <div class="suggested-posts">
+                <h3>Popular articles you might enjoy:</h3>
+                <ul class="suggested-list">
+                    <li>
+                        <span class="post-cat">Zero Trust</span>
+                        <a href="/blog/multi-cloud-zero-trust-architecture.html">Multi-Cloud Zero Trust Architecture: A Practical Framework</a>
+                    </li>
+                    <li>
+                        <span class="post-cat">AI Agents</span>
+                        <a href="/blog/ai-agents-enterprise-devops.html">AI Agents in Enterprise DevOps: Beyond the Hype</a>
+                    </li>
+                    <li>
+                        <span class="post-cat">Infrastructure</span>
+                        <a href="/blog/terraform-eks-complete-guide.html">Terraform EKS Complete Guide: Production-Ready Clusters</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Kehinde Ogunlowo. All rights reserved. | <a href="/">Home</a> | <a href="/blog/">Blog</a></p>
+    </footer>
+</body>
+</html>

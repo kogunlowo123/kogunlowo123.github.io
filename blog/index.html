@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog — Kehinde Ogunlowo | DevSecOps &amp; AI Agent Engineering</title>
+    <meta name="description" content="Articles on multi-cloud architecture, DevSecOps practices, AI agent systems, and enterprise cloud infrastructure by Kehinde Ogunlowo.">
+    <meta name="keywords" content="DevSecOps blog, multi-cloud, AI agents, Terraform, Kubernetes, AWS, Azure, GCP, cloud security">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/">
+    <meta property="og:title" content="Blog — Kehinde Ogunlowo">
+    <meta property="og:description" content="Articles on multi-cloud architecture, DevSecOps, and AI agent engineering.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://kogunlowo123.github.io/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Blog — Kehinde Ogunlowo">
+    <meta name="twitter:description" content="Articles on multi-cloud architecture, DevSecOps, and AI agent engineering.">
+    <meta name="twitter:image" content="https://kogunlowo123.github.io/og-image.png">
+    <link rel="alternate" type="application/atom+xml" title="Kehinde Ogunlowo Blog Feed" href="/feed.xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Kehinde Ogunlowo Blog",
+        "url": "https://kogunlowo123.github.io/blog/",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "sameAs": [
+                "https://github.com/kogunlowo123",
+                "https://linkedin.com/in/kehinde-ogunlowo"
+            ]
+        }
+    }
+    </script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #e2e8f0;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: #00d4ff; text-decoration: none; transition: color 0.2s; }
+        a:hover { color: #10b981; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(10, 14, 26, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            padding: 0 2rem;
+        }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 64px;
+        }
+        .nav-logo { font-weight: 700; font-size: 1.1rem; color: #e2e8f0; letter-spacing: -0.02em; }
+        .nav-logo span { color: #00d4ff; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: #94a3b8; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: #00d4ff; }
+        .nav-links a.active { color: #00d4ff; }
+
+        .page-header {
+            padding: 7rem 2rem 3rem;
+            max-width: 1200px; margin: 0 auto;
+        }
+        .breadcrumb {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;
+        }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .page-header h1 {
+            font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem;
+        }
+        .page-header p { color: #94a3b8; font-size: 1.05rem; }
+
+        .blog-layout {
+            max-width: 1200px; margin: 0 auto; padding: 0 2rem 5rem;
+            display: grid; grid-template-columns: 1fr 320px; gap: 3rem;
+        }
+
+        .post-list { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        .post-card {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 1.75rem;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        .post-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 212, 255, 0.25);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        }
+        .post-meta {
+            display: flex; align-items: center; gap: 0.75rem;
+            margin-bottom: 0.85rem; font-size: 0.8rem; color: #94a3b8;
+        }
+        .post-category {
+            padding: 0.2rem 0.6rem;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 4px;
+            color: #00d4ff;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .post-category.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .post-card h2 {
+            font-size: 1.25rem; font-weight: 600; margin-bottom: 0.6rem;
+            line-height: 1.4; letter-spacing: -0.01em;
+        }
+        .post-card h2 a { color: #e2e8f0; }
+        .post-card h2 a:hover { color: #00d4ff; }
+        .post-excerpt {
+            color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem;
+        }
+        .post-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.8rem; color: #64748b;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 0.85rem;
+        }
+        .read-more { font-size: 0.85rem; font-weight: 500; color: #00d4ff; }
+
+        /* Sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+        .sidebar-widget {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .sidebar-widget h3 {
+            font-size: 0.9rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 1rem; color: #e2e8f0;
+        }
+        .category-list { list-style: none; }
+        .category-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .category-list li:last-child { border-bottom: none; }
+        .category-list a { color: #94a3b8; font-size: 0.9rem; }
+        .category-list a:hover { color: #00d4ff; }
+        .category-count {
+            font-size: 0.75rem; background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff; padding: 0.15rem 0.5rem; border-radius: 9999px;
+        }
+        .about-widget-avatar {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(16,185,129,0.2));
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid rgba(0,212,255,0.3);
+            margin-bottom: 0.75rem;
+        }
+        .about-widget-avatar span { font-size: 1.2rem; font-weight: 800; color: #00d4ff; }
+        .sidebar-widget p { color: #94a3b8; font-size: 0.85rem; line-height: 1.6; }
+        .sidebar-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 6px;
+            color: #00d4ff;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .sidebar-btn:hover { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        footer a { color: #94a3b8; }
+
+        @media (max-width: 900px) {
+            .blog-layout { grid-template-columns: 1fr; }
+            .sidebar { order: -1; }
+        }
+        @media (max-width: 480px) {
+            .nav-links { gap: 0.8rem; }
+            .nav-links a { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">K<span>.</span>Ogunlowo</a>
+            <ul class="nav-links">
+                <li><a href="/blog/" class="active">Blog</a></li>
+                <li><a href="/about.html">About</a></li>
+                <li><a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a></li>
+                <li><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span>/</span>
+            <span style="color: #e2e8f0;">Blog</span>
+        </div>
+        <h1>Blog</h1>
+        <p>Explorations in multi-cloud architecture, DevSecOps, and AI agent engineering.</p>
+    </header>
+
+    <div class="blog-layout">
+        <main class="post-list">
+            <article class="post-card">
+                <div class="post-meta">
+                    <span class="post-category">Zero Trust</span>
+                    <span>Mar 5, 2024</span>
+                    <span>8 min read</span>
+                </div>
+                <h2><a href="/blog/multi-cloud-zero-trust-architecture.html">Multi-Cloud Zero Trust Architecture: A Practical Framework</a></h2>
+                <p class="post-excerpt">Implementing zero trust security across AWS, Azure, and GCP with unified identity federation, micro-segmentation, and continuous verification.</p>
+                <div class="post-footer">
+                    <span>Kehinde Ogunlowo</span>
+                    <a href="/blog/multi-cloud-zero-trust-architecture.html" class="read-more">Read more &rarr;</a>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span class="post-category green">AI / ML</span>
+                    <span>Feb 28, 2024</span>
+                    <span>8 min read</span>
+                </div>
+                <h2><a href="/blog/production-rag-pipelines-aws.html">Production RAG Pipelines on AWS: From Prototype to Scale</a></h2>
+                <p class="post-excerpt">Building retrieval-augmented generation pipelines with Amazon Bedrock, OpenSearch Serverless, and Lambda for enterprise knowledge systems.</p>
+                <div class="post-footer">
+                    <span>Kehinde Ogunlowo</span>
+                    <a href="/blog/production-rag-pipelines-aws.html" class="read-more">Read more &rarr;</a>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span class="post-category">Infrastructure</span>
+                    <span>Feb 20, 2024</span>
+                    <span>8 min read</span>
+                </div>
+                <h2><a href="/blog/terraform-eks-complete-guide.html">Terraform EKS Complete Guide: Production-Ready Clusters</a></h2>
+                <p class="post-excerpt">A comprehensive walkthrough for deploying production-grade EKS clusters with Terraform, covering networking, IRSA, and GitOps integration.</p>
+                <div class="post-footer">
+                    <span>Kehinde Ogunlowo</span>
+                    <a href="/blog/terraform-eks-complete-guide.html" class="read-more">Read more &rarr;</a>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span class="post-category">Security</span>
+                    <span>Feb 12, 2024</span>
+                    <span>8 min read</span>
+                </div>
+                <h2><a href="/blog/azure-sentinel-soc-automation.html">Azure Sentinel SOC Automation: SOAR Playbooks at Scale</a></h2>
+                <p class="post-excerpt">Automating security operations with Azure Sentinel, Logic Apps, and custom detection rules for real-time threat response across hybrid environments.</p>
+                <div class="post-footer">
+                    <span>Kehinde Ogunlowo</span>
+                    <a href="/blog/azure-sentinel-soc-automation.html" class="read-more">Read more &rarr;</a>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span class="post-category green">AI Agents</span>
+                    <span>Feb 5, 2024</span>
+                    <span>8 min read</span>
+                </div>
+                <h2><a href="/blog/ai-agents-enterprise-devops.html">AI Agents in Enterprise DevOps: Beyond the Hype</a></h2>
+                <p class="post-excerpt">Designing autonomous AI agent systems for CI/CD optimization, incident response, and infrastructure management in enterprise environments.</p>
+                <div class="post-footer">
+                    <span>Kehinde Ogunlowo</span>
+                    <a href="/blog/ai-agents-enterprise-devops.html" class="read-more">Read more &rarr;</a>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span class="post-category">FinOps</span>
+                    <span>Jan 28, 2024</span>
+                    <span>8 min read</span>
+                </div>
+                <h2><a href="/blog/finops-multi-cloud-cost-optimization.html">FinOps Multi-Cloud Cost Optimization: Strategies That Work</a></h2>
+                <p class="post-excerpt">Practical FinOps strategies for reducing multi-cloud spend by 40% using tagging policies, right-sizing, and automated governance frameworks.</p>
+                <div class="post-footer">
+                    <span>Kehinde Ogunlowo</span>
+                    <a href="/blog/finops-multi-cloud-cost-optimization.html" class="read-more">Read more &rarr;</a>
+                </div>
+            </article>
+        </main>
+
+        <aside class="sidebar">
+            <div class="sidebar-widget">
+                <h3>Categories</h3>
+                <ul class="category-list">
+                    <li><a href="/blog/">Zero Trust</a> <span class="category-count">1</span></li>
+                    <li><a href="/blog/">AI / ML</a> <span class="category-count">1</span></li>
+                    <li><a href="/blog/">Infrastructure</a> <span class="category-count">1</span></li>
+                    <li><a href="/blog/">Security</a> <span class="category-count">1</span></li>
+                    <li><a href="/blog/">AI Agents</a> <span class="category-count">1</span></li>
+                    <li><a href="/blog/">FinOps</a> <span class="category-count">1</span></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>About the Author</h3>
+                <div class="about-widget-avatar">
+                    <span>KO</span>
+                </div>
+                <p><strong style="color: #e2e8f0;">Kehinde Ogunlowo</strong></p>
+                <p>Principal Multi-Cloud DevSecOps Architect &amp; AI Agent Systems Engineer at Citadel Cloud Management.</p>
+                <a href="/about.html" class="sidebar-btn">Learn more &rarr;</a>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>GitHub</h3>
+                <p>Check out open-source projects, Terraform modules, and AI agent frameworks.</p>
+                <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener" class="sidebar-btn">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    View GitHub
+                </a>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Kehinde Ogunlowo. All rights reserved. | <a href="/">Home</a> | <a href="/about.html">About</a> | <a href="/feed.xml">RSS</a></p>
+    </footer>
+</body>
+</html>

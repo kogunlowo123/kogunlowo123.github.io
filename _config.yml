@@ -1,0 +1,24 @@
+title: "Kehinde Ogunlowo — DevSecOps & AI Agent Engineering"
+description: "Articles on multi-cloud architecture, DevSecOps practices, AI agent systems, and enterprise cloud infrastructure by Kehinde Ogunlowo."
+url: "https://kogunlowo123.github.io"
+baseurl: ""
+
+author:
+  name: "Kehinde Ogunlowo"
+  title: "Principal Multi-Cloud DevSecOps Architect | AI Agent Systems Engineer"
+  company: "Citadel Cloud Management"
+  website: "https://citadelcloudmanagement.com"
+
+social:
+  github: "https://github.com/kogunlowo123"
+  linkedin: "https://linkedin.com/in/kehinde-ogunlowo"
+
+permalink: /blog/:title.html
+
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+
+exclude:
+  - README.md
+  - LICENSE

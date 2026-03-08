@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Kehinde Ogunlowo — DevSecOps &amp; AI Agent Engineering</title>
+    <subtitle>Articles on multi-cloud architecture, DevSecOps, and AI agent systems.</subtitle>
+    <link href="https://kogunlowo123.github.io/feed.xml" rel="self" type="application/atom+xml"/>
+    <link href="https://kogunlowo123.github.io/" rel="alternate" type="text/html"/>
+    <id>https://kogunlowo123.github.io/</id>
+    <updated>2024-03-07T00:00:00Z</updated>
+    <author>
+        <name>Kehinde Ogunlowo</name>
+        <uri>https://kogunlowo123.github.io</uri>
+    </author>
+
+    <entry>
+        <title>Multi-Cloud Zero Trust Architecture: A Practical Framework</title>
+        <link href="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html</id>
+        <updated>2024-03-05T00:00:00Z</updated>
+        <summary>Implementing zero trust security across AWS, Azure, and GCP with unified identity federation, micro-segmentation, and continuous verification.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Production RAG Pipelines on AWS: From Prototype to Scale</title>
+        <link href="https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html</id>
+        <updated>2024-02-28T00:00:00Z</updated>
+        <summary>Building retrieval-augmented generation pipelines with Amazon Bedrock, OpenSearch Serverless, and Lambda for enterprise knowledge systems.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Terraform EKS Complete Guide: Production-Ready Clusters</title>
+        <link href="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html</id>
+        <updated>2024-02-20T00:00:00Z</updated>
+        <summary>A comprehensive walkthrough for deploying production-grade EKS clusters with Terraform, covering networking, IRSA, and GitOps integration.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Azure Sentinel SOC Automation: SOAR Playbooks at Scale</title>
+        <link href="https://kogunlowo123.github.io/blog/azure-sentinel-soc-automation.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/azure-sentinel-soc-automation.html</id>
+        <updated>2024-02-12T00:00:00Z</updated>
+        <summary>Automating security operations with Azure Sentinel, Logic Apps, and custom detection rules for real-time threat response across hybrid environments.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>AI Agents in Enterprise DevOps: Beyond the Hype</title>
+        <link href="https://kogunlowo123.github.io/blog/ai-agents-enterprise-devops.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/ai-agents-enterprise-devops.html</id>
+        <updated>2024-02-05T00:00:00Z</updated>
+        <summary>Designing autonomous AI agent systems for CI/CD optimization, incident response, and infrastructure management in enterprise environments.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>FinOps Multi-Cloud Cost Optimization: Strategies That Work</title>
+        <link href="https://kogunlowo123.github.io/blog/finops-multi-cloud-cost-optimization.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/finops-multi-cloud-cost-optimization.html</id>
+        <updated>2024-01-28T00:00:00Z</updated>
+        <summary>Practical FinOps strategies for reducing multi-cloud spend by 40% using tagging policies, right-sizing, and automated governance frameworks.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+</feed>

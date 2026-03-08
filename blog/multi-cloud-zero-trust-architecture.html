@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>Building Zero Trust Architecture Across AWS, Azure, and GCP | Kehinde Ogunlowo</title>
+    <meta name="description" content="Learn how to build a multi-cloud zero trust architecture across AWS, Azure, and GCP using IAM federation, microsegmentation, and NIST 800-207 principles.">
+    <meta name="keywords" content="multi-cloud zero trust architecture, zero trust security, identity-based access, microsegmentation, NIST 800-207, conditional access, IAM federation, cloud security posture">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Building Zero Trust Architecture Across AWS, Azure, and GCP">
+    <meta property="og:description" content="Learn how to build a multi-cloud zero trust architecture across AWS, Azure, and GCP using IAM federation, microsegmentation, and NIST 800-207 principles.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-07">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Building Zero Trust Architecture Across AWS, Azure, and GCP">
+    <meta name="twitter:description" content="Learn how to build a multi-cloud zero trust architecture across AWS, Azure, and GCP using IAM federation, microsegmentation, and NIST 800-207 principles.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Building Zero Trust Architecture Across AWS, Azure, and GCP",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "url": "https://linkedin.com/in/kehinde-ogunlowo"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Learn how to build a multi-cloud zero trust architecture across AWS, Azure, and GCP using IAM federation, microsegmentation, and NIST 800-207 principles.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html"
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is multi-cloud zero trust architecture?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Multi-cloud zero trust architecture is a security framework that enforces 'never trust, always verify' principles across multiple cloud providers such as AWS, Azure, and GCP, using identity-based access, microsegmentation, and continuous verification."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does NIST 800-207 apply to multi-cloud environments?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "NIST SP 800-207 provides the foundational zero trust framework that applies to multi-cloud by defining policy engines, policy enforcement points, and trust algorithms that can be implemented consistently across AWS, Azure, and GCP."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is IAM federation in a multi-cloud context?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "IAM federation in multi-cloud allows a single identity provider to authenticate users across AWS, Azure, and GCP, enabling centralized identity management while maintaining least-privilege access controls on each platform."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does microsegmentation work across cloud providers?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Microsegmentation in multi-cloud creates fine-grained security zones within and across cloud providers using network policies, security groups, NSGs, and firewall rules to limit lateral movement of threats."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What tools are needed for multi-cloud zero trust?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Key tools include Terraform for infrastructure-as-code, a centralized IdP like Azure AD or Okta, cloud-native security services (AWS IAM, Azure AD Conditional Access, GCP BeyondCorp), SIEM platforms, and policy-as-code engines like OPA."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "Building Zero Trust Architecture Across AWS, Azure, and GCP"}
+        ]
+    }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        .article-meta span { display: flex; align-items: center; gap: 0.3rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid rgba(0,212,255,0.15); padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(0,212,255,0.1); color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        ol.best-practices { padding-left: 1.5rem; margin: 1rem 0; }
+        ol.best-practices li { margin-bottom: 1rem; }
+        ol.best-practices li strong { color: #00d4ff; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0; }
+        .tags span { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+        .share-buttons { display: flex; gap: 0.75rem; margin: 2rem 0; flex-wrap: wrap; }
+        .share-btn { padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(0,212,255,0.3); background: #111827; color: #e2e8f0; transition: all 0.2s; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); border-color: #00d4ff; }
+        .cta { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .author-bio { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .author-info h3 { margin: 0 0 0.25rem; color: #ffffff; }
+        .author-info .title { color: #00d4ff; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .author-links { display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .author-links a { font-size: 0.85rem; }
+        .related { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related h2 { margin-top: 0; }
+        .related ul { list-style: none; padding: 0; }
+        .related li { padding: 0.5rem 0; border-bottom: 1px solid rgba(0,212,255,0.08); }
+        .related li:last-child { border: none; }
+        .faq { margin: 2.5rem 0; }
+        .faq-item { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1.05rem; margin: 0 0 0.75rem; }
+        .faq-item p { margin: 0; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(0,212,255,0.1); margin-top: 3rem; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.25rem; }
+            .container { padding: 1rem; }
+            nav { padding: 1rem; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+    <div class="nav-links">
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+        <a href="https://kogunlowo123.github.io/about/">About</a>
+        <a href="https://github.com/kogunlowo123">GitHub</a>
+        <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> &rsaquo; <a href="https://kogunlowo123.github.io/blog/">Blog</a> &rsaquo; Building Zero Trust Architecture Across AWS, Azure, and GCP
+</div>
+
+<main class="container">
+    <article>
+        <header class="article-header">
+            <h1>Building Zero Trust Architecture Across AWS, Azure, and GCP</h1>
+            <div class="article-meta">
+                <span>Kehinde Ogunlowo</span>
+                <span>|</span>
+                <span>March 7, 2026</span>
+                <span>|</span>
+                <span>15 min read</span>
+                <span>|</span>
+                <span>Cloud Security</span>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#introduction">Introduction to Multi-Cloud Zero Trust</a></li>
+                <li><a href="#nist-framework">Understanding the NIST 800-207 Framework</a></li>
+                <li><a href="#identity-federation">Identity-Based Access and IAM Federation</a></li>
+                <li><a href="#microsegmentation">Microsegmentation Across Cloud Providers</a></li>
+                <li><a href="#terraform-implementation">Terraform Implementation: Cross-Cloud IAM Federation</a></li>
+                <li><a href="#comparison">AWS vs Azure vs GCP Zero Trust Capabilities</a></li>
+                <li><a href="#cloud-security-posture">Cloud Security Posture Management</a></li>
+                <li><a href="#conditional-access">Conditional Access Policies</a></li>
+                <li><a href="#best-practices">Best Practices for Multi-Cloud Zero Trust</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <section id="introduction">
+            <h2>Introduction to Multi-Cloud Zero Trust</h2>
+            <p>Multi-cloud zero trust architecture represents a fundamental shift in how organizations secure workloads distributed across AWS, Azure, and GCP. As enterprises increasingly adopt multi-cloud strategies to avoid vendor lock-in and leverage best-of-breed services, the traditional perimeter-based security model collapses. In its place, a <strong>multi-cloud zero trust architecture</strong> enforces the principle of "never trust, always verify" at every layer of the technology stack, regardless of which cloud provider hosts the resource.</p>
+
+            <p>The challenge is significant: each cloud provider implements security primitives differently. AWS relies on IAM policies with JSON-based documents, Azure leverages Azure Active Directory and role-based access control (RBAC), and GCP uses its own IAM system with organization-level policies. Building a cohesive zero trust security framework across all three requires deep understanding of each platform's capabilities and careful architectural planning.</p>
+
+            <p>In this guide, we will walk through the complete architecture for implementing zero trust across all three major cloud providers. We will cover identity federation, microsegmentation strategies, conditional access policies, and infrastructure-as-code implementations using Terraform. The patterns described here are drawn from real-world deployments at Citadel Cloud Management, where we have architected multi-cloud security baselines for enterprises managing hundreds of workloads across cloud boundaries.</p>
+
+            <p>Before diving into implementation details, it is critical to understand that zero trust is not a single product or technology. It is an architectural approach that requires coordinating identity providers, network controls, workload security, data protection, and continuous monitoring into a unified security posture. The <a href="https://csrc.nist.gov/publications/detail/sp/800-207/final" target="_blank" rel="noopener">NIST SP 800-207</a> publication provides the foundational framework that guides our approach.</p>
+        </section>
+
+        <section id="nist-framework">
+            <h2>Understanding the NIST 800-207 Zero Trust Framework</h2>
+            <p>The NIST Special Publication 800-207 defines zero trust as a set of cybersecurity paradigms that move defenses from static, network-based perimeters to focusing on users, assets, and resources. The framework establishes several core tenets that directly map to multi-cloud implementation patterns.</p>
+
+            <h3>Core Tenets of Zero Trust</h3>
+            <p>NIST 800-207 outlines seven fundamental tenets. All data sources and computing services are considered resources. All communication is secured regardless of network location. Access to individual enterprise resources is granted on a per-session basis. Access to resources is determined by dynamic policy, including the observable state of client identity, application, and the requesting asset. The enterprise monitors and measures the integrity and security posture of all owned and associated assets. All resource authentication and authorization are dynamic and strictly enforced before access is allowed. The enterprise collects as much information as possible about the current state of assets, network infrastructure, and communications, and uses it to improve its security posture.</p>
+
+            <h3>Policy Decision Point and Policy Enforcement Point</h3>
+            <p>At the heart of the NIST zero trust architecture sits the Policy Decision Point (PDP) and the Policy Enforcement Point (PEP). In a multi-cloud context, the PDP serves as the centralized brain that evaluates access requests against organizational policies, while PEPs are distributed across each cloud provider to enforce decisions at the point of access. This separation is crucial because it allows organizations to maintain a single source of truth for access policies while respecting each cloud provider's native enforcement mechanisms.</p>
+
+            <p>For AWS, the PEP manifests through IAM policies, Security Groups, and AWS Organizations Service Control Policies (SCPs). Azure uses Conditional Access policies, Network Security Groups (NSGs), and Azure Policy. GCP implements enforcement through IAM allow/deny policies, VPC Firewall rules, and Organization Policy Constraints. The PDP can be implemented using a centralized identity provider such as Azure AD, Okta, or Ping Identity that federates trust across all three clouds.</p>
+        </section>
+
+        <section id="identity-federation">
+            <h2>Identity-Based Access and IAM Federation</h2>
+            <p>Identity-based access is the cornerstone of any zero trust implementation. In a multi-cloud environment, IAM federation creates a unified identity plane that allows users and services to authenticate once and access resources across AWS, Azure, and GCP with consistent policy enforcement.</p>
+
+            <h3>Centralized Identity Provider Architecture</h3>
+            <p>The recommended approach is to establish a single authoritative identity provider (IdP) that serves as the root of trust. Azure Active Directory (now Microsoft Entra ID) is commonly chosen due to its mature federation capabilities, but Okta and Ping Identity are equally viable. The IdP federates with each cloud provider using standard protocols:</p>
+
+            <p>For AWS, SAML 2.0 federation connects the IdP to AWS IAM Identity Center (formerly AWS SSO), which provisions temporary credentials with role-based access. For Azure, the IdP natively integrates with Azure AD, supporting conditional access policies that evaluate device compliance, location, and risk level before granting access. For GCP, Workload Identity Federation allows external identities to impersonate GCP service accounts without storing long-lived keys, a significant security improvement over traditional service account key distribution.</p>
+
+            <h3>Service-to-Service Identity</h3>
+            <p>Zero trust extends beyond human users to workload identities. Each microservice, container, and serverless function must have a verifiable identity. AWS uses IAM roles for EC2, ECS task roles, and Lambda execution roles. Azure provides Managed Identities. GCP offers Workload Identity for GKE and service account impersonation. The challenge is creating a consistent identity framework across these heterogeneous systems.</p>
+
+            <p>SPIFFE (Secure Production Identity Framework For Everyone) and its implementation SPIRE provide a cloud-agnostic solution for workload identity. By deploying SPIRE agents across all three clouds, you establish a universal identity layer where each workload receives a cryptographically verifiable SVID (SPIFFE Verifiable Identity Document) that is valid across cloud boundaries. Our <a href="https://github.com/kogunlowo123/multi-cloud-landing-zone" target="_blank" rel="noopener">multi-cloud-landing-zone</a> repository includes reference configurations for SPIRE deployment across AWS, Azure, and GCP.</p>
+        </section>
+
+        <section id="microsegmentation">
+            <h2>Microsegmentation Across Cloud Providers</h2>
+            <p>Microsegmentation creates fine-grained security zones that limit lateral movement within and between cloud environments. Unlike traditional network segmentation that relies on subnets and VLANs, microsegmentation operates at the workload level, applying security policies to individual virtual machines, containers, and serverless functions.</p>
+
+            <h3>Network-Level Microsegmentation</h3>
+            <p>Each cloud provider offers native tools for network-level microsegmentation. AWS Security Groups act as stateful firewalls at the instance level, while Network ACLs provide stateless rules at the subnet level. Azure Network Security Groups (NSGs) can be applied to both subnets and individual network interfaces, with Application Security Groups (ASGs) enabling logical grouping. GCP VPC Firewall rules support both ingress and egress filtering with tag-based targeting.</p>
+
+            <p>The key architectural decision is whether to use cloud-native tools exclusively or overlay a third-party microsegmentation platform like Illumio, Guardicore, or Calico Enterprise. Cloud-native tools are simpler to manage but create consistency challenges across providers. Third-party solutions provide a unified policy model but add operational complexity and cost. For most organizations, we recommend a hybrid approach: use cloud-native tools for infrastructure-layer segmentation and deploy a service mesh (Istio, Linkerd) for application-layer microsegmentation.</p>
+
+            <p>Our <a href="https://github.com/kogunlowo123/terraform-azure-hub-spoke-network" target="_blank" rel="noopener">terraform-azure-hub-spoke-network</a> module implements a hub-and-spoke topology with built-in microsegmentation using NSGs and Azure Firewall, providing a reference architecture for Azure-side network zero trust. Similarly, the <a href="https://github.com/kogunlowo123/terraform-gcp-vpc-network" target="_blank" rel="noopener">terraform-gcp-vpc-network</a> module configures GCP VPC networks with hierarchical firewall policies.</p>
+
+            <h3>Application-Layer Microsegmentation with Service Mesh</h3>
+            <p>Service mesh technology enables microsegmentation at the application layer by encrypting all service-to-service communication with mutual TLS (mTLS) and enforcing authorization policies based on workload identity rather than network location. This is the purest expression of zero trust: every request is authenticated and authorized regardless of its source network.</p>
+
+            <p>Istio's AuthorizationPolicy resource allows you to define which services can communicate with which other services, based on their SPIFFE identities, HTTP methods, paths, and even request headers. When deployed consistently across EKS, AKS, and GKE clusters, Istio creates a uniform security plane that transcends cloud boundaries.</p>
+        </section>
+
+        <section id="terraform-implementation">
+            <h2>Terraform Implementation: Cross-Cloud IAM Federation</h2>
+            <p>Infrastructure-as-code is non-negotiable for multi-cloud zero trust. Manual configuration across three cloud providers is error-prone and unauditable. The following Terraform configuration demonstrates how to establish IAM federation from Azure AD to both AWS and GCP, creating a unified identity plane for zero trust access control.</p>
+
+            <pre><code># Cross-Cloud IAM Federation with Azure AD as Central IdP
+# Repository: https://github.com/kogunlowo123/terraform-aws-security-baseline
+
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.47"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# --- Azure AD: Central Identity Provider ---
+resource "azuread_application" "aws_federation" {
+  display_name = "AWS-ZeroTrust-Federation"
+  identifier_uris = ["https://signin.aws.amazon.com/saml"]
+
+  web {
+    redirect_uris = ["https://signin.aws.amazon.com/saml"]
+  }
+}
+
+resource "azuread_service_principal" "aws_federation" {
+  client_id = azuread_application.aws_federation.client_id
+}
+
+resource "azuread_application" "gcp_federation" {
+  display_name = "GCP-ZeroTrust-Federation"
+  identifier_uris = ["https://accounts.google.com"]
+
+  web {
+    redirect_uris = ["https://accounts.google.com/o/saml2/acs"]
+  }
+}
+
+# --- AWS: SAML Provider + Zero Trust IAM Roles ---
+resource "aws_iam_saml_provider" "azure_ad" {
+  name                   = "AzureAD-ZeroTrust"
+  saml_metadata_document = file("${path.module}/metadata/azure-ad-metadata.xml")
+}
+
+resource "aws_iam_role" "zero_trust_admin" {
+  name = "ZeroTrustAdmin"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_saml_provider.azure_ad.arn
+      }
+      Action = "sts:AssumeRoleWithSAML"
+      Condition = {
+        StringEquals = {
+          "SAML:aud" = "https://signin.aws.amazon.com/saml"
+        }
+        # Zero Trust: Enforce MFA from IdP
+        StringLike = {
+          "SAML:authnContextClassRef" = [
+            "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract"
+          ]
+        }
+      }
+    }]
+  })
+
+  max_session_duration = 3600  # 1 hour max session
+}
+
+resource "aws_iam_role_policy" "zero_trust_boundary" {
+  name = "ZeroTrustPermissionsBoundary"
+  role = aws_iam_role.zero_trust_admin.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:Describe*",
+          "s3:GetObject",
+          "s3:ListBucket",
+          "logs:GetLogEvents",
+          "cloudwatch:GetMetricData"
+        ]
+        Resource = "*"
+        Condition = {
+          IpAddress = {
+            "aws:SourceIp" = var.allowed_cidr_blocks
+          }
+          Bool = {
+            "aws:MultiFactorAuthPresent" = "true"
+          }
+        }
+      },
+      {
+        Effect   = "Deny"
+        Action   = "*"
+        Resource = "*"
+        Condition = {
+          NotIpAddress = {
+            "aws:SourceIp" = var.allowed_cidr_blocks
+          }
+        }
+      }
+    ]
+  })
+}
+
+# --- GCP: Workload Identity Federation ---
+resource "google_iam_workload_identity_pool" "azure_ad_pool" {
+  project                   = var.gcp_project_id
+  workload_identity_pool_id = "azure-ad-zero-trust"
+  display_name              = "Azure AD Zero Trust Pool"
+  description               = "Federated identity pool for Azure AD zero trust access"
+}
+
+resource "google_iam_workload_identity_pool_provider" "azure_ad_provider" {
+  project                            = var.gcp_project_id
+  workload_identity_pool_id          = google_iam_workload_identity_pool.azure_ad_pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "azure-ad-oidc"
+  display_name                       = "Azure AD OIDC"
+
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.tenant_id"  = "assertion.tid"
+    "attribute.groups"     = "assertion.groups"
+  }
+
+  attribute_condition = "assertion.tid == '${var.azure_tenant_id}'"
+
+  oidc {
+    issuer_uri = "https://login.microsoftonline.com/${var.azure_tenant_id}/v2.0"
+  }
+}
+
+resource "google_service_account" "zero_trust_sa" {
+  project      = var.gcp_project_id
+  account_id   = "zero-trust-federated"
+  display_name = "Zero Trust Federated Service Account"
+}
+
+resource "google_service_account_iam_binding" "workload_identity_binding" {
+  service_account_id = google_service_account.zero_trust_sa.name
+  role               = "roles/iam.workloadIdentityUser"
+
+  members = [
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.azure_ad_pool.name}/attribute.groups/ZeroTrustAdmins"
+  ]
+}
+
+# --- Variables ---
+variable "allowed_cidr_blocks" {
+  type        = list(string)
+  description = "Allowed CIDR blocks for zero trust access"
+}
+
+variable "gcp_project_id" {
+  type        = string
+  description = "GCP project ID for workload identity"
+}
+
+variable "azure_tenant_id" {
+  type        = string
+  description = "Azure AD tenant ID"
+}</code></pre>
+
+            <p>This configuration establishes Azure AD as the central identity provider, creates SAML federation with AWS, and sets up Workload Identity Federation with GCP. Notice the zero trust principles embedded throughout: session duration limits, MFA enforcement via SAML assertions, IP-based conditional access, and explicit deny rules. The complete module with additional security controls is available in our <a href="https://github.com/kogunlowo123/terraform-aws-security-baseline" target="_blank" rel="noopener">terraform-aws-security-baseline</a> repository.</p>
+        </section>
+
+        <section id="comparison">
+            <h2>AWS vs Azure vs GCP Zero Trust Capabilities Comparison</h2>
+            <p>Understanding the native zero trust capabilities of each cloud provider is essential for designing a cohesive multi-cloud architecture. The following comparison table maps key zero trust capabilities across all three platforms.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Zero Trust Capability</th>
+                        <th>AWS</th>
+                        <th>Azure</th>
+                        <th>GCP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Identity Provider</td>
+                        <td>IAM Identity Center, Cognito</td>
+                        <td>Azure AD / Entra ID</td>
+                        <td>Cloud Identity, Workforce Identity</td>
+                    </tr>
+                    <tr>
+                        <td>Conditional Access</td>
+                        <td>IAM Conditions (IP, MFA, tags)</td>
+                        <td>Conditional Access Policies (device, location, risk)</td>
+                        <td>Access Context Manager, BeyondCorp Enterprise</td>
+                    </tr>
+                    <tr>
+                        <td>Microsegmentation</td>
+                        <td>Security Groups, NACLs, VPC Lattice</td>
+                        <td>NSGs, ASGs, Azure Firewall</td>
+                        <td>VPC Firewall Rules, Hierarchical Policies</td>
+                    </tr>
+                    <tr>
+                        <td>Workload Identity</td>
+                        <td>IAM Roles (EC2, ECS, Lambda)</td>
+                        <td>Managed Identities (System, User)</td>
+                        <td>Workload Identity, Service Accounts</td>
+                    </tr>
+                    <tr>
+                        <td>Service Mesh</td>
+                        <td>App Mesh, VPC Lattice</td>
+                        <td>Open Service Mesh, Istio on AKS</td>
+                        <td>Traffic Director, Anthos Service Mesh</td>
+                    </tr>
+                    <tr>
+                        <td>Secrets Management</td>
+                        <td>Secrets Manager, Parameter Store</td>
+                        <td>Key Vault</td>
+                        <td>Secret Manager</td>
+                    </tr>
+                    <tr>
+                        <td>Policy as Code</td>
+                        <td>SCPs, IAM Access Analyzer</td>
+                        <td>Azure Policy, Blueprints</td>
+                        <td>Organization Policy, Assured Workloads</td>
+                    </tr>
+                    <tr>
+                        <td>Security Posture</td>
+                        <td>Security Hub, GuardDuty</td>
+                        <td>Defender for Cloud, Sentinel</td>
+                        <td>Security Command Center, Chronicle</td>
+                    </tr>
+                    <tr>
+                        <td>Network Zero Trust</td>
+                        <td>PrivateLink, VPC Endpoints</td>
+                        <td>Private Link, Private Endpoints</td>
+                        <td>Private Google Access, Private Service Connect</td>
+                    </tr>
+                    <tr>
+                        <td>Device Trust</td>
+                        <td>AWS Verified Access</td>
+                        <td>Intune + Conditional Access</td>
+                        <td>BeyondCorp Enterprise, Endpoint Verification</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Azure leads in unified conditional access with its deeply integrated Entra ID (Azure AD) platform, which natively supports device compliance, sign-in risk, and location-based policies. GCP's BeyondCorp Enterprise is the most mature context-aware access platform, born from Google's internal zero trust implementation. AWS excels in granular IAM policy conditions and has rapidly expanded its zero trust portfolio with Verified Access and VPC Lattice.</p>
+        </section>
+
+        <section id="cloud-security-posture">
+            <h2>Cloud Security Posture Management</h2>
+            <p>Continuous monitoring and validation of your security posture is a core zero trust requirement. Each cloud provider offers native CSPM (Cloud Security Posture Management) tools, but in a multi-cloud environment, you need a unified view across all platforms.</p>
+
+            <h3>Unified CSPM Strategy</h3>
+            <p>AWS Security Hub aggregates findings from GuardDuty, Inspector, Macie, and third-party tools into a single dashboard with automated compliance checks against CIS benchmarks and AWS Foundational Security Best Practices. Microsoft Defender for Cloud extends across Azure, AWS, and GCP, making it a natural choice for multi-cloud CSPM. GCP Security Command Center provides asset inventory, vulnerability findings, and threat detection for GCP resources.</p>
+
+            <p>For true multi-cloud visibility, consider deploying Microsoft Defender for Cloud as your unified CSPM platform, as it natively supports AWS and GCP in addition to Azure. Alternatively, third-party solutions like Prisma Cloud, Wiz, or Orca Security provide comprehensive multi-cloud CSPM with consistent policy enforcement and centralized reporting.</p>
+
+            <p>The <a href="https://learn.microsoft.com/en-us/security/zero-trust/" target="_blank" rel="noopener">Microsoft Zero Trust documentation</a> provides detailed guidance on implementing zero trust across Microsoft's ecosystem and extending it to multi-cloud environments.</p>
+        </section>
+
+        <section id="conditional-access">
+            <h2>Conditional Access Policies for Zero Trust</h2>
+            <p>Conditional access is where zero trust moves from theory to practice. Rather than granting blanket access based on network location, conditional access evaluates multiple signals before allowing access to resources.</p>
+
+            <h3>Signal-Based Access Decisions</h3>
+            <p>A mature zero trust implementation evaluates the following signals for every access request: user identity and authentication strength, device health and compliance status, network location and IP reputation, resource sensitivity classification, time of access and behavioral anomalies, and the specific action being requested.</p>
+
+            <p>In Azure, Conditional Access policies natively support all these signals through integration with Entra ID, Intune, and Microsoft Defender. In AWS, you can approximate conditional access through IAM policy conditions, but the signal richness is more limited. GCP's Access Context Manager allows you to define access levels based on IP address, device attributes, and other context, which can be applied to resources through IAM Conditions and BeyondCorp Enterprise.</p>
+
+            <h3>Step-Up Authentication</h3>
+            <p>Zero trust demands appropriate authentication strength for the sensitivity of the resource being accessed. Viewing a public dashboard might require only single-factor authentication, while modifying production infrastructure should demand hardware-token MFA and device compliance verification. Implementing step-up authentication across clouds requires careful coordination between the IdP and each cloud's access control mechanisms.</p>
+        </section>
+
+        <section id="best-practices">
+            <h2>Best Practices for Multi-Cloud Zero Trust Architecture</h2>
+            <p>Based on deploying zero trust architectures across dozens of enterprise multi-cloud environments, the following best practices have proven critical for success:</p>
+
+            <ol class="best-practices">
+                <li><strong>Establish a single authoritative identity provider.</strong> Federate all cloud providers to one IdP (Azure AD, Okta, or Ping) to ensure consistent identity verification and policy enforcement. Avoid maintaining separate identity silos in each cloud.</li>
+                <li><strong>Implement least-privilege access with just-in-time (JIT) elevation.</strong> No standing privileges for production environments. Use AWS IAM Identity Center permission sets, Azure PIM (Privileged Identity Management), and GCP IAM Conditions with time-bound access grants.</li>
+                <li><strong>Deploy infrastructure-as-code for all security controls.</strong> Every security group, IAM policy, firewall rule, and conditional access policy must be codified in Terraform or equivalent IaC. This ensures auditability, repeatability, and drift detection.</li>
+                <li><strong>Enable microsegmentation at both network and application layers.</strong> Use cloud-native network controls (Security Groups, NSGs, VPC Firewalls) for infrastructure segmentation and service mesh (Istio, Linkerd) for application-layer mTLS and authorization.</li>
+                <li><strong>Encrypt all data in transit and at rest with customer-managed keys.</strong> Use AWS KMS, Azure Key Vault, and GCP Cloud KMS with hardware security modules. Enforce TLS 1.2+ for all communication, including internal service-to-service traffic.</li>
+                <li><strong>Implement continuous security posture monitoring.</strong> Deploy CSPM tools that provide unified visibility across all cloud providers. Automate remediation of critical findings and integrate with SIEM for correlation and alerting.</li>
+                <li><strong>Adopt policy-as-code with OPA (Open Policy Agent).</strong> Use OPA Gatekeeper for Kubernetes policy enforcement, Conftest for IaC validation, and OPA-based authorization services for application-level access control across all clouds.</li>
+                <li><strong>Establish network connectivity with zero trust principles.</strong> Use transit gateways, VPN, or dedicated interconnects for cross-cloud communication, but treat all traffic as untrusted. Encrypt inter-cloud traffic with IPSec or WireGuard overlays.</li>
+                <li><strong>Implement comprehensive logging and audit trails.</strong> Centralize AWS CloudTrail, Azure Activity Logs, and GCP Audit Logs into a unified SIEM. Ensure log immutability with write-once storage and monitor for privilege escalation attempts.</li>
+                <li><strong>Test zero trust controls regularly with adversarial simulations.</strong> Conduct red team exercises that specifically target cross-cloud trust boundaries. Verify that lateral movement between clouds is prevented by your microsegmentation and identity controls.</li>
+            </ol>
+        </section>
+
+        <section id="faq" class="faq">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <h3>What is multi-cloud zero trust architecture?</h3>
+                <p>Multi-cloud zero trust architecture is a security framework that enforces "never trust, always verify" principles across multiple cloud providers such as AWS, Azure, and GCP. It eliminates implicit trust based on network location and instead requires continuous verification of identity, device health, and context for every access request, regardless of which cloud hosts the resource.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How does NIST 800-207 apply to multi-cloud environments?</h3>
+                <p>NIST SP 800-207 provides the foundational zero trust framework that applies to multi-cloud by defining policy engines, policy enforcement points, and trust algorithms. In multi-cloud contexts, the Policy Decision Point (PDP) is implemented through a centralized identity provider, while Policy Enforcement Points (PEPs) are deployed natively in each cloud using IAM policies, conditional access, and network security controls.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>What is IAM federation in a multi-cloud context?</h3>
+                <p>IAM federation in multi-cloud allows a single identity provider (such as Azure AD or Okta) to authenticate users and workloads across AWS, Azure, and GCP. It uses standard protocols like SAML 2.0 and OIDC to create trust relationships between the IdP and each cloud provider, enabling centralized identity management while maintaining least-privilege access controls on each platform.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How does microsegmentation work across cloud providers?</h3>
+                <p>Microsegmentation in multi-cloud creates fine-grained security zones within and across cloud providers. At the network layer, it uses Security Groups (AWS), NSGs (Azure), and VPC Firewall Rules (GCP) to restrict traffic between workloads. At the application layer, service mesh technologies like Istio enforce mutual TLS and authorization policies based on workload identity, providing consistent security regardless of the underlying cloud infrastructure.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>What tools are needed for multi-cloud zero trust?</h3>
+                <p>A comprehensive multi-cloud zero trust implementation requires: a centralized identity provider (Azure AD, Okta, or Ping), infrastructure-as-code tooling (Terraform), cloud-native security services (AWS IAM, Azure Conditional Access, GCP BeyondCorp), a service mesh for application-layer security (Istio), policy-as-code engines (Open Policy Agent), a unified CSPM platform (Defender for Cloud, Prisma Cloud), and a centralized SIEM for log correlation and threat detection.</p>
+            </div>
+        </section>
+
+        <div class="tags">
+            <span>Zero Trust</span>
+            <span>Multi-Cloud</span>
+            <span>AWS</span>
+            <span>Azure</span>
+            <span>GCP</span>
+            <span>IAM Federation</span>
+            <span>Microsegmentation</span>
+            <span>NIST 800-207</span>
+            <span>Terraform</span>
+            <span>DevSecOps</span>
+        </div>
+
+        <div class="share-buttons">
+            <a class="share-btn" href="https://twitter.com/intent/tweet?text=Building%20Zero%20Trust%20Architecture%20Across%20AWS%2C%20Azure%2C%20and%20GCP&url=https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html" target="_blank" rel="noopener">Share on Twitter</a>
+            <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html" target="_blank" rel="noopener">Share on LinkedIn</a>
+            <button class="share-btn" onclick="navigator.clipboard.writeText('https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy Link'},2000)})">Copy Link</button>
+        </div>
+
+        <div class="cta">
+            <h3>Need Enterprise-Grade Multi-Cloud Zero Trust Architecture?</h3>
+            <p>Kehinde Ogunlowo and the team at Citadel Cloud Management design and implement zero trust architectures for enterprises operating across AWS, Azure, and GCP.</p>
+            <p><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Contact Kehinde at citadelcloudmanagement.com</a></p>
+        </div>
+
+        <div class="author-bio">
+            <div class="author-info">
+                <h3>Kehinde Ogunlowo</h3>
+                <div class="title">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</div>
+                <p>Kehinde architects secure, scalable multi-cloud platforms for enterprises. With deep expertise across AWS, Azure, and GCP, he specializes in zero trust security, infrastructure-as-code, and DevSecOps automation. He shares open-source Terraform modules and architectural patterns through his GitHub and blog.</p>
+                <div class="author-links">
+                    <a href="https://linkedin.com/in/kehinde-ogunlowo" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="related">
+            <h2>Related Articles</h2>
+            <ul>
+                <li><a href="https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html">Building Production RAG Pipelines on AWS with Bedrock and OpenSearch</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html">The Complete Guide to Production EKS with Terraform</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">Multi-Cloud Networking: Connecting AWS, Azure, and GCP Securely</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">DevSecOps Pipeline Architecture for Regulated Industries</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">Kubernetes Security Hardening: From CIS Benchmarks to Runtime Protection</a></li>
+            </ul>
+        </div>
+    </article>
+</main>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+</footer>
+
+</body>
+</html>

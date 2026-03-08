@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>Building Production RAG Pipelines on AWS with Bedrock and OpenSearch | Kehinde Ogunlowo</title>
+    <meta name="description" content="Build production-grade RAG pipeline on AWS using Bedrock and OpenSearch Serverless for retrieval augmented generation with vector search and embeddings.">
+    <meta name="keywords" content="RAG pipeline AWS Bedrock, retrieval augmented generation, vector search, opensearch serverless, knowledge base, embedding models, hallucination mitigation, semantic search">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Building Production RAG Pipelines on AWS with Bedrock and OpenSearch">
+    <meta property="og:description" content="Build production-grade RAG pipeline on AWS using Bedrock and OpenSearch Serverless for retrieval augmented generation with vector search and embeddings.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-07">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Building Production RAG Pipelines on AWS with Bedrock and OpenSearch">
+    <meta name="twitter:description" content="Build production-grade RAG pipeline on AWS using Bedrock and OpenSearch Serverless for retrieval augmented generation with vector search and embeddings.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Building Production RAG Pipelines on AWS with Bedrock and OpenSearch",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "url": "https://linkedin.com/in/kehinde-ogunlowo"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Build production-grade RAG pipeline on AWS using Bedrock and OpenSearch Serverless for retrieval augmented generation with vector search and embeddings.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html"
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is a RAG pipeline and why use it on AWS?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A RAG (Retrieval Augmented Generation) pipeline combines information retrieval with language model generation. On AWS, Bedrock provides managed foundation models and OpenSearch Serverless enables scalable vector search, creating a fully managed production RAG stack."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does RAG reduce hallucinations in LLM responses?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "RAG reduces hallucinations by grounding the LLM's responses in retrieved source documents. By providing relevant context from a verified knowledge base, the model generates answers based on factual data rather than relying solely on its parametric knowledge."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What embedding models does AWS Bedrock support?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "AWS Bedrock supports Amazon Titan Embeddings, Cohere Embed, and other embedding models. Amazon Titan Embeddings V2 supports up to 8,192 tokens and produces 1,024-dimensional vectors, making it suitable for most production RAG workloads."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Should I use OpenSearch Serverless or provisioned for RAG?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "OpenSearch Serverless is recommended for most RAG workloads because it auto-scales compute and storage independently, requires no capacity planning, and integrates natively with Bedrock Knowledge Bases. Use provisioned clusters only when you need fine-grained tuning or cost optimization at very large scale."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I evaluate RAG pipeline quality in production?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Evaluate RAG quality using metrics such as retrieval precision and recall (are the right documents retrieved?), answer faithfulness (does the response accurately reflect the sources?), answer relevance (does it address the query?), and latency. Tools like RAGAS and custom evaluation frameworks help automate these measurements."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "Building Production RAG Pipelines on AWS with Bedrock and OpenSearch"}
+        ]
+    }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid rgba(0,212,255,0.15); padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(0,212,255,0.1); color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        ol.best-practices { padding-left: 1.5rem; margin: 1rem 0; }
+        ol.best-practices li { margin-bottom: 1rem; }
+        ol.best-practices li strong { color: #00d4ff; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0; }
+        .tags span { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+        .share-buttons { display: flex; gap: 0.75rem; margin: 2rem 0; flex-wrap: wrap; }
+        .share-btn { padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(0,212,255,0.3); background: #111827; color: #e2e8f0; transition: all 0.2s; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); border-color: #00d4ff; }
+        .cta { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .author-bio { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .author-info h3 { margin: 0 0 0.25rem; color: #ffffff; }
+        .author-info .title { color: #00d4ff; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .author-links { display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .author-links a { font-size: 0.85rem; }
+        .related { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related h2 { margin-top: 0; }
+        .related ul { list-style: none; padding: 0; }
+        .related li { padding: 0.5rem 0; border-bottom: 1px solid rgba(0,212,255,0.08); }
+        .related li:last-child { border: none; }
+        .faq { margin: 2.5rem 0; }
+        .faq-item { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1.05rem; margin: 0 0 0.75rem; }
+        .faq-item p { margin: 0; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(0,212,255,0.1); margin-top: 3rem; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.25rem; }
+            .container { padding: 1rem; }
+            nav { padding: 1rem; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+    <div class="nav-links">
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+        <a href="https://kogunlowo123.github.io/about/">About</a>
+        <a href="https://github.com/kogunlowo123">GitHub</a>
+        <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> &rsaquo; <a href="https://kogunlowo123.github.io/blog/">Blog</a> &rsaquo; Building Production RAG Pipelines on AWS with Bedrock and OpenSearch
+</div>
+
+<main class="container">
+    <article>
+        <header class="article-header">
+            <h1>Building Production RAG Pipelines on AWS with Bedrock and OpenSearch</h1>
+            <div class="article-meta">
+                <span>Kehinde Ogunlowo</span>
+                <span>|</span>
+                <span>March 7, 2026</span>
+                <span>|</span>
+                <span>18 min read</span>
+                <span>|</span>
+                <span>AI/ML Engineering</span>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#introduction">Introduction: Why RAG Pipeline on AWS Bedrock</a></li>
+                <li><a href="#architecture">Production RAG Architecture Overview</a></li>
+                <li><a href="#data-ingestion">Data Ingestion and Chunking Strategies</a></li>
+                <li><a href="#embeddings">Embedding Models and Vector Storage</a></li>
+                <li><a href="#retrieval">Semantic Search and Retrieval Optimization</a></li>
+                <li><a href="#implementation">Python Implementation: RAG with Bedrock and OpenSearch</a></li>
+                <li><a href="#comparison">RAG vs Fine-Tuning vs Prompt Engineering</a></li>
+                <li><a href="#hallucination">Hallucination Mitigation Strategies</a></li>
+                <li><a href="#best-practices">Best Practices for Production RAG</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <section id="introduction">
+            <h2>Introduction: Why RAG Pipeline on AWS Bedrock</h2>
+            <p>Building a production <strong>RAG pipeline on AWS Bedrock</strong> has become the standard approach for enterprises that need to augment large language models with proprietary knowledge. Retrieval augmented generation solves the fundamental limitation of foundation models: they can only generate responses based on their training data, which quickly becomes stale and never includes your organization's private documents, policies, or domain-specific knowledge.</p>
+
+            <p>AWS Bedrock provides a fully managed foundation model service that eliminates the infrastructure complexity of hosting LLMs. Combined with OpenSearch Serverless for vector search, you get a production-grade RAG stack that scales automatically, integrates with AWS security services, and requires no ML infrastructure expertise. This is a decisive advantage over self-managed solutions that demand GPU cluster management, model serving infrastructure, and vector database operations.</p>
+
+            <p>In this guide, we walk through the complete architecture for building production RAG pipelines on AWS. We cover data ingestion, chunking strategies, embedding model selection, vector store configuration, retrieval optimization, and hallucination mitigation. The Terraform modules and Python code referenced here are available in our open-source repositories, including <a href="https://github.com/kogunlowo123/terraform-aws-rag-pipeline" target="_blank" rel="noopener">terraform-aws-rag-pipeline</a> for infrastructure provisioning.</p>
+
+            <p>The patterns described are drawn from production deployments at Citadel Cloud Management, where we have built RAG systems processing millions of documents for enterprise knowledge management, customer support automation, and regulatory compliance applications. As documented in the <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html" target="_blank" rel="noopener">AWS Bedrock documentation</a>, the service supports multiple foundation models from Anthropic, Amazon, Meta, Cohere, and others, giving you flexibility to choose the best model for your use case.</p>
+        </section>
+
+        <section id="architecture">
+            <h2>Production RAG Architecture Overview</h2>
+            <p>A production RAG pipeline on AWS consists of two primary workflows: an ingestion pipeline that processes documents into searchable vectors, and a query pipeline that retrieves relevant context and generates responses. Understanding the separation of these workflows is critical for building systems that scale independently and can be optimized separately.</p>
+
+            <h3>Ingestion Pipeline</h3>
+            <p>The ingestion pipeline follows this flow: source documents are collected from S3, databases, or APIs. A preprocessing step cleans and normalizes the content. A chunking strategy splits documents into semantically coherent segments. Each chunk is passed through an embedding model (Amazon Titan Embeddings or Cohere Embed via Bedrock) to produce vector representations. These vectors, along with their source text and metadata, are indexed in OpenSearch Serverless using a vector index with k-NN enabled.</p>
+
+            <p>For document processing, AWS Bedrock Knowledge Bases provide a managed ingestion pipeline that handles chunking, embedding, and indexing automatically. For more control, you can build a custom pipeline using Lambda, Step Functions, or ECS tasks. The <a href="https://github.com/kogunlowo123/terraform-aws-bedrock-platform" target="_blank" rel="noopener">terraform-aws-bedrock-platform</a> module provisions the complete infrastructure for both approaches.</p>
+
+            <h3>Query Pipeline</h3>
+            <p>The query pipeline processes user queries through the following stages: the user's question is embedded using the same embedding model used during ingestion. The query vector is used to search OpenSearch Serverless for the most semantically similar document chunks (typically top-k where k ranges from 3 to 10). Retrieved chunks are assembled into a prompt template that provides context to the foundation model. The foundation model generates a response grounded in the retrieved context. Post-processing applies guardrails, citation extraction, and confidence scoring before returning the response to the user.</p>
+
+            <h3>Infrastructure Components</h3>
+            <p>The production architecture requires several AWS services working in concert: Amazon Bedrock for foundation model inference and embeddings, OpenSearch Serverless (vector search collection type) for vector storage and retrieval, S3 for document storage, Lambda or ECS for compute orchestration, Step Functions for pipeline orchestration, CloudWatch for monitoring and alerting, and IAM for fine-grained access control. Each component must be provisioned with production-grade configurations including encryption, VPC endpoints, and least-privilege access.</p>
+        </section>
+
+        <section id="data-ingestion">
+            <h2>Data Ingestion and Chunking Strategies</h2>
+            <p>The quality of your RAG pipeline depends heavily on how you process and chunk your source documents. Poor chunking leads to poor retrieval, which leads to poor generation. This is the single most impactful optimization you can make in a RAG system.</p>
+
+            <h3>Chunking Approaches</h3>
+            <p>Fixed-size chunking splits documents into segments of a predetermined token count (typically 256-512 tokens) with an overlap window (typically 50-100 tokens). This is the simplest approach and works reasonably well for homogeneous document types. However, it frequently splits information across chunk boundaries, losing semantic coherence.</p>
+
+            <p>Semantic chunking uses natural boundaries in the document structure: paragraphs, sections, headers, or topic changes. This preserves semantic coherence within each chunk but produces variable-size chunks that may require padding or truncation at the embedding stage. For structured documents like technical documentation, policies, or knowledge base articles, semantic chunking consistently outperforms fixed-size approaches.</p>
+
+            <p>Hierarchical chunking creates multiple representations of the same content at different granularity levels: document-level summaries, section-level chunks, and paragraph-level chunks. At query time, the system can retrieve at the appropriate level of detail. This approach is more complex to implement but excels for large document collections where queries range from high-level questions to specific detail lookups.</p>
+
+            <h3>Metadata Enrichment</h3>
+            <p>Each chunk should be stored with rich metadata that enables filtered retrieval. Essential metadata includes: document source and URL, document type and category, creation and modification dates, section headings and hierarchy path, author and department, access control tags, and any domain-specific attributes. During retrieval, metadata filters narrow the search space before vector similarity is computed, dramatically improving both relevance and performance.</p>
+        </section>
+
+        <section id="embeddings">
+            <h2>Embedding Models and Vector Storage</h2>
+            <p>The embedding model transforms text into dense vector representations that capture semantic meaning. Choosing the right embedding model and configuring your vector store correctly are critical decisions that affect retrieval quality throughout the life of your RAG system.</p>
+
+            <h3>Embedding Model Selection</h3>
+            <p>Amazon Titan Embeddings V2 is the default choice for AWS-native RAG pipelines. It supports up to 8,192 input tokens, produces 1,024-dimensional vectors, and is optimized for low-latency inference through Bedrock. Cohere Embed (available through Bedrock) offers multilingual support with 1,024 dimensions and strong performance on retrieval benchmarks. For specialized domains, you may need to fine-tune an embedding model, though this adds significant complexity.</p>
+
+            <p>A critical consideration is embedding model lock-in: once you embed your document corpus with a specific model, switching models requires re-embedding the entire corpus. Choose your embedding model carefully and plan for the re-embedding cost if you need to upgrade in the future.</p>
+
+            <h3>OpenSearch Serverless Vector Configuration</h3>
+            <p>OpenSearch Serverless with the vector search collection type provides a managed vector database that scales automatically. Key configuration decisions include the vector dimension (must match your embedding model output), the similarity algorithm (cosine similarity is standard for normalized embeddings, L2 for unnormalized), and the engine type (FAISS for high-throughput workloads, nmslib for balanced performance). The <a href="https://opensearch.org/docs/latest/search-plugins/knn/index/" target="_blank" rel="noopener">OpenSearch vector search documentation</a> provides detailed guidance on index configuration and tuning.</p>
+        </section>
+
+        <section id="retrieval">
+            <h2>Semantic Search and Retrieval Optimization</h2>
+            <p>Retrieval quality directly determines generation quality. A RAG system that retrieves irrelevant documents will generate irrelevant or hallucinated responses regardless of how capable the foundation model is. Optimizing retrieval is therefore the highest-leverage activity in RAG pipeline development.</p>
+
+            <h3>Hybrid Search</h3>
+            <p>Pure vector search excels at semantic similarity but can miss exact keyword matches that are critical for technical queries (error codes, product names, configuration parameters). Hybrid search combines vector search with traditional BM25 keyword search and uses reciprocal rank fusion (RRF) to merge results. OpenSearch supports this natively through its compound query types, and Bedrock Knowledge Bases offer hybrid search as a built-in option.</p>
+
+            <h3>Query Transformation</h3>
+            <p>User queries are often ambiguous, incomplete, or poorly formulated for retrieval. Query transformation techniques improve retrieval by reformulating the query before search. HyDE (Hypothetical Document Embeddings) generates a hypothetical answer to the query and uses that answer's embedding for retrieval, which often produces better matches than the raw query. Query expansion adds related terms and synonyms. Multi-query retrieval generates multiple reformulations and takes the union of results.</p>
+
+            <h3>Re-ranking</h3>
+            <p>After initial retrieval, a re-ranking step can dramatically improve the relevance of the top-k results. Cross-encoder re-rankers (such as those available through Cohere Rerank via Bedrock) evaluate each query-document pair jointly, producing more accurate relevance scores than the bi-encoder embedding models used for initial retrieval. The trade-off is latency: re-ranking adds 100-300ms to the query pipeline, so it should be applied only to the top candidates (typically top-20 narrowed to top-5).</p>
+        </section>
+
+        <section id="implementation">
+            <h2>Python Implementation: RAG Pipeline with Bedrock and OpenSearch</h2>
+            <p>The following Python implementation demonstrates a production-grade RAG pipeline using AWS Bedrock for embeddings and generation, with OpenSearch Serverless as the vector store. This code handles document embedding, vector storage, semantic retrieval, and augmented generation with citation tracking.</p>
+
+            <pre><code># Production RAG Pipeline with AWS Bedrock + OpenSearch Serverless
+# Repository: https://github.com/kogunlowo123/terraform-aws-rag-pipeline
+
+import json
+import boto3
+import hashlib
+from typing import List, Dict, Optional
+from dataclasses import dataclass, field
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+
+# --- Configuration ---
+BEDROCK_REGION = "us-east-1"
+EMBEDDING_MODEL_ID = "amazon.titan-embed-text-v2:0"
+GENERATION_MODEL_ID = "anthropic.claude-3-sonnet-20240229-v1:0"
+OPENSEARCH_ENDPOINT = "your-collection.us-east-1.aoss.amazonaws.com"
+INDEX_NAME = "rag-knowledge-base"
+VECTOR_DIMENSION = 1024
+TOP_K = 5
+
+@dataclass
+class RetrievedChunk:
+    text: str
+    source: str
+    score: float
+    metadata: Dict = field(default_factory=dict)
+
+class ProductionRAGPipeline:
+    """Production RAG pipeline with Bedrock + OpenSearch Serverless."""
+
+    def __init__(self):
+        self.bedrock = boto3.client("bedrock-runtime", region_name=BEDROCK_REGION)
+        self.session = boto3.Session()
+        credentials = self.session.get_credentials()
+        aws_auth = AWS4Auth(
+            credentials.access_key,
+            credentials.secret_key,
+            BEDROCK_REGION,
+            "aoss",
+            session_token=credentials.token,
+        )
+        self.opensearch = OpenSearch(
+            hosts=[{"host": OPENSEARCH_ENDPOINT, "port": 443}],
+            http_auth=aws_auth,
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection,
+        )
+
+    def generate_embedding(self, text: str) -> List[float]:
+        """Generate embeddings using Amazon Titan Embeddings V2."""
+        response = self.bedrock.invoke_model(
+            modelId=EMBEDDING_MODEL_ID,
+            body=json.dumps({
+                "inputText": text,
+                "dimensions": VECTOR_DIMENSION,
+                "normalize": True
+            }),
+        )
+        result = json.loads(response["body"].read())
+        return result["embedding"]
+
+    def index_document(
+        self, text: str, source: str, metadata: Optional[Dict] = None
+    ) -> str:
+        """Embed and index a document chunk in OpenSearch."""
+        embedding = self.generate_embedding(text)
+        doc_id = hashlib.sha256(text.encode()).hexdigest()[:16]
+
+        document = {
+            "text": text,
+            "embedding": embedding,
+            "source": source,
+            "metadata": metadata or {},
+        }
+        self.opensearch.index(
+            index=INDEX_NAME, id=doc_id, body=document
+        )
+        return doc_id
+
+    def retrieve(
+        self, query: str, top_k: int = TOP_K, filters: Optional[Dict] = None
+    ) -> List[RetrievedChunk]:
+        """Retrieve relevant chunks using hybrid search."""
+        query_embedding = self.generate_embedding(query)
+
+        # Hybrid query: vector similarity + BM25 keyword match
+        search_body = {
+            "size": top_k,
+            "_source": ["text", "source", "metadata"],
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "knn": {
+                                "embedding": {
+                                    "vector": query_embedding,
+                                    "k": top_k * 2,
+                                }
+                            }
+                        },
+                        {
+                            "match": {
+                                "text": {
+                                    "query": query,
+                                    "boost": 0.3,
+                                }
+                            }
+                        },
+                    ]
+                }
+            },
+        }
+
+        # Apply metadata filters if provided
+        if filters:
+            search_body["query"]["bool"]["filter"] = [
+                {"term": {k: v}} for k, v in filters.items()
+            ]
+
+        response = self.opensearch.search(
+            index=INDEX_NAME, body=search_body
+        )
+
+        return [
+            RetrievedChunk(
+                text=hit["_source"]["text"],
+                source=hit["_source"]["source"],
+                score=hit["_score"],
+                metadata=hit["_source"].get("metadata", {}),
+            )
+            for hit in response["hits"]["hits"]
+        ]
+
+    def generate_response(
+        self, query: str, chunks: List[RetrievedChunk]
+    ) -> Dict:
+        """Generate grounded response using Bedrock with citations."""
+        context_blocks = []
+        for i, chunk in enumerate(chunks):
+            context_blocks.append(
+                f"[Source {i+1}: {chunk.source}]\n{chunk.text}"
+            )
+        context = "\n\n---\n\n".join(context_blocks)
+
+        prompt = f"""Based on the following retrieved context, answer the
+user's question accurately. Only use information from the provided
+context. If the context does not contain sufficient information to
+answer the question, explicitly state that. Cite your sources using
+[Source N] notation.
+
+Context:
+{context}
+
+Question: {query}
+
+Answer:"""
+
+        response = self.bedrock.invoke_model(
+            modelId=GENERATION_MODEL_ID,
+            body=json.dumps({
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 2048,
+                "temperature": 0.1,
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ],
+            }),
+        )
+
+        result = json.loads(response["body"].read())
+        answer = result["content"][0]["text"]
+
+        return {
+            "answer": answer,
+            "sources": [
+                {"source": c.source, "score": c.score}
+                for c in chunks
+            ],
+            "model": GENERATION_MODEL_ID,
+        }
+
+    def query(
+        self, question: str, filters: Optional[Dict] = None
+    ) -> Dict:
+        """End-to-end RAG query: retrieve then generate."""
+        chunks = self.retrieve(question, filters=filters)
+        if not chunks:
+            return {
+                "answer": "No relevant information found.",
+                "sources": [],
+            }
+        return self.generate_response(question, chunks)
+
+
+# --- Usage Example ---
+if __name__ == "__main__":
+    pipeline = ProductionRAGPipeline()
+
+    # Index documents
+    pipeline.index_document(
+        text="Amazon EKS supports Kubernetes versions 1.28 and 1.29...",
+        source="eks-docs/versions.md",
+        metadata={"category": "kubernetes", "service": "eks"},
+    )
+
+    # Query the knowledge base
+    result = pipeline.query(
+        "What Kubernetes versions does EKS support?",
+        filters={"metadata.service": "eks"},
+    )
+    print(json.dumps(result, indent=2))</code></pre>
+
+            <p>This implementation demonstrates several production patterns: hybrid search combining vector and keyword retrieval, metadata-based filtering, citation tracking, low-temperature generation for factual accuracy, and structured response formatting. The Terraform infrastructure to deploy this pipeline, including OpenSearch Serverless collection, IAM roles, and VPC endpoints, is available in the <a href="https://github.com/kogunlowo123/terraform-aws-bedrock-agents" target="_blank" rel="noopener">terraform-aws-bedrock-agents</a> repository.</p>
+        </section>
+
+        <section id="comparison">
+            <h2>RAG vs Fine-Tuning vs Prompt Engineering Comparison</h2>
+            <p>RAG is not the only approach to customizing LLM behavior. Understanding when to use RAG versus fine-tuning versus prompt engineering is critical for making the right architectural decision.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dimension</th>
+                        <th>RAG</th>
+                        <th>Fine-Tuning</th>
+                        <th>Prompt Engineering</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Knowledge Source</td>
+                        <td>External retrieval from document store</td>
+                        <td>Embedded in model weights</td>
+                        <td>Provided in prompt context</td>
+                    </tr>
+                    <tr>
+                        <td>Knowledge Freshness</td>
+                        <td>Real-time (update documents anytime)</td>
+                        <td>Static until re-trained</td>
+                        <td>Real-time (update prompt anytime)</td>
+                    </tr>
+                    <tr>
+                        <td>Setup Complexity</td>
+                        <td>Medium (vector DB, embeddings, retrieval)</td>
+                        <td>High (training data, compute, evaluation)</td>
+                        <td>Low (prompt design only)</td>
+                    </tr>
+                    <tr>
+                        <td>Cost</td>
+                        <td>Medium (embedding + retrieval + generation)</td>
+                        <td>High upfront, lower per-query</td>
+                        <td>Low (generation only)</td>
+                    </tr>
+                    <tr>
+                        <td>Hallucination Risk</td>
+                        <td>Low (grounded in retrieved docs)</td>
+                        <td>Medium (can still hallucinate)</td>
+                        <td>High (limited by context window)</td>
+                    </tr>
+                    <tr>
+                        <td>Scalability</td>
+                        <td>Scales with document volume</td>
+                        <td>Fixed after training</td>
+                        <td>Limited by context window</td>
+                    </tr>
+                    <tr>
+                        <td>Auditability</td>
+                        <td>High (traceable to source docs)</td>
+                        <td>Low (opaque model internals)</td>
+                        <td>Medium (visible in prompt)</td>
+                    </tr>
+                    <tr>
+                        <td>Best For</td>
+                        <td>Knowledge-intensive Q&A, doc search</td>
+                        <td>Style, tone, domain adaptation</td>
+                        <td>Simple tasks, prototyping</td>
+                    </tr>
+                    <tr>
+                        <td>Update Frequency</td>
+                        <td>Minutes (re-index documents)</td>
+                        <td>Days to weeks (re-train)</td>
+                        <td>Instant (edit prompt)</td>
+                    </tr>
+                    <tr>
+                        <td>Data Volume Supported</td>
+                        <td>Unlimited (vector DB scales)</td>
+                        <td>Limited by training budget</td>
+                        <td>Limited by context window (200K tokens)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>For most enterprise use cases involving proprietary knowledge, RAG is the recommended starting point. It provides the best balance of accuracy, freshness, auditability, and cost. Fine-tuning is appropriate when you need to change the model's behavior, tone, or output format in ways that cannot be achieved through prompting alone. Prompt engineering is ideal for prototyping and simple tasks where the required context fits within the model's context window.</p>
+
+            <p>In practice, the most effective production systems combine all three approaches: prompt engineering for output formatting and instruction, RAG for dynamic knowledge retrieval, and fine-tuning for domain-specific language understanding when needed.</p>
+        </section>
+
+        <section id="hallucination">
+            <h2>Hallucination Mitigation Strategies</h2>
+            <p>Hallucination, where the model generates plausible but factually incorrect information, is the primary risk in production RAG systems. While RAG inherently reduces hallucination by grounding responses in retrieved documents, it does not eliminate it entirely. The model can still fabricate details, misinterpret context, or blend information from multiple sources incorrectly.</p>
+
+            <h3>Retrieval-Side Mitigations</h3>
+            <p>Improving retrieval quality is the most effective hallucination mitigation. Ensure your chunking preserves complete, self-contained pieces of information. Use relevance score thresholds to filter out low-quality retrievals. Implement re-ranking to ensure the most relevant documents are prioritized. When no sufficiently relevant documents are found (all scores below threshold), return "I don't have enough information to answer that" rather than allowing the model to generate from its parametric knowledge.</p>
+
+            <h3>Generation-Side Mitigations</h3>
+            <p>On the generation side, use low temperature settings (0.0-0.2) for factual queries. Include explicit instructions in the prompt to only use provided context and to acknowledge uncertainty. Implement citation requirements so the model must reference specific sources. Use structured output formats that make it easier to verify claims against sources programmatically.</p>
+
+            <h3>Post-Processing Verification</h3>
+            <p>Automated verification checks each claim in the generated response against the source documents. This can be implemented as a separate LLM call that acts as a fact-checker, comparing the response against the retrieved chunks and flagging unsupported claims. While this adds latency and cost, it provides a critical safety net for high-stakes applications like medical, legal, or financial advisory systems.</p>
+        </section>
+
+        <section id="best-practices">
+            <h2>Best Practices for Production RAG Pipelines</h2>
+            <p>Drawing from production RAG deployments processing millions of queries, these best practices ensure reliability, accuracy, and scalability:</p>
+
+            <ol class="best-practices">
+                <li><strong>Invest heavily in chunking quality.</strong> Spend 40% of your RAG development time on chunking strategy. Test multiple approaches (fixed-size, semantic, hierarchical) against your actual query patterns. Chunking quality is the single biggest determinant of retrieval quality.</li>
+                <li><strong>Implement hybrid search from day one.</strong> Pure vector search misses exact keyword matches. Pure keyword search misses semantic understanding. Hybrid search with reciprocal rank fusion consistently outperforms either approach alone.</li>
+                <li><strong>Set retrieval score thresholds and gracefully handle low-confidence results.</strong> A RAG system that says "I don't know" when it truly does not have sufficient information is far more valuable than one that confidently produces incorrect answers. Set cosine similarity thresholds (typically 0.7-0.8) and return explicit uncertainty signals below the threshold.</li>
+                <li><strong>Use metadata filtering to narrow search scope.</strong> Before computing vector similarity across your entire corpus, filter by metadata (document type, date range, category, access permissions). This improves both relevance and performance.</li>
+                <li><strong>Monitor retrieval and generation quality continuously.</strong> Track metrics including retrieval precision@k, answer faithfulness, latency percentiles (p50, p95, p99), and user feedback signals. Set up CloudWatch dashboards and alerts for quality degradation.</li>
+                <li><strong>Version your embedding model and re-embed on upgrades.</strong> When you change embedding models, all existing vectors become incompatible. Plan for full re-embedding as part of model upgrades. Maintain the ability to run parallel indexes during migration.</li>
+                <li><strong>Implement document lifecycle management.</strong> Stale documents in your vector store produce stale answers. Build automated pipelines that detect document updates, re-chunk, re-embed, and replace old vectors. Track document freshness as a quality metric.</li>
+                <li><strong>Use guardrails for content safety and compliance.</strong> AWS Bedrock Guardrails allow you to filter harmful content, enforce topic boundaries, and redact PII in both inputs and outputs. Configure guardrails appropriate to your use case and regulatory requirements.</li>
+                <li><strong>Design for multi-turn conversation.</strong> Production RAG systems rarely handle single queries in isolation. Build conversation history management that provides relevant prior context without overwhelming the retrieval step. Use the conversation history to refine retrieval queries for follow-up questions.</li>
+                <li><strong>Load test with realistic query patterns.</strong> RAG pipeline performance depends on query complexity, corpus size, and concurrent users. Load test with representative query distributions and establish performance baselines. OpenSearch Serverless auto-scales, but Bedrock has account-level throughput limits that require capacity planning.</li>
+            </ol>
+        </section>
+
+        <section id="faq" class="faq">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <h3>What is a RAG pipeline and why use it on AWS?</h3>
+                <p>A RAG (Retrieval Augmented Generation) pipeline combines information retrieval with language model generation to produce responses grounded in specific source documents. On AWS, Amazon Bedrock provides managed access to foundation models for both embeddings and generation, while OpenSearch Serverless offers scalable vector search. This fully managed stack eliminates the need to operate GPU clusters or vector databases, reducing operational overhead significantly compared to self-managed alternatives.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How does RAG reduce hallucinations in LLM responses?</h3>
+                <p>RAG reduces hallucinations by grounding the LLM's responses in retrieved source documents rather than relying solely on the model's parametric knowledge. By providing relevant context from a verified knowledge base and instructing the model to only use provided information, the model generates answers based on factual data. Additional mitigations include relevance score thresholds, citation requirements, low temperature generation, and post-processing verification checks.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>What embedding models does AWS Bedrock support?</h3>
+                <p>AWS Bedrock supports Amazon Titan Embeddings V2 (1,024 dimensions, 8,192 token input), Cohere Embed models (multilingual support, 1,024 dimensions), and other embedding models as they become available. Amazon Titan Embeddings V2 is the most commonly used for AWS-native RAG pipelines due to its native integration, competitive performance on retrieval benchmarks, and support for dimension reduction to optimize storage costs.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Should I use OpenSearch Serverless or provisioned for RAG?</h3>
+                <p>OpenSearch Serverless is recommended for most RAG workloads because it auto-scales compute and storage independently, requires no capacity planning, and integrates natively with Bedrock Knowledge Bases. Use provisioned OpenSearch clusters only when you need fine-grained tuning of shard allocation, require specific plugin versions, or can achieve significant cost savings at very large scale with reserved instances. Serverless pricing is based on OCU (OpenSearch Compute Units) hours consumed.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How do I evaluate RAG pipeline quality in production?</h3>
+                <p>Evaluate RAG quality using four key dimensions: retrieval precision and recall (are the right documents being retrieved?), answer faithfulness (does the response accurately reflect the source documents without adding unsupported information?), answer relevance (does the response address the user's question?), and latency (are responses generated within acceptable time bounds?). The RAGAS framework provides automated metrics for these dimensions. Additionally, collect user feedback through thumbs-up/down signals and periodically conduct human evaluation on random samples.</p>
+            </div>
+        </section>
+
+        <div class="tags">
+            <span>RAG</span>
+            <span>AWS Bedrock</span>
+            <span>OpenSearch</span>
+            <span>Vector Search</span>
+            <span>LLM</span>
+            <span>Embeddings</span>
+            <span>Semantic Search</span>
+            <span>Python</span>
+            <span>Terraform</span>
+            <span>GenAI</span>
+        </div>
+
+        <div class="share-buttons">
+            <a class="share-btn" href="https://twitter.com/intent/tweet?text=Building%20Production%20RAG%20Pipelines%20on%20AWS%20with%20Bedrock%20and%20OpenSearch&url=https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html" target="_blank" rel="noopener">Share on Twitter</a>
+            <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html" target="_blank" rel="noopener">Share on LinkedIn</a>
+            <button class="share-btn" onclick="navigator.clipboard.writeText('https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy Link'},2000)})">Copy Link</button>
+        </div>
+
+        <div class="cta">
+            <h3>Need Enterprise-Grade RAG Pipelines?</h3>
+            <p>Kehinde Ogunlowo and the team at Citadel Cloud Management build production RAG systems on AWS for enterprises requiring knowledge management, compliance automation, and intelligent document processing.</p>
+            <p><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Contact Kehinde at citadelcloudmanagement.com</a></p>
+        </div>
+
+        <div class="author-bio">
+            <div class="author-info">
+                <h3>Kehinde Ogunlowo</h3>
+                <div class="title">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</div>
+                <p>Kehinde designs and deploys production AI/ML platforms on AWS, Azure, and GCP. With extensive experience in RAG architectures, vector databases, and LLM orchestration, he helps enterprises build intelligent systems that scale. He contributes open-source Terraform modules and architectural patterns through his GitHub.</p>
+                <div class="author-links">
+                    <a href="https://linkedin.com/in/kehinde-ogunlowo" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="related">
+            <h2>Related Articles</h2>
+            <ul>
+                <li><a href="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html">Building Zero Trust Architecture Across AWS, Azure, and GCP</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html">The Complete Guide to Production EKS with Terraform</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">LLM Observability: Monitoring RAG Pipelines in Production</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">Building Multi-Agent AI Systems with AWS Bedrock Agents</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">Vector Database Comparison: OpenSearch vs Pinecone vs pgvector</a></li>
+            </ul>
+        </div>
+    </article>
+</main>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+</footer>
+
+</body>
+</html>

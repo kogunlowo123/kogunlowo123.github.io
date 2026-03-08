@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>The Complete Guide to Production EKS with Terraform | Kehinde Ogunlowo</title>
+    <meta name="description" content="Complete terraform EKS production guide covering Karpenter autoscaling, pod security, node groups, EKS addons, and self-healing Kubernetes on AWS.">
+    <meta name="keywords" content="terraform EKS production guide, kubernetes aws, eks cluster, karpenter autoscaling, pod security, cluster autoscaler, node groups, eks addons, self-healing kubernetes">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Complete Guide to Production EKS with Terraform">
+    <meta property="og:description" content="Complete terraform EKS production guide covering Karpenter autoscaling, pod security, node groups, EKS addons, and self-healing Kubernetes on AWS.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-07">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Complete Guide to Production EKS with Terraform">
+    <meta name="twitter:description" content="Complete terraform EKS production guide covering Karpenter autoscaling, pod security, node groups, EKS addons, and self-healing Kubernetes on AWS.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "The Complete Guide to Production EKS with Terraform",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "url": "https://linkedin.com/in/kehinde-ogunlowo"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Complete terraform EKS production guide covering Karpenter autoscaling, pod security, node groups, EKS addons, and self-healing Kubernetes on AWS.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html"
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the best way to deploy EKS with Terraform?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The best approach uses the terraform-aws-modules/eks/aws community module combined with custom configurations for Karpenter, EKS addons, and security hardening. Deploy the VPC, EKS cluster, and node groups as separate Terraform modules with clear dependency management."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Should I use Karpenter or Cluster Autoscaler for EKS?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Karpenter is recommended for most production EKS clusters. It provisions nodes directly through the EC2 Fleet API, bypasses ASG limitations, supports mixed instance types per workload, and responds to scheduling needs in seconds rather than minutes. Cluster Autoscaler is simpler but less flexible."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I secure an EKS cluster for production?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Secure production EKS with: private API endpoint, IRSA for pod-level IAM, Pod Security Standards enforcement, network policies with Calico or Cilium, envelope encryption for secrets with KMS, audit logging to CloudWatch, OPA Gatekeeper for policy enforcement, and regular CIS benchmark scanning."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What EKS addons should I install for production?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Essential production EKS addons include: vpc-cni (networking), coredns (DNS), kube-proxy (networking), aws-ebs-csi-driver (storage), aws-efs-csi-driver (shared storage), and adot (observability). Install them as EKS managed addons via Terraform for automatic version management and compatibility."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I implement self-healing Kubernetes on EKS?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Self-healing EKS combines Karpenter for automatic node replacement, pod disruption budgets for safe rollouts, liveness and readiness probes for pod health, node problem detector for hardware issues, and automated remediation through AWS Systems Manager or custom controllers that detect and recover from failures."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "The Complete Guide to Production EKS with Terraform"}
+        ]
+    }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid rgba(0,212,255,0.15); padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(0,212,255,0.1); color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        ol.best-practices { padding-left: 1.5rem; margin: 1rem 0; }
+        ol.best-practices li { margin-bottom: 1rem; }
+        ol.best-practices li strong { color: #00d4ff; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0; }
+        .tags span { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+        .share-buttons { display: flex; gap: 0.75rem; margin: 2rem 0; flex-wrap: wrap; }
+        .share-btn { padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(0,212,255,0.3); background: #111827; color: #e2e8f0; transition: all 0.2s; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); border-color: #00d4ff; }
+        .cta { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .author-bio { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .author-info h3 { margin: 0 0 0.25rem; color: #ffffff; }
+        .author-info .title { color: #00d4ff; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .author-links { display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .author-links a { font-size: 0.85rem; }
+        .related { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related h2 { margin-top: 0; }
+        .related ul { list-style: none; padding: 0; }
+        .related li { padding: 0.5rem 0; border-bottom: 1px solid rgba(0,212,255,0.08); }
+        .related li:last-child { border: none; }
+        .faq { margin: 2.5rem 0; }
+        .faq-item { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1.05rem; margin: 0 0 0.75rem; }
+        .faq-item p { margin: 0; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(0,212,255,0.1); margin-top: 3rem; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.25rem; }
+            .container { padding: 1rem; }
+            nav { padding: 1rem; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+    <div class="nav-links">
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+        <a href="https://kogunlowo123.github.io/about/">About</a>
+        <a href="https://github.com/kogunlowo123">GitHub</a>
+        <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> &rsaquo; <a href="https://kogunlowo123.github.io/blog/">Blog</a> &rsaquo; The Complete Guide to Production EKS with Terraform
+</div>
+
+<main class="container">
+    <article>
+        <header class="article-header">
+            <h1>The Complete Guide to Production EKS with Terraform</h1>
+            <div class="article-meta">
+                <span>Kehinde Ogunlowo</span>
+                <span>|</span>
+                <span>March 7, 2026</span>
+                <span>|</span>
+                <span>20 min read</span>
+                <span>|</span>
+                <span>Kubernetes &amp; Infrastructure</span>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#introduction">Introduction: Production EKS with Terraform</a></li>
+                <li><a href="#vpc-foundation">VPC Foundation for EKS</a></li>
+                <li><a href="#cluster-config">EKS Cluster Configuration</a></li>
+                <li><a href="#karpenter">Karpenter Autoscaling for EKS</a></li>
+                <li><a href="#terraform-module">Terraform EKS Module with Karpenter</a></li>
+                <li><a href="#eks-addons">Essential EKS Addons for Production</a></li>
+                <li><a href="#pod-security">Pod Security and IRSA</a></li>
+                <li><a href="#comparison">EKS vs AKS vs GKE Feature Comparison</a></li>
+                <li><a href="#self-healing">Self-Healing Kubernetes Architecture</a></li>
+                <li><a href="#best-practices">Best Practices for Production EKS</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <section id="introduction">
+            <h2>Introduction: Production EKS with Terraform</h2>
+            <p>This <strong>terraform EKS production guide</strong> covers everything you need to deploy, secure, and operate Amazon Elastic Kubernetes Service at enterprise scale. EKS has become the dominant Kubernetes platform on AWS, but the gap between a default EKS cluster and a production-ready deployment is substantial. Default configurations lack proper network isolation, autoscaling, security hardening, observability, and disaster recovery. Closing this gap requires deliberate architectural decisions codified in Terraform.</p>
+
+            <p>This guide addresses the complete lifecycle of a production EKS cluster: VPC design with proper subnet tagging, cluster configuration with private API endpoints, Karpenter-based autoscaling that responds in seconds, pod security using Pod Security Standards and IRSA, essential addon management, and self-healing patterns that automatically recover from node failures. Every configuration is implemented as Terraform code, ensuring repeatability across environments and full auditability of infrastructure changes.</p>
+
+            <p>The patterns presented here are extracted from production EKS deployments managed by Citadel Cloud Management, running workloads ranging from microservices platforms to data-intensive batch processing systems. The complete Terraform modules are available in our <a href="https://github.com/kogunlowo123/terraform-aws-eks" target="_blank" rel="noopener">terraform-aws-eks</a> repository, with auto-healing extensions in <a href="https://github.com/kogunlowo123/terraform-aws-auto-healing-eks" target="_blank" rel="noopener">terraform-aws-auto-healing-eks</a>.</p>
+
+            <p>The <a href="https://aws.github.io/aws-eks-best-practices/" target="_blank" rel="noopener">AWS EKS Best Practices Guide</a> provides official recommendations that complement the practices described here. We reference it throughout this guide where relevant.</p>
+        </section>
+
+        <section id="vpc-foundation">
+            <h2>VPC Foundation for EKS</h2>
+            <p>Every production EKS cluster begins with a properly designed VPC. The VPC architecture determines network isolation, IP address availability, load balancer placement, and cross-AZ resilience. Getting the VPC wrong creates problems that are expensive to fix after the cluster is running.</p>
+
+            <h3>Subnet Architecture</h3>
+            <p>A production EKS VPC requires three subnet tiers across at least three Availability Zones: public subnets for internet-facing load balancers (ALB, NLB), private subnets for worker nodes and pods, and isolated subnets (optional) for databases and sensitive workloads with no internet access. Each subnet tier must span all three AZs for high availability.</p>
+
+            <p>CIDR planning is critical. EKS worker nodes and pods consume IP addresses from the VPC CIDR. A common mistake is using a /24 or /22 CIDR that exhausts IPs as the cluster scales. For production, use at minimum a /16 VPC CIDR (65,536 IPs). With the VPC CNI's custom networking feature, you can assign pods to secondary CIDR ranges, effectively decoupling pod IP space from node IP space. Our <a href="https://github.com/kogunlowo123/terraform-aws-vpc-complete" target="_blank" rel="noopener">terraform-aws-vpc-complete</a> module implements this pattern with proper subnet tagging for EKS auto-discovery.</p>
+
+            <h3>EKS Subnet Tags</h3>
+            <p>EKS requires specific tags on subnets to discover them for node placement and load balancer provisioning. Public subnets must be tagged with <code>kubernetes.io/role/elb = 1</code> for internet-facing load balancers. Private subnets must be tagged with <code>kubernetes.io/role/internal-elb = 1</code> for internal load balancers. All subnets used by the cluster must be tagged with <code>kubernetes.io/cluster/CLUSTER_NAME = shared</code> (or <code>owned</code> if the subnet is exclusively for that cluster).</p>
+        </section>
+
+        <section id="cluster-config">
+            <h2>EKS Cluster Configuration</h2>
+            <p>The EKS cluster itself requires careful configuration for production use. Key decisions include the Kubernetes version, API endpoint access, encryption, logging, and authentication mode.</p>
+
+            <h3>API Endpoint Access</h3>
+            <p>Production clusters should disable the public API endpoint and enable only the private endpoint. This ensures that the Kubernetes API is accessible only from within the VPC or through a VPN/Direct Connect connection. If you must keep the public endpoint enabled (for CI/CD pipelines running outside the VPC), restrict it to specific CIDR blocks using the <code>public_access_cidrs</code> parameter.</p>
+
+            <h3>Envelope Encryption</h3>
+            <p>EKS supports envelope encryption of Kubernetes secrets using AWS KMS. This adds a layer of encryption beyond the default etcd encryption at rest. With envelope encryption enabled, Kubernetes secrets are encrypted with a data encryption key (DEK), and the DEK itself is encrypted with a KMS customer-managed key (CMK). This is a compliance requirement for most regulated workloads.</p>
+
+            <h3>Control Plane Logging</h3>
+            <p>Enable all five EKS control plane log types for production: API server, audit, authenticator, controller manager, and scheduler. These logs are sent to CloudWatch Logs and are essential for security investigation, debugging, and compliance auditing. The audit log is particularly critical for tracking who did what in the cluster.</p>
+        </section>
+
+        <section id="karpenter">
+            <h2>Karpenter Autoscaling for EKS</h2>
+            <p>Karpenter has replaced Cluster Autoscaler as the recommended node autoscaler for EKS. Unlike Cluster Autoscaler, which operates at the Auto Scaling Group level and is constrained by pre-defined node group configurations, Karpenter provisions nodes directly through the EC2 Fleet API, selecting the optimal instance type, size, and purchase option for each pending pod in real time.</p>
+
+            <h3>How Karpenter Works</h3>
+            <p>Karpenter watches for unschedulable pods (pods in Pending state due to insufficient resources) and responds by launching new EC2 instances that satisfy the pod requirements. It considers CPU, memory, GPU, storage, availability zone, architecture (AMD64/ARM64), and topology spread constraints when selecting instances. Karpenter can launch a precisely-sized instance in under 60 seconds, compared to minutes with Cluster Autoscaler. As documented in the <a href="https://karpenter.sh/docs/" target="_blank" rel="noopener">Karpenter documentation</a>, it also handles node consolidation, deprovisioning empty or underutilized nodes to optimize cost.</p>
+
+            <h3>NodePool and EC2NodeClass</h3>
+            <p>Karpenter uses two primary custom resources: NodePool defines the constraints for node provisioning (instance families, sizes, AZs, taints, labels, and limits), while EC2NodeClass specifies the AWS-specific configuration (AMI family, subnet selector, security group selector, instance profile, and block device mappings). Multiple NodePools can coexist in a cluster, each targeting different workload profiles.</p>
+
+            <h3>Spot Instance Integration</h3>
+            <p>Karpenter's Spot instance support is a major cost optimization lever. By specifying <code>capacity-type: ["spot", "on-demand"]</code> in the NodePool, Karpenter automatically uses Spot instances when available and falls back to On-Demand when Spot capacity is unavailable. Karpenter handles Spot interruption notices by cordoning and draining affected nodes before termination, ensuring workload availability.</p>
+        </section>
+
+        <section id="terraform-module">
+            <h2>Terraform EKS Module with Karpenter and Node Groups</h2>
+            <p>The following Terraform configuration deploys a production-grade EKS cluster with Karpenter autoscaling, managed node groups for system workloads, essential addons, and security hardening. This module integrates the VPC, cluster, and autoscaling layers into a cohesive deployment.</p>
+
+            <pre><code># Production EKS Cluster with Karpenter Autoscaling
+# Repository: https://github.com/kogunlowo123/terraform-aws-eks
+
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.40"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.12"
+    }
+    kubectl = {
+      source  = "alekc/kubectl"
+      version = "~> 2.0"
+    }
+  }
+}
+
+locals {
+  cluster_name = "${var.environment}-eks-${var.region_short}"
+  tags = {
+    Environment = var.environment
+    ManagedBy   = "terraform"
+    Team        = "platform-engineering"
+  }
+}
+
+# --- KMS Key for Envelope Encryption ---
+resource "aws_kms_key" "eks_secrets" {
+  description             = "KMS key for EKS secrets encryption"
+  deletion_window_in_days = 14
+  enable_key_rotation     = true
+  tags                    = local.tags
+}
+
+# --- EKS Cluster ---
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
+
+  cluster_name    = local.cluster_name
+  cluster_version = "1.30"
+
+  # Network Configuration
+  vpc_id     = var.vpc_id
+  subnet_ids = var.private_subnet_ids
+
+  # API Endpoint: Private only for production
+  cluster_endpoint_public_access  = false
+  cluster_endpoint_private_access = true
+
+  # Encryption
+  cluster_encryption_config = {
+    provider_key_arn = aws_kms_key.eks_secrets.arn
+    resources        = ["secrets"]
+  }
+
+  # Logging
+  cluster_enabled_log_types = [
+    "api", "audit", "authenticator",
+    "controllerManager", "scheduler"
+  ]
+
+  # Authentication
+  authentication_mode                      = "API_AND_CONFIG_MAP"
+  enable_cluster_creator_admin_permissions = true
+
+  # --- Managed Node Group: System Components ---
+  eks_managed_node_groups = {
+    system = {
+      name            = "system-ng"
+      instance_types  = ["m6i.large", "m7i.large"]
+      capacity_type   = "ON_DEMAND"
+      min_size        = 2
+      max_size        = 4
+      desired_size    = 2
+
+      # Taint for system workloads only
+      taints = {
+        dedicated = {
+          key    = "CriticalAddonsOnly"
+          effect = "NO_SCHEDULE"
+        }
+      }
+
+      labels = {
+        role        = "system"
+        "node-type" = "system"
+      }
+
+      # Use latest EKS-optimized AMI
+      ami_type = "AL2023_x86_64_STANDARD"
+
+      # Block device configuration
+      block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 100
+            volume_type           = "gp3"
+            iops                  = 3000
+            throughput            = 150
+            encrypted             = true
+            kms_key_id            = aws_kms_key.eks_secrets.arn
+            delete_on_termination = true
+          }
+        }
+      }
+
+      update_config = {
+        max_unavailable_percentage = 33
+      }
+    }
+  }
+
+  # --- EKS Managed Addons ---
+  cluster_addons = {
+    vpc-cni = {
+      most_recent    = true
+      before_compute = true
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
+    }
+    coredns = {
+      most_recent = true
+      configuration_values = jsonencode({
+        computeType = "Fargate"
+        replicaCount = 2
+      })
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    aws-ebs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.ebs_csi_irsa.iam_role_arn
+    }
+    adot = {
+      most_recent = true
+    }
+  }
+
+  tags = local.tags
+}
+
+# --- IRSA for EBS CSI Driver ---
+module "ebs_csi_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name             = "${local.cluster_name}-ebs-csi"
+  attach_ebs_csi_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
+
+  tags = local.tags
+}
+
+# --- Karpenter ---
+module "karpenter" {
+  source  = "terraform-aws-modules/eks/aws//modules/karpenter"
+  version = "~> 20.0"
+
+  cluster_name = module.eks.cluster_name
+
+  enable_v1_permissions           = true
+  enable_pod_identity             = true
+  create_pod_identity_association = true
+
+  node_iam_role_additional_policies = {
+    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  }
+
+  tags = local.tags
+}
+
+resource "helm_release" "karpenter" {
+  namespace        = "kube-system"
+  name             = "karpenter"
+  repository       = "oci://public.ecr.aws/karpenter"
+  chart            = "karpenter"
+  version          = "1.0.0"
+  wait             = false
+  create_namespace = false
+
+  values = [
+    yamlencode({
+      settings = {
+        clusterName       = module.eks.cluster_name
+        clusterEndpoint   = module.eks.cluster_endpoint
+        interruptionQueue = module.karpenter.queue_name
+      }
+    })
+  ]
+
+  depends_on = [module.karpenter]
+}
+
+# --- Karpenter NodePool for General Workloads ---
+resource "kubectl_manifest" "karpenter_node_class" {
+  yaml_body = yamlencode({
+    apiVersion = "karpenter.k8s.aws/v1"
+    kind       = "EC2NodeClass"
+    metadata = {
+      name = "default"
+    }
+    spec = {
+      role           = module.karpenter.node_iam_role_name
+      amiSelectorTerms = [{
+        alias = "al2023@latest"
+      }]
+      subnetSelectorTerms = [{
+        tags = {
+          "karpenter.sh/discovery" = module.eks.cluster_name
+        }
+      }]
+      securityGroupSelectorTerms = [{
+        tags = {
+          "karpenter.sh/discovery" = module.eks.cluster_name
+        }
+      }]
+      blockDeviceMappings = [{
+        deviceName = "/dev/xvda"
+        ebs = {
+          volumeSize          = "100Gi"
+          volumeType          = "gp3"
+          iops                = 3000
+          throughput           = 150
+          encrypted           = true
+          deleteOnTermination = true
+        }
+      }]
+    }
+  })
+
+  depends_on = [helm_release.karpenter]
+}
+
+resource "kubectl_manifest" "karpenter_node_pool" {
+  yaml_body = yamlencode({
+    apiVersion = "karpenter.sh/v1"
+    kind       = "NodePool"
+    metadata = {
+      name = "general-purpose"
+    }
+    spec = {
+      template = {
+        metadata = {
+          labels = {
+            "node-type" = "general"
+          }
+        }
+        spec = {
+          requirements = [
+            {
+              key      = "kubernetes.io/arch"
+              operator = "In"
+              values   = ["amd64"]
+            },
+            {
+              key      = "karpenter.sh/capacity-type"
+              operator = "In"
+              values   = ["spot", "on-demand"]
+            },
+            {
+              key      = "karpenter.k8s.aws/instance-category"
+              operator = "In"
+              values   = ["m", "c", "r"]
+            },
+            {
+              key      = "karpenter.k8s.aws/instance-generation"
+              operator = "Gte"
+              values   = ["6"]
+            }
+          ]
+          nodeClassRef = {
+            group = "karpenter.k8s.aws"
+            kind  = "EC2NodeClass"
+            name  = "default"
+          }
+          expireAfter = "720h" # 30 days max node age
+        }
+      }
+      limits = {
+        cpu    = "200"
+        memory = "800Gi"
+      }
+      disruption = {
+        consolidationPolicy = "WhenEmptyOrUnderutilized"
+        consolidateAfter    = "1m"
+      }
+    }
+  })
+
+  depends_on = [kubectl_manifest.karpenter_node_class]
+}
+
+# --- Variables ---
+variable "environment" {
+  type        = string
+  description = "Environment name (dev, staging, prod)"
+}
+
+variable "region_short" {
+  type        = string
+  description = "Short region identifier (e.g., use1)"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID for the EKS cluster"
+}
+
+variable "private_subnet_ids" {
+  type        = list(string)
+  description = "Private subnet IDs for EKS worker nodes"
+}
+
+# --- Outputs ---
+output "cluster_name" {
+  value = module.eks.cluster_name
+}
+
+output "cluster_endpoint" {
+  value = module.eks.cluster_endpoint
+}
+
+output "cluster_certificate_authority" {
+  value = module.eks.cluster_certificate_authority_data
+}</code></pre>
+
+            <p>This module provisions a complete production EKS environment: a KMS key for secrets encryption, an EKS cluster with private API endpoint, a managed node group for system components with dedicated taints, all essential EKS addons with IRSA where required, and Karpenter for autoscaling general-purpose workloads with Spot instance support. The Karpenter NodePool is configured to use only modern instance families (generation 6+), supports both AMD64 architecture, and automatically consolidates underutilized nodes.</p>
+        </section>
+
+        <section id="eks-addons">
+            <h2>Essential EKS Addons for Production</h2>
+            <p>EKS addons are operational software that provide essential cluster functionality. Managing them through EKS managed addons (rather than self-managed Helm charts) ensures compatibility with the cluster version and simplifies upgrades.</p>
+
+            <h3>Networking: VPC CNI</h3>
+            <p>The Amazon VPC CNI plugin assigns VPC IP addresses directly to pods, enabling native VPC networking without overlay networks. For production, enable prefix delegation (<code>ENABLE_PREFIX_DELEGATION=true</code>) to increase the number of pods per node from approximately 29 (on m5.large) to 110+. This dramatically improves node utilization and reduces the number of nodes needed. The VPC CNI must be deployed before compute (nodes) to ensure proper networking initialization.</p>
+
+            <h3>DNS: CoreDNS</h3>
+            <p>CoreDNS handles cluster DNS resolution. For production, deploy at least two replicas across different nodes for high availability. Consider running CoreDNS on the system node group with the <code>CriticalAddonsOnly</code> toleration to ensure DNS remains available even during scaling events. Monitor CoreDNS latency and cache hit rates as they directly impact application performance.</p>
+
+            <h3>Storage: EBS CSI Driver</h3>
+            <p>The EBS CSI driver enables dynamic provisioning of EBS volumes for persistent workloads. It must run with an IRSA role that has permissions to create, attach, and delete EBS volumes. Create StorageClasses for different workload profiles: <code>gp3</code> for general purpose, <code>io2</code> for high-performance databases, and <code>sc1</code> for archival storage. Enable volume encryption by default in the StorageClass.</p>
+
+            <h3>Observability: ADOT</h3>
+            <p>The AWS Distro for OpenTelemetry (ADOT) provides a vendor-neutral observability pipeline for metrics, traces, and logs. ADOT collectors can send telemetry to CloudWatch, X-Ray, Prometheus, Grafana, and other backends. For production, deploy ADOT as a DaemonSet for infrastructure metrics and as a sidecar for application-level tracing.</p>
+        </section>
+
+        <section id="pod-security">
+            <h2>Pod Security and IRSA</h2>
+            <p>Securing pods in production EKS requires multiple layers: Pod Security Standards for restricting container capabilities, IRSA for granting AWS permissions to specific pods, network policies for controlling pod-to-pod traffic, and secrets management for protecting sensitive configuration.</p>
+
+            <h3>Pod Security Standards</h3>
+            <p>Kubernetes Pod Security Standards (PSS) replace the deprecated Pod Security Policies (PSP). PSS defines three profiles: Privileged (unrestricted, for system components only), Baseline (prevents known privilege escalations), and Restricted (hardened, for all application workloads). In production, enforce the Restricted profile on all application namespaces and the Baseline profile on system namespaces. Apply these using namespace labels:</p>
+
+            <p><code>pod-security.kubernetes.io/enforce: restricted</code> and <code>pod-security.kubernetes.io/warn: restricted</code> on application namespaces. This prevents containers from running as root, using host networking, mounting host paths, or escalating privileges.</p>
+
+            <h3>IAM Roles for Service Accounts (IRSA)</h3>
+            <p>IRSA is the only acceptable method for granting AWS permissions to pods in production. It uses the EKS OIDC provider to create a trust relationship between Kubernetes service accounts and IAM roles. Each pod receives temporary AWS credentials scoped to its specific IAM role, with no shared credentials or long-lived keys. The Terraform module above demonstrates IRSA configuration for the EBS CSI driver; the same pattern applies to every application that needs AWS API access.</p>
+
+            <h3>Network Policies</h3>
+            <p>The VPC CNI supports Kubernetes Network Policies natively (as of VPC CNI v1.14+). Define default-deny ingress and egress policies on all namespaces, then explicitly allow required traffic flows. This implements microsegmentation at the pod level, preventing lateral movement if a pod is compromised. For more advanced policies (L7 filtering, DNS-based rules), deploy Calico or Cilium as a supplementary network policy engine.</p>
+        </section>
+
+        <section id="comparison">
+            <h2>EKS vs AKS vs GKE Feature Comparison</h2>
+            <p>Choosing between managed Kubernetes services is a critical architectural decision. The following comparison captures the current state of EKS, AKS, and GKE across production-relevant dimensions.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>EKS (AWS)</th>
+                        <th>AKS (Azure)</th>
+                        <th>GKE (GCP)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Control Plane Cost</td>
+                        <td>$0.10/hr ($73/mo)</td>
+                        <td>Free (standard), $0.10/hr (uptime SLA)</td>
+                        <td>Free (standard), $0.10/hr (Autopilot)</td>
+                    </tr>
+                    <tr>
+                        <td>Node Autoscaling</td>
+                        <td>Karpenter, Cluster Autoscaler</td>
+                        <td>KEDA, Cluster Autoscaler</td>
+                        <td>GKE Autopilot, Cluster Autoscaler</td>
+                    </tr>
+                    <tr>
+                        <td>Serverless Nodes</td>
+                        <td>Fargate Profiles</td>
+                        <td>ACI Virtual Nodes</td>
+                        <td>Autopilot (fully serverless)</td>
+                    </tr>
+                    <tr>
+                        <td>Networking</td>
+                        <td>VPC CNI (native VPC IPs)</td>
+                        <td>Azure CNI, kubenet</td>
+                        <td>GKE Dataplane V2 (Cilium-based)</td>
+                    </tr>
+                    <tr>
+                        <td>Service Mesh</td>
+                        <td>VPC Lattice, App Mesh</td>
+                        <td>Istio-based (managed), Open Service Mesh</td>
+                        <td>Anthos Service Mesh (managed Istio)</td>
+                    </tr>
+                    <tr>
+                        <td>Secrets Encryption</td>
+                        <td>KMS Envelope Encryption</td>
+                        <td>Azure Key Vault integration</td>
+                        <td>Cloud KMS, Application-layer encryption</td>
+                    </tr>
+                    <tr>
+                        <td>Identity Integration</td>
+                        <td>IRSA, Pod Identity</td>
+                        <td>Workload Identity (AAD)</td>
+                        <td>Workload Identity (GCP IAM)</td>
+                    </tr>
+                    <tr>
+                        <td>GPU Support</td>
+                        <td>P4, P5, G5, Inf2 instances</td>
+                        <td>NC, ND, NV series VMs</td>
+                        <td>A100, H100, TPU v5e</td>
+                    </tr>
+                    <tr>
+                        <td>Max Nodes per Cluster</td>
+                        <td>5,000</td>
+                        <td>5,000</td>
+                        <td>15,000</td>
+                    </tr>
+                    <tr>
+                        <td>Release Channel</td>
+                        <td>Standard, Extended Support</td>
+                        <td>Rapid, Regular, Stable</td>
+                        <td>Rapid, Regular, Stable, Extended</td>
+                    </tr>
+                    <tr>
+                        <td>Multi-Cluster Management</td>
+                        <td>EKS Connector (basic)</td>
+                        <td>Azure Arc, Fleet Manager</td>
+                        <td>GKE Enterprise, Config Sync</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>GKE leads in ease of use with Autopilot (fully serverless Kubernetes) and has the highest node-per-cluster limit. AKS offers the best cost entry point with a free control plane and strong Azure AD integration. EKS provides the deepest AWS service integration and Karpenter's intelligent autoscaling is the most sophisticated node provisioning system available on any platform. For organizations primarily on AWS, EKS with Karpenter is the clear choice.</p>
+        </section>
+
+        <section id="self-healing">
+            <h2>Self-Healing Kubernetes Architecture</h2>
+            <p>Self-healing Kubernetes is the ability of the cluster to automatically detect, respond to, and recover from failures at the node, pod, and infrastructure layers without human intervention. This is critical for production workloads where downtime has direct business impact.</p>
+
+            <h3>Node-Level Self-Healing</h3>
+            <p>Karpenter provides node-level self-healing by automatically replacing nodes that fail health checks or become NotReady. When a node becomes unhealthy, Kubernetes marks pods as unschedulable, Karpenter detects the pending pods, and launches replacement nodes. The <code>expireAfter</code> setting (configured to 720 hours / 30 days in our module) ensures nodes are periodically recycled, preventing drift from configuration changes and avoiding long-running node issues.</p>
+
+            <p>For additional resilience, deploy the Node Problem Detector (NPD) DaemonSet, which monitors for hardware issues (disk failures, kernel panics, NTP sync failures) and reports them as node conditions. Combined with Karpenter's disruption settings, problematic nodes are automatically drained and replaced.</p>
+
+            <h3>Pod-Level Self-Healing</h3>
+            <p>Kubernetes built-in controllers (Deployments, StatefulSets, DaemonSets) automatically replace failed pods. For this to work correctly, every production pod must have properly configured liveness probes (restart unresponsive containers), readiness probes (remove unhealthy pods from service endpoints), and startup probes (allow slow-starting applications time to initialize). Pod Disruption Budgets (PDBs) ensure that voluntary disruptions (node drains, cluster upgrades) do not take down more than a specified number of pods simultaneously.</p>
+
+            <h3>Application-Level Self-Healing</h3>
+            <p>Beyond Kubernetes-native self-healing, implement application-level recovery patterns: circuit breakers (Istio, Envoy) prevent cascading failures across services, retry policies with exponential backoff handle transient errors, health check endpoints expose application-specific health status beyond basic port checks, and automated rollback (using Argo Rollouts or Flagger) reverts deployments that fail health checks during progressive delivery.</p>
+
+            <p>Our <a href="https://github.com/kogunlowo123/terraform-aws-auto-healing-eks" target="_blank" rel="noopener">terraform-aws-auto-healing-eks</a> module extends the base EKS configuration with Node Problem Detector, custom health check controllers, and automated remediation through AWS Systems Manager runbooks.</p>
+        </section>
+
+        <section id="best-practices">
+            <h2>Best Practices for Production EKS</h2>
+            <p>These best practices represent lessons learned from operating dozens of production EKS clusters across enterprise environments:</p>
+
+            <ol class="best-practices">
+                <li><strong>Use Karpenter for node autoscaling instead of Cluster Autoscaler.</strong> Karpenter provisions nodes in seconds, selects optimal instance types per workload, supports Spot with graceful fallback, and consolidates underutilized nodes automatically. Reserve managed node groups only for system-critical components (CoreDNS, Karpenter itself).</li>
+                <li><strong>Enable private API endpoint and disable public access.</strong> The Kubernetes API should not be reachable from the internet in production. Use VPN, Direct Connect, or Systems Manager Session Manager for administrative access. If CI/CD requires API access, use a VPC-peered runner or bastion host.</li>
+                <li><strong>Implement IRSA or Pod Identity for all AWS API access.</strong> Never use node-level IAM roles for application permissions. Each service account should have its own IAM role with least-privilege permissions. Use condition keys to restrict access to specific namespaces and service accounts.</li>
+                <li><strong>Deploy Pod Security Standards in enforce mode.</strong> Apply the Restricted profile to all application namespaces. No production pods should run as root, use host networking, or have elevated capabilities. Use OPA Gatekeeper or Kyverno for additional policy enforcement beyond PSS.</li>
+                <li><strong>Enable VPC CNI prefix delegation for high pod density.</strong> Default VPC CNI limits pods per node based on ENI capacity (roughly 29 pods on m5.large). Prefix delegation increases this to 110+, dramatically reducing node count and cost. Ensure your subnet CIDR supports the additional IP consumption.</li>
+                <li><strong>Configure default-deny network policies on all namespaces.</strong> Use Kubernetes native network policies (supported by VPC CNI v1.14+) to restrict pod-to-pod traffic. Explicitly allow only required communication paths. This prevents lateral movement in case of pod compromise.</li>
+                <li><strong>Use EKS managed addons for core components.</strong> VPC CNI, CoreDNS, kube-proxy, and EBS CSI driver should be deployed as EKS managed addons, not self-managed Helm releases. Managed addons are automatically tested for compatibility with your cluster version and can be upgraded in-place.</li>
+                <li><strong>Implement GitOps for application deployment.</strong> Use Argo CD or Flux to manage application deployments declaratively from Git. This provides audit trails, easy rollback, multi-cluster consistency, and eliminates manual kubectl operations. Store all manifests in version-controlled repositories.</li>
+                <li><strong>Plan for cluster upgrades from day one.</strong> EKS releases new Kubernetes versions approximately every four months, with each version supported for 14 months (or 26 months with extended support). Design your upgrade process, test with staging clusters, and schedule regular upgrades. Falling behind on versions accumulates technical debt and security risk.</li>
+                <li><strong>Monitor cluster health holistically.</strong> Deploy a comprehensive observability stack: Prometheus + Grafana for metrics (node, pod, application), Loki or CloudWatch for log aggregation, X-Ray or Jaeger for distributed tracing, and custom dashboards for Karpenter node provisioning, pod scheduling latency, and API server performance.</li>
+            </ol>
+        </section>
+
+        <section id="faq" class="faq">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <h3>What is the best way to deploy EKS with Terraform?</h3>
+                <p>The recommended approach uses the <code>terraform-aws-modules/eks/aws</code> community module as the foundation, combined with custom configurations for Karpenter autoscaling, EKS managed addons, and security hardening. Structure your Terraform as separate modules for VPC, EKS cluster, and add-on components with clear dependency management using module outputs and data sources. Use remote state (S3 + DynamoDB) for team collaboration and state locking.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Should I use Karpenter or Cluster Autoscaler for EKS?</h3>
+                <p>Karpenter is recommended for most production EKS clusters. It provisions nodes directly through the EC2 Fleet API, bypasses ASG limitations, supports mixed instance types per workload, and responds to scheduling needs in seconds rather than the minutes typical of Cluster Autoscaler. Karpenter also handles node consolidation automatically, reducing cost by deprovisioning underutilized nodes. Cluster Autoscaler remains viable for simple, predictable workloads where ASG-based management is sufficient.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How do I secure an EKS cluster for production?</h3>
+                <p>Production EKS security requires a layered approach: use private API endpoints only, implement IRSA for pod-level IAM permissions, enforce Pod Security Standards (Restricted profile) on application namespaces, deploy network policies with default-deny rules, enable envelope encryption for secrets with KMS, send all control plane logs (especially audit logs) to CloudWatch, deploy OPA Gatekeeper for custom policy enforcement, and conduct regular CIS Kubernetes benchmark scans.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>What EKS addons should I install for production?</h3>
+                <p>Essential production EKS addons include: vpc-cni (pod networking with prefix delegation), coredns (cluster DNS with high-availability replicas), kube-proxy (service networking), aws-ebs-csi-driver (persistent volume provisioning), aws-efs-csi-driver (shared storage for ReadWriteMany workloads), and adot (OpenTelemetry-based observability). Install all as EKS managed addons via Terraform for automatic version management, compatibility verification, and simplified upgrades.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>How do I implement self-healing Kubernetes on EKS?</h3>
+                <p>Self-healing EKS combines multiple layers: Karpenter automatically replaces failed or expired nodes and consolidates underutilized ones. Pod Disruption Budgets ensure safe voluntary disruptions during upgrades and scaling. Properly configured liveness, readiness, and startup probes enable Kubernetes to detect and restart unhealthy pods. Node Problem Detector identifies hardware-level issues and triggers node replacement. Automated rollback with Argo Rollouts or Flagger reverts failed deployments. Together, these create a cluster that recovers from failures at every level without operator intervention.</p>
+            </div>
+        </section>
+
+        <div class="tags">
+            <span>EKS</span>
+            <span>Terraform</span>
+            <span>Kubernetes</span>
+            <span>Karpenter</span>
+            <span>AWS</span>
+            <span>DevOps</span>
+            <span>Pod Security</span>
+            <span>IRSA</span>
+            <span>Autoscaling</span>
+            <span>Infrastructure as Code</span>
+        </div>
+
+        <div class="share-buttons">
+            <a class="share-btn" href="https://twitter.com/intent/tweet?text=The%20Complete%20Guide%20to%20Production%20EKS%20with%20Terraform&url=https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html" target="_blank" rel="noopener">Share on Twitter</a>
+            <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html" target="_blank" rel="noopener">Share on LinkedIn</a>
+            <button class="share-btn" onclick="navigator.clipboard.writeText('https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy Link'},2000)})">Copy Link</button>
+        </div>
+
+        <div class="cta">
+            <h3>Need Enterprise-Grade Kubernetes on AWS?</h3>
+            <p>Kehinde Ogunlowo and the team at Citadel Cloud Management design, deploy, and operate production EKS platforms for enterprises running mission-critical workloads on AWS.</p>
+            <p><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Contact Kehinde at citadelcloudmanagement.com</a></p>
+        </div>
+
+        <div class="author-bio">
+            <div class="author-info">
+                <h3>Kehinde Ogunlowo</h3>
+                <div class="title">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</div>
+                <p>Kehinde specializes in building production Kubernetes platforms on AWS, Azure, and GCP. With deep expertise in EKS, Terraform, and DevSecOps automation, he designs self-healing, auto-scaling infrastructure for enterprises. He contributes open-source Terraform modules for EKS, networking, and security through his GitHub.</p>
+                <div class="author-links">
+                    <a href="https://linkedin.com/in/kehinde-ogunlowo" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="related">
+            <h2>Related Articles</h2>
+            <ul>
+                <li><a href="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html">Building Zero Trust Architecture Across AWS, Azure, and GCP</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html">Building Production RAG Pipelines on AWS with Bedrock and OpenSearch</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">Kubernetes Cost Optimization: Right-Sizing EKS with Karpenter</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">GitOps with Argo CD: Deploying to Multi-Cluster EKS</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/">EKS Observability Stack: Prometheus, Grafana, and Loki on AWS</a></li>
+            </ul>
+        </div>
+    </article>
+</main>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+</footer>
+
+</body>
+</html>
