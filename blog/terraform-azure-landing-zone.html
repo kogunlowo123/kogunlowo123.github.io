@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <title>Building Azure Landing Zones with Terraform — Management Groups, Policy, and Hub-Spoke Networking | Kehinde Ogunlowo</title>
+    <meta name="description" content="Deploy enterprise Azure landing zones with Terraform using management groups, Azure Policy, hub-spoke networking, Azure Firewall, and subscription vending.">
+    <meta name="keywords" content="Terraform Azure landing zone, management groups, Azure Policy, hub-spoke network, CAF, enterprise-scale, subscription vending, Azure Firewall, Bastion, cloud adoption framework">
+    <meta name="author" content="Kehinde Ogunlowo">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Building Azure Landing Zones with Terraform — Management Groups, Policy, and Hub-Spoke Networking">
+    <meta property="og:description" content="Deploy enterprise Azure landing zones with Terraform using management groups, Azure Policy, hub-spoke networking, Azure Firewall, and subscription vending.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Building Azure Landing Zones with Terraform — Management Groups, Policy, and Hub-Spoke Networking">
+    <meta name="twitter:description" content="Deploy enterprise Azure landing zones with Terraform using management groups, Azure Policy, hub-spoke networking, Azure Firewall, and subscription vending.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Building Azure Landing Zones with Terraform — Management Groups, Policy, and Hub-Spoke Networking",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "jobTitle": "Principal Multi-Cloud DevSecOps Architect",
+            "url": "https://kogunlowo123.github.io"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Deploy enterprise Azure landing zones with Terraform using management groups, Azure Policy, hub-spoke networking, Azure Firewall, and subscription vending.",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html"
+        },
+        "keywords": ["Terraform Azure landing zone", "management groups", "Azure Policy", "hub-spoke network", "CAF", "enterprise-scale"]
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is an Azure Landing Zone?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "An Azure Landing Zone is a pre-configured, governed environment that provides a foundation for migrating and deploying workloads to Azure. It includes management group hierarchies, Azure Policy assignments, hub-spoke networking, identity integration, logging, and security baselines that follow the Azure Cloud Adoption Framework (CAF)."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Should I use the CAF Enterprise-Scale module or build a custom Terraform landing zone?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use the CAF Enterprise-Scale module if you want a Microsoft-endorsed, opinionated starting point with built-in best practices. Build a custom Terraform landing zone if you need maximum flexibility, have specific compliance requirements, or need to integrate with existing infrastructure patterns. Many organizations start with the CAF module and customize it over time."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does hub-spoke networking work in Azure?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Hub-spoke networking uses VNet peering to connect spoke virtual networks to a central hub VNet. The hub contains shared services like Azure Firewall, VPN/ExpressRoute gateways, and Azure Bastion. Spokes host workloads and route traffic through the hub for inspection and control. This pattern centralizes security while isolating workloads."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What Azure Policies should I assign to a landing zone?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Essential policies include: require resource tags, enforce allowed regions, deny public IP addresses on VMs, require network security groups, enforce encryption at rest, require diagnostic settings, deny classic resources, enforce secure transfer for storage accounts, and require Azure Defender/Microsoft Defender for Cloud on all subscriptions."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is subscription vending in Azure landing zones?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Subscription vending is the automated process of provisioning new Azure subscriptions with pre-configured governance, networking, and security controls. It enables self-service for development teams while ensuring every new subscription inherits management group policies, is connected to the hub network, and has logging and security baselines applied automatically."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://kogunlowo123.github.io"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "https://kogunlowo123.github.io/blog/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Terraform Azure Landing Zone",
+                "item": "https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html"
+            }
+        ]
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid #1e293b; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .nav-brand { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .breadcrumb { max-width: 880px; margin: 2rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb span { margin: 0 0.5rem; }
+        .article-header { max-width: 880px; margin: 2rem auto; padding: 0 2rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1rem; font-size: 0.85rem; color: #94a3b8; }
+        .tag { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.2rem 0.7rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.3; margin-bottom: 1rem; color: #f1f5f9; }
+        .article-body { max-width: 880px; margin: 0 auto; padding: 0 2rem 4rem; }
+        h2 { font-size: 1.6rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #f1f5f9; border-left: 4px solid #00d4ff; padding-left: 1rem; }
+        h3 { font-size: 1.25rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.5rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.7; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.88rem; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid #1e293b; padding: 0.75rem 1rem; text-align: left; }
+        th { background: #111827; color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(17,24,39,0.5); }
+        ol, ul { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        .best-practices { background: #111827; border-left: 4px solid #00d4ff; border-radius: 0 8px 8px 0; padding: 1.5rem 2rem; margin: 1.5rem 0; }
+        .best-practices ol { margin-bottom: 0; }
+        .author-box { display: flex; gap: 1.5rem; align-items: flex-start; background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 2rem; margin: 3rem 0; }
+        .author-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, #00d4ff, #0ea5e9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: #0a0e1a; flex-shrink: 0; }
+        .author-info h3 { margin: 0 0 0.5rem; color: #f1f5f9; font-size: 1.1rem; }
+        .author-info p { font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem; }
+        .share-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 2rem 0; }
+        .share-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; color: #fff; }
+        .share-twitter { background: #1da1f2; }
+        .share-linkedin { background: #0077b5; }
+        .share-reddit { background: #ff4500; }
+        .related-articles { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 2rem; margin: 2rem 0; }
+        .related-articles h2 { border: none; padding: 0; margin: 0 0 1rem; font-size: 1.25rem; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .related-card { background: #0a0e1a; border: 1px solid #1e293b; border-radius: 6px; padding: 1.25rem; transition: border-color 0.2s; }
+        .related-card:hover { border-color: #00d4ff; }
+        .related-card h3 { font-size: 0.95rem; margin: 0 0 0.5rem; }
+        .related-card p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+        .cta-box { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(14,165,233,0.05)); border: 1px solid #00d4ff; border-radius: 8px; padding: 2rem; text-align: center; margin: 2.5rem 0; }
+        .cta-box h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .cta-button { display: inline-block; background: #00d4ff; color: #0a0e1a; font-weight: 600; padding: 0.75rem 2rem; border-radius: 6px; margin-top: 1rem; }
+        .faq-section { margin: 2.5rem 0; }
+        .faq-item { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1rem; margin: 0 0 0.75rem; }
+        .faq-item p { margin: 0; font-size: 0.9rem; color: #94a3b8; }
+        footer { background: #111827; border-top: 1px solid #1e293b; padding: 2rem; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.3rem; }
+            .author-box { flex-direction: column; align-items: center; text-align: center; }
+            nav { padding: 1rem; }
+            .article-header, .article-body, .breadcrumb { padding: 0 1rem; }
+            table { font-size: 0.78rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <a href="https://kogunlowo123.github.io" class="nav-brand">Kehinde Ogunlowo</a>
+        <div class="nav-links">
+            <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+            <a href="https://kogunlowo123.github.io/about/">About</a>
+            <a href="https://github.com/kogunlowo123">GitHub</a>
+            <a href="https://kogunlowo123.github.io">Citadel Cloud</a>
+        </div>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> <span>/</span>
+    <a href="https://kogunlowo123.github.io/blog/">Blog</a> <span>/</span>
+    Terraform Azure Landing Zone
+</div>
+
+<header class="article-header">
+    <div class="article-meta">
+        <span>Published: March 7, 2026</span>
+        <span>|</span>
+        <span>Reading Time: 20 min</span>
+        <span>|</span>
+        <span>Kehinde Ogunlowo</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <span class="tag">Azure</span>
+        <span class="tag">Terraform</span>
+        <span class="tag">Landing Zone</span>
+        <span class="tag">Hub-Spoke</span>
+        <span class="tag">Azure Policy</span>
+        <span class="tag">CAF</span>
+        <span class="tag">Enterprise-Scale</span>
+    </div>
+    <h1>Building Azure Landing Zones with Terraform: Management Groups, Policy, and Hub-Spoke Networking</h1>
+    <p style="font-size: 1.15rem; color: #94a3b8; line-height: 1.7;">A complete guide to deploying enterprise-grade Azure landing zones using Terraform, covering management group hierarchies, Azure Policy governance, hub-spoke networking with Azure Firewall, and automated subscription vending.</p>
+</header>
+
+<article class="article-body">
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ol>
+            <li><a href="#what-is-landing-zone">What Is an Azure Landing Zone?</a></li>
+            <li><a href="#management-groups">Management Group Hierarchy Design</a></li>
+            <li><a href="#azure-policy">Azure Policy Governance at Scale</a></li>
+            <li><a href="#hub-spoke-networking">Hub-Spoke Networking Architecture</a></li>
+            <li><a href="#azure-firewall">Azure Firewall and Network Security</a></li>
+            <li><a href="#bastion-connectivity">Azure Bastion and Secure Connectivity</a></li>
+            <li><a href="#subscription-vending">Subscription Vending Automation</a></li>
+            <li><a href="#identity-access">Identity and Access Management</a></li>
+            <li><a href="#logging-monitoring">Centralized Logging and Monitoring</a></li>
+            <li><a href="#best-practices">Top 10 Azure Landing Zone Best Practices</a></li>
+            <li><a href="#comparison-table">Landing Zone Approaches Comparison</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ol>
+    </div>
+
+    <h2 id="what-is-landing-zone">What Is an Azure Landing Zone?</h2>
+
+    <p>An Azure Landing Zone is a pre-configured, governed cloud environment that serves as the foundation for all workloads deployed into Azure. Rather than letting teams create subscriptions ad hoc with inconsistent configurations, a landing zone establishes standardized guardrails for networking, security, identity, governance, and operations from the very first deployment.</p>
+
+    <p>The concept originates from the <a href="https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/" target="_blank" rel="noopener">Azure Cloud Adoption Framework (CAF)</a>, which defines a reference architecture and set of principles for enterprise-scale cloud adoption. The CAF landing zone architecture specifies a management group hierarchy, centralized networking, policy-driven governance, and platform-level shared services that every workload subscription inherits automatically.</p>
+
+    <p>At Citadel Cloud Management, I have deployed landing zones for organizations ranging from mid-market enterprises to large-scale global deployments. The key insight from this experience is that the landing zone is not a one-time project; it is a living platform that evolves with the organization. Terraform, with its declarative state management and modular architecture, is the ideal tool for building and maintaining this platform over time.</p>
+
+    <p>My <a href="https://github.com/kogunlowo123/terraform-azure-hub-spoke-network">terraform-azure-hub-spoke-network</a> module provides the networking backbone for these landing zones, implementing hub-spoke topology with Azure Firewall, route tables, and VNet peering in a reusable, parameterized module that can be customized for any organization's requirements.</p>
+
+    <h2 id="management-groups">Management Group Hierarchy Design</h2>
+
+    <p>Management groups are the organizational backbone of an Azure landing zone. They create a hierarchy above subscriptions that allows you to apply governance controls (Azure Policy, RBAC) at scale. Policies assigned to a management group are automatically inherited by all child management groups and subscriptions, eliminating the need to configure each subscription individually.</p>
+
+    <h3>The CAF Recommended Hierarchy</h3>
+
+    <p>The CAF enterprise-scale architecture recommends a specific management group hierarchy: a root Tenant Root Group, an intermediate root (often the organization name), and then functional branches for Platform (containing Identity, Management, and Connectivity subscriptions), Landing Zones (containing Corp and Online sub-groups), Decommissioned, and Sandbox environments.</p>
+
+    <h3>Terraform Implementation</h3>
+
+    <p>The following Terraform configuration creates the management group hierarchy with policy assignments at each level:</p>
+
+<pre><code># Management Group Hierarchy with Policy Assignments
+# Root management group
+resource "azurerm_management_group" "root" {
+  display_name               = "Contoso"
+  parent_management_group_id = data.azurerm_management_group.tenant_root.id
+}
+
+# Platform management group
+resource "azurerm_management_group" "platform" {
+  display_name               = "Platform"
+  parent_management_group_id = azurerm_management_group.root.id
+}
+
+# Platform sub-groups
+resource "azurerm_management_group" "identity" {
+  display_name               = "Identity"
+  parent_management_group_id = azurerm_management_group.platform.id
+  subscription_ids           = [var.identity_subscription_id]
+}
+
+resource "azurerm_management_group" "management" {
+  display_name               = "Management"
+  parent_management_group_id = azurerm_management_group.platform.id
+  subscription_ids           = [var.management_subscription_id]
+}
+
+resource "azurerm_management_group" "connectivity" {
+  display_name               = "Connectivity"
+  parent_management_group_id = azurerm_management_group.platform.id
+  subscription_ids           = [var.connectivity_subscription_id]
+}
+
+# Landing Zones management group
+resource "azurerm_management_group" "landing_zones" {
+  display_name               = "Landing Zones"
+  parent_management_group_id = azurerm_management_group.root.id
+}
+
+resource "azurerm_management_group" "corp" {
+  display_name               = "Corp"
+  parent_management_group_id = azurerm_management_group.landing_zones.id
+}
+
+resource "azurerm_management_group" "online" {
+  display_name               = "Online"
+  parent_management_group_id = azurerm_management_group.landing_zones.id
+}
+
+# Sandbox and Decommissioned
+resource "azurerm_management_group" "sandbox" {
+  display_name               = "Sandbox"
+  parent_management_group_id = azurerm_management_group.root.id
+}
+
+resource "azurerm_management_group" "decommissioned" {
+  display_name               = "Decommissioned"
+  parent_management_group_id = azurerm_management_group.root.id
+}
+
+# Policy assignment: Enforce allowed regions at root level
+resource "azurerm_management_group_policy_assignment" "allowed_regions" {
+  name                 = "allowed-regions"
+  display_name         = "Allowed Regions"
+  management_group_id  = azurerm_management_group.root.id
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c"
+  enforce              = true
+
+  parameters = jsonencode({
+    listOfAllowedLocations = {
+      value = var.allowed_regions
+    }
+  })
+}
+
+# Policy assignment: Require tags on resource groups
+resource "azurerm_management_group_policy_assignment" "require_tags" {
+  name                 = "require-rg-tags"
+  display_name         = "Require Tags on Resource Groups"
+  management_group_id  = azurerm_management_group.landing_zones.id
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/96670d01-0a4d-4649-9c89-2d3abc0a5025"
+  enforce              = true
+
+  parameters = jsonencode({
+    tagName = {
+      value = "CostCenter"
+    }
+  })
+}
+
+# Policy assignment: Deny public IP on VMs in Corp landing zone
+resource "azurerm_management_group_policy_assignment" "deny_public_ip" {
+  name                 = "deny-vm-public-ip"
+  display_name         = "Deny Public IP on VMs"
+  management_group_id  = azurerm_management_group.corp.id
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/83a86a26-fd1f-447c-b59d-e51f44264114"
+  enforce              = true
+}</code></pre>
+
+    <p>This configuration establishes the full CAF hierarchy and applies foundational policies. The allowed regions policy at the root level ensures resources can only be deployed in approved geographic locations, while the tag requirement and public IP denial are scoped to the appropriate management groups.</p>
+
+    <h2 id="azure-policy">Azure Policy Governance at Scale</h2>
+
+    <p>Azure Policy is the engine that transforms a management group hierarchy from an organizational chart into an enforcement framework. Policies can audit, deny, modify, or deploy resources based on compliance rules. For landing zones, policies fall into several categories: security baselines, cost controls, naming conventions, networking restrictions, and operational standards.</p>
+
+    <h3>Policy Initiative Strategy</h3>
+
+    <p>Rather than assigning individual policies, group related policies into Policy Initiatives (also called Policy Sets). This simplifies management and provides cohesive compliance reporting. For example, create initiatives for "Security Baseline," "Network Restrictions," "Cost Management," and "Operational Standards," then assign each initiative to the appropriate management group.</p>
+
+    <p>The <a href="https://github.com/kogunlowo123/terraform-azure-security-center">terraform-azure-security-center</a> module deploys Microsoft Defender for Cloud with auto-provisioning and ties security policies to the landing zone management group hierarchy, ensuring that every subscription automatically receives security monitoring and vulnerability assessment.</p>
+
+    <h3>Essential Policy Categories</h3>
+
+    <p>Security policies should enforce encryption at rest for storage accounts and databases, require HTTPS for web applications, mandate network security groups on subnets, enable Azure Defender on subscriptions, and deny the creation of classic (non-ARM) resources. Networking policies should deny public IP addresses in corporate landing zones, require private endpoints for PaaS services, enforce route table associations, and restrict VNet peering to the hub network only. Operational policies should require diagnostic settings on all resources, enforce resource locks on production subscriptions, mandate backup policies for VMs and databases, and require specific tag key-value pairs for cost allocation.</p>
+
+    <h2 id="hub-spoke-networking">Hub-Spoke Networking Architecture</h2>
+
+    <p>Hub-spoke is the recommended networking topology for Azure landing zones. The hub VNet contains shared networking services (Azure Firewall, VPN/ExpressRoute gateways, Azure Bastion, DNS resolvers), while spoke VNets host workloads. Spokes connect to the hub via VNet peering and route traffic through the hub for centralized inspection and control.</p>
+
+    <h3>Hub VNet Design</h3>
+
+    <p>The hub VNet typically includes subnets for the Azure Firewall (AzureFirewallSubnet, minimum /26), Gateway (GatewaySubnet, recommended /27), Azure Bastion (AzureBastionSubnet, minimum /26), DNS resolvers, and shared services like domain controllers. The hub is deployed in the Connectivity subscription and managed by the platform team.</p>
+
+    <p>My <a href="https://github.com/kogunlowo123/terraform-azure-virtual-network">terraform-azure-virtual-network</a> module handles VNet creation with configurable subnets, NSGs, route tables, and service endpoints, serving as the building block for both hub and spoke networks in the landing zone.</p>
+
+    <h3>Spoke VNet Connectivity</h3>
+
+    <p>Each spoke VNet peers with the hub, enabling communication with shared services and other spokes (through the hub firewall). User Defined Routes (UDRs) on spoke subnets direct all traffic to the Azure Firewall's private IP, ensuring that all egress and inter-spoke traffic passes through the centralized inspection point. This is critical for maintaining visibility and enforcing network security policies.</p>
+
+    <h3>IP Address Planning</h3>
+
+    <p>Effective IP address management (IPAM) is one of the most underestimated aspects of landing zone design. Plan for growth from day one. Use non-overlapping RFC 1918 address spaces, allocate large enough CIDR blocks for each spoke to accommodate future growth, and document IP allocations centrally. A common pattern is to use 10.0.0.0/16 for the hub, 10.1.0.0/16 through 10.255.0.0/16 for spokes, and reserve 172.16.0.0/12 for on-premises connectivity.</p>
+
+    <h2 id="azure-firewall">Azure Firewall and Network Security</h2>
+
+    <p>Azure Firewall sits at the center of the hub-spoke topology, providing centralized network and application rule enforcement. Azure Firewall Premium adds TLS inspection, IDPS (Intrusion Detection and Prevention), URL filtering, and web categories, making it suitable for enterprise security requirements.</p>
+
+    <h3>Firewall Policy Design</h3>
+
+    <p>Use Azure Firewall Manager with a hierarchical firewall policy structure. Create a base policy at the root level with rules that apply to all environments (such as allowing DNS, NTP, and Azure management traffic), then create child policies for development and production environments with environment-specific rules. This inheritance model mirrors the management group hierarchy and keeps firewall policies maintainable as the environment grows.</p>
+
+    <h3>Forced Tunneling Considerations</h3>
+
+    <p>When you configure UDRs to route all spoke traffic through the firewall (forced tunneling), you must carefully handle asymmetric routing for Azure PaaS services. Use service tags in UDRs to avoid routing Azure management traffic through the firewall, and leverage Azure Firewall's built-in support for Azure service endpoints and private endpoints.</p>
+
+    <h2 id="bastion-connectivity">Azure Bastion and Secure Connectivity</h2>
+
+    <p>Azure Bastion provides secure RDP/SSH access to VMs without exposing public IP addresses. In a landing zone architecture, deploy a single Azure Bastion instance in the hub VNet. With VNet peering and proper routing, Bastion can connect to VMs in any spoke VNet, eliminating the need for jump boxes or VPN connections for administrative access.</p>
+
+    <p>Azure Bastion Standard SKU supports native client connections (using the Azure CLI), file transfer, and shareable links, making it a comprehensive replacement for traditional bastion hosts. Combined with Just-In-Time (JIT) VM access from Microsoft Defender for Cloud, this provides a zero-trust approach to infrastructure administration.</p>
+
+    <h2 id="subscription-vending">Subscription Vending Automation</h2>
+
+    <p>Subscription vending is the process of automating the provisioning of new Azure subscriptions with pre-configured governance, networking, and security. When a team requests a new workload environment, the vending process creates a subscription, places it in the appropriate management group, creates and peers a spoke VNet, configures route tables to send traffic through the firewall, applies baseline RBAC assignments, enables diagnostic settings, and registers the subscription with Microsoft Defender for Cloud.</p>
+
+    <h3>Terraform-Based Vending Pipeline</h3>
+
+    <p>The vending pipeline is typically implemented as a CI/CD pipeline (GitHub Actions, Azure DevOps, GitLab CI) triggered by a pull request to a configuration repository. Teams submit a YAML file describing their requirements, the platform team reviews and approves the PR, and the pipeline runs Terraform to provision the subscription and all associated resources.</p>
+
+    <p>My <a href="https://github.com/kogunlowo123/multi-cloud-landing-zone">multi-cloud-landing-zone</a> module provides a reference implementation for this pattern, supporting both Azure and AWS landing zone deployments from a single configuration repository with environment-specific variable files.</p>
+
+    <h2 id="identity-access">Identity and Access Management</h2>
+
+    <p>Azure landing zones leverage Microsoft Entra ID (formerly Azure AD) as the identity provider. The Identity subscription hosts domain controllers (if needed for hybrid scenarios), Entra ID Connect servers, and identity-related services. RBAC assignments should follow the principle of least privilege, using built-in roles wherever possible and creating custom roles only when no built-in role matches the requirement.</p>
+
+    <h3>Privileged Identity Management</h3>
+
+    <p>For elevated access to production environments, implement Privileged Identity Management (PIM) with just-in-time activation, approval workflows, and time-limited role assignments. This ensures that standing admin access to production is eliminated, and all privileged operations are logged and auditable.</p>
+
+    <h2 id="logging-monitoring">Centralized Logging and Monitoring</h2>
+
+    <p>The Management subscription hosts centralized Log Analytics workspaces, Azure Monitor, and diagnostic storage accounts. All resources across all subscriptions send diagnostic logs and metrics to the central workspace using Azure Policy-driven diagnostic settings. This provides a single pane of glass for security monitoring, operational alerts, and compliance reporting.</p>
+
+    <p>Deploy Azure Sentinel (Microsoft Sentinel) on the central Log Analytics workspace for SIEM/SOAR capabilities. Configure data connectors for Microsoft Entra ID sign-in logs, Azure Activity logs, Microsoft Defender for Cloud alerts, and network flow logs from Azure Firewall and NSGs.</p>
+
+    <h2 id="best-practices">Top 10 Azure Landing Zone Best Practices</h2>
+
+    <div class="best-practices">
+        <ol>
+            <li><strong>Start with management groups and policy before deploying workloads.</strong> Establish governance guardrails first so that every subscription created inherits security and compliance controls automatically.</li>
+            <li><strong>Use the CAF hierarchy as a starting point, then customize.</strong> The CAF management group structure is a proven baseline. Adapt it to your organization's needs rather than inventing a new hierarchy from scratch.</li>
+            <li><strong>Centralize networking in a dedicated Connectivity subscription.</strong> The hub VNet, Azure Firewall, gateways, and DNS infrastructure should be managed by the platform team, not by workload teams.</li>
+            <li><strong>Automate subscription vending through CI/CD pipelines.</strong> Self-service subscription provisioning with embedded guardrails accelerates team velocity while maintaining governance.</li>
+            <li><strong>Plan IP address space for 3-5 years of growth.</strong> Changing IP address ranges after deployment is extremely disruptive. Over-allocate CIDR blocks and maintain a central IPAM registry.</li>
+            <li><strong>Implement Azure Policy initiatives rather than individual policies.</strong> Group policies by category for easier management, compliance reporting, and exemption handling.</li>
+            <li><strong>Enable Microsoft Defender for Cloud on every subscription.</strong> Use Azure Policy to auto-enroll subscriptions and configure auto-provisioning of the Log Analytics agent.</li>
+            <li><strong>Use private endpoints for all PaaS services in Corp landing zones.</strong> Deny public network access to storage accounts, databases, and other PaaS resources, routing all traffic through the hub network.</li>
+            <li><strong>Store Terraform state in Azure Storage with state locking.</strong> Use a dedicated storage account in the management subscription with blob versioning, soft delete, and customer-managed encryption keys.</li>
+            <li><strong>Version your landing zone as a platform product.</strong> Treat the landing zone Terraform code as a product with semantic versioning, changelogs, and release notes. Communicate changes to workload teams proactively.</li>
+        </ol>
+    </div>
+
+    <h2 id="comparison-table">Azure Landing Zone Approaches Comparison</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Criteria</th>
+                <th>CAF Enterprise-Scale (Terraform Module)</th>
+                <th>Custom Terraform</th>
+                <th>Bicep / ARM Templates</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Time to Deploy</td>
+                <td>Days to weeks</td>
+                <td>Weeks to months</td>
+                <td>Weeks to months</td>
+            </tr>
+            <tr>
+                <td>Flexibility</td>
+                <td>Moderate (parameterized)</td>
+                <td>Maximum</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>Microsoft Support</td>
+                <td>Official module, community-supported</td>
+                <td>General Terraform support</td>
+                <td>First-party, fully supported</td>
+            </tr>
+            <tr>
+                <td>Multi-Cloud</td>
+                <td>Azure only</td>
+                <td>Extends to AWS/GCP via Terraform</td>
+                <td>Azure only</td>
+            </tr>
+            <tr>
+                <td>Learning Curve</td>
+                <td>Moderate (Terraform + module docs)</td>
+                <td>High (requires deep Terraform + Azure knowledge)</td>
+                <td>Moderate (Azure-native tooling)</td>
+            </tr>
+            <tr>
+                <td>State Management</td>
+                <td>Terraform state backend</td>
+                <td>Terraform state backend</td>
+                <td>ARM deployment history (limited)</td>
+            </tr>
+            <tr>
+                <td>Customization</td>
+                <td>Parameter-driven with override options</td>
+                <td>Full control over every resource</td>
+                <td>Full control over Azure resources</td>
+            </tr>
+            <tr>
+                <td>Drift Detection</td>
+                <td>terraform plan</td>
+                <td>terraform plan</td>
+                <td>what-if (limited)</td>
+            </tr>
+            <tr>
+                <td>Community Ecosystem</td>
+                <td>Large Terraform community</td>
+                <td>Large Terraform community</td>
+                <td>Growing Bicep community</td>
+            </tr>
+            <tr>
+                <td>Best For</td>
+                <td>Fast start with best practices built in</td>
+                <td>Organizations with specific requirements or multi-cloud strategies</td>
+                <td>Azure-only shops preferring native tooling</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="faq">Frequently Asked Questions</h2>
+
+    <div class="faq-section">
+        <div class="faq-item">
+            <h3>What is an Azure Landing Zone?</h3>
+            <p>An Azure Landing Zone is a pre-configured, governed environment that provides a foundation for migrating and deploying workloads to Azure. It includes management group hierarchies, Azure Policy assignments, hub-spoke networking, identity integration, logging, and security baselines that follow the Azure Cloud Adoption Framework (CAF).</p>
+        </div>
+        <div class="faq-item">
+            <h3>Should I use the CAF Enterprise-Scale module or build a custom Terraform landing zone?</h3>
+            <p>Use the CAF Enterprise-Scale module if you want a Microsoft-endorsed, opinionated starting point with built-in best practices. Build a custom Terraform landing zone if you need maximum flexibility, have specific compliance requirements, or need to integrate with existing infrastructure patterns. Many organizations start with the CAF module and customize it over time.</p>
+        </div>
+        <div class="faq-item">
+            <h3>How does hub-spoke networking work in Azure?</h3>
+            <p>Hub-spoke networking uses VNet peering to connect spoke virtual networks to a central hub VNet. The hub contains shared services like Azure Firewall, VPN/ExpressRoute gateways, and Azure Bastion. Spokes host workloads and route traffic through the hub for inspection and control. This pattern centralizes security while isolating workloads.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What Azure Policies should I assign to a landing zone?</h3>
+            <p>Essential policies include: require resource tags, enforce allowed regions, deny public IP addresses on VMs, require network security groups, enforce encryption at rest, require diagnostic settings, deny classic resources, enforce secure transfer for storage accounts, and require Microsoft Defender for Cloud on all subscriptions.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What is subscription vending in Azure landing zones?</h3>
+            <p>Subscription vending is the automated process of provisioning new Azure subscriptions with pre-configured governance, networking, and security controls. It enables self-service for development teams while ensuring every new subscription inherits management group policies, is connected to the hub network, and has logging and security baselines applied automatically.</p>
+        </div>
+    </div>
+
+    <!-- Share Buttons -->
+    <div class="share-buttons">
+        <a href="https://twitter.com/intent/tweet?url=https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html&text=Building Azure Landing Zones with Terraform" class="share-btn share-twitter" target="_blank" rel="noopener">Share on Twitter</a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html" class="share-btn share-linkedin" target="_blank" rel="noopener">Share on LinkedIn</a>
+        <a href="https://reddit.com/submit?url=https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html&title=Building Azure Landing Zones with Terraform" class="share-btn share-reddit" target="_blank" rel="noopener">Share on Reddit</a>
+    </div>
+
+    <!-- Author Bio -->
+    <div class="author-box">
+        <div class="author-avatar">KO</div>
+        <div class="author-info">
+            <h3>Kehinde Ogunlowo</h3>
+            <p>Principal Multi-Cloud DevSecOps Architect at Citadel Cloud Management. Specializing in infrastructure-as-code, cloud landing zones, and enterprise-scale governance across AWS, Azure, and GCP.</p>
+            <p>
+                <a href="https://github.com/kogunlowo123">GitHub</a> &middot;
+                <a href="https://linkedin.com/in/kehinde-ogunlowo">LinkedIn</a> &middot;
+                <a href="https://kogunlowo123.github.io">Website</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+        <h3>Deploy Your Azure Landing Zone with Battle-Tested Terraform Modules</h3>
+        <p>Explore my open-source Terraform modules for Azure hub-spoke networking, security center configuration, and multi-cloud landing zone orchestration.</p>
+        <a href="https://github.com/kogunlowo123" class="cta-button">Explore Modules on GitHub</a>
+    </div>
+
+    <!-- Related Articles -->
+    <div class="related-articles">
+        <h2>Related Articles</h2>
+        <div class="related-grid">
+            <a href="https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html" class="related-card">
+                <h3>Kubernetes Security Hardening</h3>
+                <p>Pod security standards, network policies, RBAC, and runtime protection for production clusters.</p>
+            </a>
+            <a href="https://kogunlowo123.github.io/blog/cloud-disaster-recovery-terraform.html" class="related-card">
+                <h3>Multi-Cloud Disaster Recovery with Terraform</h3>
+                <p>RPO/RTO strategies, pilot light, warm standby, and cross-cloud failover architectures.</p>
+            </a>
+            <a href="https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html" class="related-card">
+                <h3>AWS Lambda Serverless Patterns with Terraform</h3>
+                <p>Event-driven architecture at scale with SQS triggers, Step Functions, and cold start optimization.</p>
+            </a>
+        </div>
+    </div>
+
+</article>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://kogunlowo123.github.io">kogunlowo123.github.io</a></p>
+</footer>
+
+</body>
+</html>

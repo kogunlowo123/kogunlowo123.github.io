@@ -76,4 +76,114 @@
             <name>Kehinde Ogunlowo</name>
         </author>
     </entry>
+
+    <entry>
+        <title>Production-Ready AKS Clusters with Terraform — Security, Networking, and Auto-Scaling</title>
+        <link href="https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Deploy production AKS with Azure CNI Overlay, Workload Identity, Defender for Containers, and auto-scaling using Terraform.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Building Autonomous AI Workflows with AWS Bedrock Agents and Knowledge Bases</title>
+        <link href="https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Build autonomous AI agents on AWS Bedrock with knowledge bases, action groups, and Lambda integration using Terraform.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Enterprise DevSecOps Pipeline Architecture for Multi-Cloud Deployments</title>
+        <link href="https://kogunlowo123.github.io/blog/devsecops-pipeline-multi-cloud.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/devsecops-pipeline-multi-cloud.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Design enterprise DevSecOps pipelines with SAST, DAST, SCA, container scanning, and IaC scanning across AWS and Azure.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>GKE Autopilot with Terraform — Serverless Kubernetes on Google Cloud</title>
+        <link href="https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Deploy GKE Autopilot with Gateway API, Workload Identity, and Binary Authorization using Terraform.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Microsoft Entra ID for Enterprise Zero Trust IAM</title>
+        <link href="https://kogunlowo123.github.io/blog/microsoft-entra-zero-trust-iam.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/microsoft-entra-zero-trust-iam.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Implement Zero Trust IAM with Entra Conditional Access, PIM, cross-cloud federation, and passwordless authentication.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>AWS VPC Networking with Terraform — Subnets, NAT, Transit Gateway, and PrivateLink</title>
+        <link href="https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Design production AWS VPCs with multi-AZ subnets, Transit Gateway, PrivateLink, and Network Firewall using Terraform.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Kubernetes Security Hardening — Pod Security, Network Policies, RBAC, and Runtime Protection</title>
+        <link href="https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Harden Kubernetes clusters with Pod Security Standards, network policies, RBAC, OPA Gatekeeper, and Falco runtime detection.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Building Azure Landing Zones with Terraform — Management Groups, Policy, and Hub-Spoke Networking</title>
+        <link href="https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Build enterprise Azure landing zones with management group hierarchy, Azure Policy, and hub-spoke networking in Terraform.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>AWS Lambda Serverless Patterns with Terraform — Event-Driven Architecture at Scale</title>
+        <link href="https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Build event-driven architectures with Lambda, SQS, DynamoDB Streams, EventBridge, and Step Functions using Terraform.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
+
+    <entry>
+        <title>Multi-Cloud Disaster Recovery Architecture with Terraform</title>
+        <link href="https://kogunlowo123.github.io/blog/cloud-disaster-recovery-terraform.html" rel="alternate" type="text/html"/>
+        <id>https://kogunlowo123.github.io/blog/cloud-disaster-recovery-terraform.html</id>
+        <updated>2024-03-08T00:00:00Z</updated>
+        <summary>Design multi-cloud DR with Pilot Light, Warm Standby, Aurora Global Database, and automated failover using Terraform.</summary>
+        <author>
+            <name>Kehinde Ogunlowo</name>
+        </author>
+    </entry>
 </feed>

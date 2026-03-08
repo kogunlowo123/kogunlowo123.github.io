@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>AWS VPC Networking with Terraform — Subnets, NAT, Transit Gateway, and PrivateLink | Kehinde Ogunlowo</title>
+    <meta name="description" content="Build production AWS VPC networking with Terraform covering multi-AZ subnets, NAT Gateway, Transit Gateway, PrivateLink, flow logs, and network ACLs.">
+    <meta name="keywords" content="Terraform AWS VPC networking guide, vpc subnets, nat gateway, transit gateway, privatelink, vpc peering, flow logs, network acls, route tables">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="AWS VPC Networking with Terraform — Subnets, NAT, Transit Gateway, and PrivateLink">
+    <meta property="og:description" content="Build production AWS VPC networking with Terraform covering multi-AZ subnets, NAT Gateway, Transit Gateway, PrivateLink, flow logs, and network ACLs.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-07">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AWS VPC Networking with Terraform — Subnets, NAT, Transit Gateway, and PrivateLink">
+    <meta name="twitter:description" content="Build production AWS VPC networking with Terraform covering multi-AZ subnets, NAT Gateway, Transit Gateway, PrivateLink, flow logs, and network ACLs.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "AWS VPC Networking with Terraform — Subnets, NAT, Transit Gateway, and PrivateLink",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "url": "https://linkedin.com/in/kehinde-ogunlowo"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Build production AWS VPC networking with Terraform covering multi-AZ subnets, NAT Gateway, Transit Gateway, PrivateLink, flow logs, and network ACLs.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html"
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the best VPC subnet architecture for production AWS workloads?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The recommended production VPC architecture uses three subnet tiers across three or more availability zones: public subnets for load balancers and NAT Gateways, private subnets for application workloads like ECS/EKS and EC2 instances, and isolated subnets for databases and sensitive data stores with no internet access. Each tier has its own route table with appropriate routing rules."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "When should I use Transit Gateway instead of VPC Peering?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use Transit Gateway when connecting more than 3-4 VPCs, when you need transitive routing between VPCs, or when centralizing network inspection through a firewall VPC. VPC Peering is simpler and free for data transfer within the same AZ, making it ideal for connecting 2-3 VPCs with direct communication requirements. Transit Gateway charges per attachment and per GB processed."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I reduce NAT Gateway costs in AWS?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Reduce NAT Gateway costs by using VPC endpoints for AWS service traffic (S3, DynamoDB, ECR, CloudWatch), which eliminates NAT Gateway data processing charges for those services. Use a single NAT Gateway per AZ rather than per subnet. Consider NAT instances for development environments. Enable VPC flow logs to identify unexpected outbound traffic patterns driving costs."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is AWS PrivateLink and when should I use it?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "AWS PrivateLink provides private connectivity between VPCs, AWS services, and on-premises networks without exposing traffic to the public internet. Use PrivateLink when consuming AWS services from private subnets, when exposing your services to other AWS accounts securely, or when connecting to SaaS providers that support PrivateLink. It creates elastic network interfaces in your VPC with private IP addresses."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I implement network segmentation with Terraform in AWS VPC?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Implement network segmentation using multiple route tables (one per subnet tier), security groups for stateful instance-level filtering, network ACLs for stateless subnet-level filtering, and AWS Network Firewall for centralized inspection. Define each component as a Terraform module with clear input variables for CIDR ranges, allowed ports, and routing destinations. Use flow logs to validate that segmentation rules work as expected."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "Terraform AWS VPC Networking Guide"}
+        ]
+    }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid rgba(0,212,255,0.15); padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(0,212,255,0.1); color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .tag { display: inline-block; background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500; margin: 0.25rem; }
+        .author-box { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+        .author-info h3 { margin-top: 0; }
+        .share-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 2rem 0; }
+        .share-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; border: 1px solid rgba(0,212,255,0.2); color: #e2e8f0; transition: all 0.2s; cursor: pointer; background: transparent; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); color: #00d4ff; }
+        .related-articles { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related-articles h2 { margin-top: 0; }
+        .related-articles ul { list-style: none; padding: 0; }
+        .related-articles li { margin-bottom: 0.75rem; }
+        .cta-box { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta-box h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .cta-button { display: inline-block; background: #00d4ff; color: #0a0e1a; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 600; font-size: 1rem; margin-top: 1rem; transition: transform 0.2s, box-shadow 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,212,255,0.3); opacity: 1; }
+        .faq-item { margin-bottom: 1.5rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1.1rem; }
+        ol.best-practices { padding-left: 1.25rem; }
+        ol.best-practices li { margin-bottom: 1rem; }
+        footer { background: #111827; border-top: 1px solid rgba(0,212,255,0.15); padding: 2rem; text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 3rem; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.25rem; }
+            .container { padding: 1rem; }
+            nav { padding: 0.75rem 1rem; }
+            .author-box { flex-direction: column; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+        <div class="nav-links">
+            <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+            <a href="https://kogunlowo123.github.io/about">About</a>
+            <a href="https://github.com/kogunlowo123">GitHub</a>
+            <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+        </div>
+    </nav>
+
+    <div class="breadcrumb">
+        <a href="https://kogunlowo123.github.io">Home</a> &raquo;
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a> &raquo;
+        Terraform AWS VPC Networking Guide
+    </div>
+
+    <main class="container">
+        <article>
+            <header class="article-header">
+                <div class="article-meta">
+                    <span>March 7, 2026</span>
+                    <span>|</span>
+                    <span>Kehinde Ogunlowo</span>
+                    <span>|</span>
+                    <span>22 min read</span>
+                </div>
+                <h1>Terraform AWS VPC Networking Guide: Subnets, NAT Gateway, Transit Gateway, and PrivateLink</h1>
+                <div style="margin-top: 1rem;">
+                    <span class="tag">AWS VPC</span>
+                    <span class="tag">Terraform</span>
+                    <span class="tag">Transit Gateway</span>
+                    <span class="tag">PrivateLink</span>
+                    <span class="tag">NAT Gateway</span>
+                    <span class="tag">Network Security</span>
+                </div>
+            </header>
+
+            <nav class="toc">
+                <h2>Table of Contents</h2>
+                <ol>
+                    <li><a href="#introduction">Why VPC Networking Architecture Matters</a></li>
+                    <li><a href="#comparison">VPC Peering vs Transit Gateway vs PrivateLink</a></li>
+                    <li><a href="#subnet-architecture">Multi-AZ Subnet Architecture Design</a></li>
+                    <li><a href="#terraform-vpc">Terraform VPC with Public, Private, and Isolated Subnets</a></li>
+                    <li><a href="#nat-gateway">NAT Gateway Configuration and Cost Optimization</a></li>
+                    <li><a href="#transit-gateway">Transit Gateway for Multi-VPC Connectivity</a></li>
+                    <li><a href="#privatelink">PrivateLink and VPC Endpoints</a></li>
+                    <li><a href="#flow-logs">VPC Flow Logs and Network Monitoring</a></li>
+                    <li><a href="#network-firewall">AWS Network Firewall Integration</a></li>
+                    <li><a href="#best-practices">Best Practices for AWS VPC Networking</a></li>
+                    <li><a href="#faq">Frequently Asked Questions</a></li>
+                </ol>
+            </nav>
+
+            <section id="introduction">
+                <h2>Why VPC Networking Architecture Matters</h2>
+                <p>The Virtual Private Cloud is the foundation of every AWS deployment. Every EC2 instance, RDS database, Lambda function with VPC access, EKS cluster, and ECS task runs within a VPC. Getting the networking architecture right from the start prevents painful migrations later. Poor CIDR planning leads to IP exhaustion, missing network segmentation creates security gaps, and incorrect routing causes connectivity failures that are difficult to diagnose.</p>
+
+                <p>Production VPC networking requires careful consideration of several interconnected concerns: IP address planning that accommodates growth, subnet tiers that enforce network segmentation, routing that balances connectivity with isolation, NAT configuration that controls egress costs, and monitoring that provides visibility into traffic patterns. Each of these decisions has implications for security, cost, and operational complexity.</p>
+
+                <p>In this guide, I walk through a complete production VPC architecture using Terraform, covering the full stack from CIDR planning through Transit Gateway connectivity. The patterns here come from real-world implementations at <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a>, where I design network architectures for enterprise clients running hundreds of AWS accounts in multi-region configurations. The complete Terraform modules are available in my <a href="https://github.com/kogunlowo123/terraform-aws-vpc-complete">terraform-aws-vpc-complete</a> repository.</p>
+            </section>
+
+            <section id="comparison">
+                <h2>VPC Peering vs Transit Gateway vs PrivateLink Comparison</h2>
+                <p>AWS provides three primary mechanisms for connecting VPCs. Each serves different use cases, and understanding their trade-offs is essential for designing a scalable network architecture. The following table provides a detailed comparison based on the <a href="https://docs.aws.amazon.com/vpc/latest/userguide/" rel="noopener noreferrer" target="_blank">AWS VPC documentation</a> and real-world operational experience.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>VPC Peering</th>
+                            <th>Transit Gateway</th>
+                            <th>PrivateLink</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Connectivity Model</td>
+                            <td>Point-to-point between two VPCs</td>
+                            <td>Hub-and-spoke or full mesh</td>
+                            <td>Service consumer to provider</td>
+                        </tr>
+                        <tr>
+                            <td>Transitive Routing</td>
+                            <td>Not supported</td>
+                            <td>Fully supported</td>
+                            <td>Not applicable</td>
+                        </tr>
+                        <tr>
+                            <td>Cross-Region</td>
+                            <td>Supported (inter-region peering)</td>
+                            <td>Supported (inter-region peering)</td>
+                            <td>Supported via cross-region</td>
+                        </tr>
+                        <tr>
+                            <td>Cross-Account</td>
+                            <td>Supported</td>
+                            <td>Supported via RAM sharing</td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>CIDR Overlap</td>
+                            <td>Not allowed</td>
+                            <td>Not allowed on same route table</td>
+                            <td>Allowed (uses ENI private IPs)</td>
+                        </tr>
+                        <tr>
+                            <td>Bandwidth</td>
+                            <td>No limit (inter-AZ: 5 Gbps, same AZ: 10+ Gbps)</td>
+                            <td>Up to 50 Gbps per attachment</td>
+                            <td>Dependent on NLB targets</td>
+                        </tr>
+                        <tr>
+                            <td>Cost</td>
+                            <td>Free (same AZ), data transfer (cross-AZ/region)</td>
+                            <td>$0.05/hr per attachment + $0.02/GB</td>
+                            <td>$0.01/hr per endpoint + $0.01/GB</td>
+                        </tr>
+                        <tr>
+                            <td>Scale Limit</td>
+                            <td>125 peering connections per VPC</td>
+                            <td>5,000 attachments per TGW</td>
+                            <td>Unlimited endpoints</td>
+                        </tr>
+                        <tr>
+                            <td>Centralized Inspection</td>
+                            <td>Not possible</td>
+                            <td>Supported via inspection VPC</td>
+                            <td>Not applicable</td>
+                        </tr>
+                        <tr>
+                            <td>Best For</td>
+                            <td>2-3 VPCs, simple direct connectivity</td>
+                            <td>Multi-VPC networks, centralized routing</td>
+                            <td>Service exposure, AWS service access</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>For most enterprise landing zones, Transit Gateway is the right choice. It provides transitive routing, centralized network management, and the ability to inspect traffic through a security VPC. VPC Peering remains useful for high-bandwidth, low-cost connections between a small number of VPCs. PrivateLink serves a different purpose entirely, providing secure service-level connectivity rather than network-level connectivity.</p>
+            </section>
+
+            <section id="subnet-architecture">
+                <h2>Multi-AZ Subnet Architecture Design</h2>
+                <p>A production VPC subnet architecture uses three tiers distributed across at least three availability zones. This design provides both high availability and network segmentation.</p>
+
+                <h3>Public Subnets for External-Facing Resources</h3>
+                <p>Public subnets have a route to the Internet Gateway and are used exclusively for resources that must be directly reachable from the internet: Application Load Balancers, NAT Gateways, and bastion hosts (if you still use them). No application workloads should run in public subnets. Each public subnet gets a <code>/24</code> CIDR block, providing 251 usable IP addresses per availability zone.</p>
+
+                <h3>Private Subnets for Application Workloads</h3>
+                <p>Private subnets route outbound internet traffic through NAT Gateways in the public tier. They host application workloads: EKS node groups, ECS tasks, EC2 instances, and Lambda functions with VPC access. Private subnets receive larger CIDR allocations, typically <code>/20</code> or <code>/19</code>, to accommodate pod IP ranges for Kubernetes clusters. The route table for private subnets points the default route (<code>0.0.0.0/0</code>) to the NAT Gateway in the same availability zone.</p>
+
+                <h3>Isolated Subnets for Data Stores</h3>
+                <p>Isolated subnets have no route to the internet, neither inbound nor outbound. They host databases (RDS, ElastiCache, DocumentDB), sensitive data processing systems, and resources that should never communicate with the internet. Access to AWS APIs from isolated subnets goes through VPC endpoints, ensuring that all traffic stays within the AWS network. Isolated subnets typically use <code>/24</code> CIDR blocks since they host fewer resources.</p>
+            </section>
+
+            <section id="terraform-vpc">
+                <h2>Terraform VPC with Public, Private, and Isolated Subnets</h2>
+                <p>The following Terraform configuration creates a production-grade multi-AZ VPC with three subnet tiers, NAT Gateways, route tables, and Transit Gateway attachment. This code is derived from my <a href="https://github.com/kogunlowo123/terraform-aws-vpc-complete">terraform-aws-vpc-complete</a> module and follows <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-best-practices.html" rel="noopener noreferrer" target="_blank">AWS networking best practices</a>.</p>
+
+<pre><code># providers.tf
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.40"
+    }
+  }
+  backend "s3" {
+    bucket         = "your-terraform-state-bucket"
+    key            = "vpc/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
+  }
+}
+
+provider "aws" {
+  region = var.region
+}
+
+# variables.tf
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "production"
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+variable "transit_gateway_id" {
+  description = "Transit Gateway ID for attachment"
+  type        = string
+  default     = ""
+}
+
+# locals.tf
+locals {
+  name_prefix = "${var.environment}-vpc"
+
+  public_subnets = {
+    "${var.availability_zones[0]}" = "10.0.1.0/24"
+    "${var.availability_zones[1]}" = "10.0.2.0/24"
+    "${var.availability_zones[2]}" = "10.0.3.0/24"
+  }
+
+  private_subnets = {
+    "${var.availability_zones[0]}" = "10.0.16.0/20"
+    "${var.availability_zones[1]}" = "10.0.32.0/20"
+    "${var.availability_zones[2]}" = "10.0.48.0/20"
+  }
+
+  isolated_subnets = {
+    "${var.availability_zones[0]}" = "10.0.100.0/24"
+    "${var.availability_zones[1]}" = "10.0.101.0/24"
+    "${var.availability_zones[2]}" = "10.0.102.0/24"
+  }
+
+  common_tags = {
+    Environment = var.environment
+    ManagedBy   = "terraform"
+    Project     = "network-foundation"
+  }
+}
+
+# vpc.tf
+resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = merge(local.common_tags, {
+    Name = local.name_prefix
+  })
+}
+
+# Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-igw"
+  })
+}
+
+# ─── Public Subnets ───
+resource "aws_subnet" "public" {
+  for_each = local.public_subnets
+
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = each.value
+  availability_zone       = each.key
+  map_public_ip_on_launch = false
+
+  tags = merge(local.common_tags, {
+    Name                     = "${local.name_prefix}-public-${each.key}"
+    Tier                     = "public"
+    "kubernetes.io/role/elb" = "1"
+  })
+}
+
+# ─── Private Subnets ───
+resource "aws_subnet" "private" {
+  for_each = local.private_subnets
+
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = each.value
+  availability_zone = each.key
+
+  tags = merge(local.common_tags, {
+    Name                              = "${local.name_prefix}-private-${each.key}"
+    Tier                              = "private"
+    "kubernetes.io/role/internal-elb" = "1"
+  })
+}
+
+# ─── Isolated Subnets ───
+resource "aws_subnet" "isolated" {
+  for_each = local.isolated_subnets
+
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = each.value
+  availability_zone = each.key
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-isolated-${each.key}"
+    Tier = "isolated"
+  })
+}
+
+# ─── Elastic IPs for NAT Gateways ───
+resource "aws_eip" "nat" {
+  for_each = local.public_subnets
+
+  domain = "vpc"
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-nat-eip-${each.key}"
+  })
+}
+
+# ─── NAT Gateways (one per AZ for HA) ───
+resource "aws_nat_gateway" "main" {
+  for_each = local.public_subnets
+
+  allocation_id = aws_eip.nat[each.key].id
+  subnet_id     = aws_subnet.public[each.key].id
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-nat-${each.key}"
+  })
+
+  depends_on = [aws_internet_gateway.main]
+}
+
+# ─── Route Tables ───
+
+# Public route table
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-public-rt"
+  })
+}
+
+resource "aws_route_table_association" "public" {
+  for_each = local.public_subnets
+
+  subnet_id      = aws_subnet.public[each.key].id
+  route_table_id = aws_route_table.public.id
+}
+
+# Private route tables (one per AZ for AZ-local NAT)
+resource "aws_route_table" "private" {
+  for_each = local.private_subnets
+
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main[each.key].id
+  }
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-private-rt-${each.key}"
+  })
+}
+
+resource "aws_route_table_association" "private" {
+  for_each = local.private_subnets
+
+  subnet_id      = aws_subnet.private[each.key].id
+  route_table_id = aws_route_table.private[each.key].id
+}
+
+# Isolated route table (no internet route)
+resource "aws_route_table" "isolated" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-isolated-rt"
+  })
+}
+
+resource "aws_route_table_association" "isolated" {
+  for_each = local.isolated_subnets
+
+  subnet_id      = aws_subnet.isolated[each.key].id
+  route_table_id = aws_route_table.isolated.id
+}
+
+# ─── VPC Flow Logs ───
+resource "aws_flow_log" "main" {
+  vpc_id               = aws_vpc.main.id
+  traffic_type         = "ALL"
+  log_destination_type = "cloud-watch-logs"
+  log_destination      = aws_cloudwatch_log_group.flow_logs.arn
+  iam_role_arn         = aws_iam_role.flow_logs.arn
+  max_aggregation_interval = 60
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-flow-logs"
+  })
+}
+
+resource "aws_cloudwatch_log_group" "flow_logs" {
+  name              = "/aws/vpc/flow-logs/${local.name_prefix}"
+  retention_in_days = 90
+  kms_key_id        = var.kms_key_arn
+
+  tags = local.common_tags
+}
+
+resource "aws_iam_role" "flow_logs" {
+  name = "${local.name_prefix}-flow-logs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "vpc-flow-logs.amazonaws.com"
+      }
+    }]
+  })
+
+  tags = local.common_tags
+}
+
+resource "aws_iam_role_policy" "flow_logs" {
+  name = "flow-logs-policy"
+  role = aws_iam_role.flow_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ]
+      Effect   = "Allow"
+      Resource = "*"
+    }]
+  })
+}
+
+# ─── VPC Endpoints for AWS Services ───
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.main.id
+  service_name = "com.amazonaws.${var.region}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = concat(
+    [aws_route_table.public.id],
+    [for rt in aws_route_table.private : rt.id],
+    [aws_route_table.isolated.id]
+  )
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-s3-endpoint"
+  })
+}
+
+resource "aws_vpc_endpoint" "dynamodb" {
+  vpc_id       = aws_vpc.main.id
+  service_name = "com.amazonaws.${var.region}.dynamodb"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = concat(
+    [for rt in aws_route_table.private : rt.id],
+    [aws_route_table.isolated.id]
+  )
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-dynamodb-endpoint"
+  })
+}
+
+# ─── Transit Gateway Attachment (conditional) ───
+resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
+  count = var.transit_gateway_id != "" ? 1 : 0
+
+  subnet_ids         = [for s in aws_subnet.private : s.id]
+  transit_gateway_id = var.transit_gateway_id
+  vpc_id             = aws_vpc.main.id
+
+  dns_support        = "enable"
+  ipv6_support       = "disable"
+
+  transit_gateway_default_route_table_association = true
+  transit_gateway_default_route_table_propagation = true
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-tgw-attachment"
+  })
+}
+
+# ─── Outputs ───
+output "vpc_id" {
+  value = aws_vpc.main.id
+}
+
+output "public_subnet_ids" {
+  value = [for s in aws_subnet.public : s.id]
+}
+
+output "private_subnet_ids" {
+  value = [for s in aws_subnet.private : s.id]
+}
+
+output "isolated_subnet_ids" {
+  value = [for s in aws_subnet.isolated : s.id]
+}
+
+output "nat_gateway_ips" {
+  value = [for eip in aws_eip.nat : eip.public_ip]
+}</code></pre>
+
+                <p>This configuration creates a VPC with 65,536 IP addresses (<code>/16</code>), distributed across three availability zones. The private subnets use <code>/20</code> blocks with 4,096 IPs each, providing ample capacity for Kubernetes pod networking. The isolated subnets use smaller <code>/24</code> blocks since they host fewer resources. Each AZ gets its own NAT Gateway for high availability, ensuring that an AZ failure does not impact outbound connectivity for other AZs.</p>
+            </section>
+
+            <section id="nat-gateway">
+                <h2>NAT Gateway Configuration and Cost Optimization</h2>
+                <p>NAT Gateways are one of the most significant cost drivers in AWS networking. Each NAT Gateway costs $0.045 per hour ($32.40/month) plus $0.045 per GB of data processed. For a production environment processing 1 TB of outbound traffic per month, the data processing cost alone is $45 per AZ, or $135 across three AZs.</p>
+
+                <h3>Cost Reduction Strategies for NAT Gateway</h3>
+                <p>The most effective way to reduce NAT Gateway costs is to eliminate traffic that flows through it unnecessarily. VPC Gateway endpoints for S3 and DynamoDB route traffic directly to these services over the AWS backbone network at no additional cost. Interface endpoints for services like ECR, CloudWatch, STS, and Secrets Manager similarly bypass the NAT Gateway. My <a href="https://github.com/kogunlowo123/terraform-aws-privatelink">terraform-aws-privatelink</a> module provisions these endpoints with proper security group configurations.</p>
+
+                <p>For development and staging environments where high availability is less critical, using a single NAT Gateway shared across all private subnets reduces the fixed cost by two-thirds. The trade-off is that a single NAT Gateway creates a cross-AZ dependency and a single point of failure. For cost-sensitive development environments, NAT instances on small EC2 instances can further reduce costs, though they require more operational overhead.</p>
+            </section>
+
+            <section id="transit-gateway">
+                <h2>Transit Gateway for Multi-VPC Connectivity</h2>
+                <p>AWS Transit Gateway acts as a regional network hub that interconnects VPCs and on-premises networks through a single gateway. It eliminates the complexity of managing full-mesh VPC peering connections, which grows quadratically as you add VPCs. With Transit Gateway, each VPC needs only one attachment, and routing is managed centrally through Transit Gateway route tables.</p>
+
+                <h3>Transit Gateway Architecture Patterns</h3>
+                <p>The most common Transit Gateway architecture uses multiple route tables for network segmentation. A shared services route table connects VPCs that host DNS, monitoring, CI/CD, and other platform services. A production route table connects production workload VPCs. A development route table connects development and testing VPCs. Route table associations and propagations control which VPCs can communicate, enforcing segmentation without complex security group rules.</p>
+
+                <p>For centralized network inspection, route traffic through an inspection VPC hosting AWS Network Firewall or third-party appliances before allowing it to reach its destination. This pattern enables deep packet inspection, intrusion detection, and URL filtering for all inter-VPC and internet-bound traffic. The Transit Gateway routing is configured in my <a href="https://github.com/kogunlowo123/terraform-aws-transit-gateway">terraform-aws-transit-gateway</a> module.</p>
+
+                <h3>Transit Gateway with AWS Network Firewall</h3>
+                <p>Combining Transit Gateway with <a href="https://github.com/kogunlowo123/terraform-aws-network-firewall">AWS Network Firewall</a> creates a centralized inspection architecture. All traffic between VPCs and between VPCs and the internet routes through the firewall VPC. Network Firewall evaluates traffic against stateful and stateless rule groups, providing IDS/IPS capabilities, domain filtering, and protocol-level inspection. This architecture is particularly important for regulated industries that require network-level compliance controls.</p>
+            </section>
+
+            <section id="privatelink">
+                <h2>PrivateLink and VPC Endpoints</h2>
+                <p>AWS PrivateLink provides private connectivity to services without traversing the public internet. It creates elastic network interfaces (ENIs) with private IP addresses in your VPC subnets, making the target service appear as if it is running within your own VPC. This eliminates the need for internet gateways, NAT devices, or firewall rules for service access.</p>
+
+                <h3>Gateway Endpoints vs Interface Endpoints</h3>
+                <p>AWS offers two types of VPC endpoints. Gateway endpoints are available for S3 and DynamoDB only. They are free, highly available, and route traffic through prefix lists added to route tables. Interface endpoints use PrivateLink and are available for over 100 AWS services. They cost $0.01 per hour per AZ plus data processing charges but provide private DNS integration and security group control.</p>
+
+                <p>For production environments, I recommend deploying interface endpoints for the following critical services: <code>ecr.api</code>, <code>ecr.dkr</code>, <code>logs</code> (CloudWatch Logs), <code>monitoring</code> (CloudWatch), <code>sts</code>, <code>secretsmanager</code>, and <code>ssm</code>. These endpoints eliminate NAT Gateway costs for AWS API traffic and provide more reliable connectivity since they do not depend on NAT Gateway availability.</p>
+            </section>
+
+            <section id="flow-logs">
+                <h2>VPC Flow Logs and Network Monitoring</h2>
+                <p>VPC Flow Logs capture information about the IP traffic going to and from network interfaces in your VPC. They are essential for security analysis, troubleshooting connectivity issues, and understanding traffic patterns for cost optimization. Flow logs can be published to CloudWatch Logs, S3, or Kinesis Data Firehose.</p>
+
+                <h3>Flow Log Analysis for Security and Cost Optimization</h3>
+                <p>Flow logs reveal several types of valuable information. Rejected traffic patterns indicate potential scanning or misconfigured security groups. Large outbound data transfers to unexpected destinations may indicate data exfiltration. High-volume traffic to NAT Gateways identifies candidates for VPC endpoint optimization. Cross-AZ traffic patterns highlight opportunities to co-locate services to reduce data transfer costs.</p>
+
+                <p>For cost-effective flow log storage, publish to S3 with Parquet format and use Athena for ad-hoc queries. The Parquet format reduces storage costs by 50-70% compared to plain text and significantly improves Athena query performance. Set the aggregation interval to 60 seconds for security monitoring or 600 seconds for cost optimization analysis where real-time granularity is less critical.</p>
+            </section>
+
+            <section id="network-firewall">
+                <h2>AWS Network Firewall Integration</h2>
+                <p>AWS Network Firewall provides managed network traffic filtering for VPCs. It supports stateful inspection, intrusion prevention, and domain-based filtering. When deployed in a centralized inspection architecture with Transit Gateway, it provides consistent security controls across all VPCs without requiring security appliances in each VPC.</p>
+
+                <h3>Rule Group Design for Enterprise Networks</h3>
+                <p>Network Firewall rule groups should be organized by function. A baseline stateless rule group handles fast-path decisions like blocking known malicious IP ranges and allowing established connections. Stateful rule groups implement domain filtering (allow only approved domains for outbound HTTPS), protocol inspection (ensure TLS version compliance), and IPS signatures (detect and block known exploitation patterns). My <a href="https://github.com/kogunlowo123/terraform-aws-network-firewall">terraform-aws-network-firewall</a> module provides reusable rule group templates for common enterprise requirements.</p>
+            </section>
+
+            <section id="best-practices">
+                <h2>Best Practices for AWS VPC Networking</h2>
+                <p>These best practices reflect years of production network architecture experience across enterprise AWS environments and align with the guidance in the AWS Well-Architected Framework.</p>
+
+                <ol class="best-practices">
+                    <li><strong>Plan CIDR ranges for 3-5 years of growth.</strong> IP exhaustion is one of the most disruptive networking problems to remediate. Use <code>/16</code> VPC CIDRs for production environments. Reserve CIDR blocks across your organization using an IPAM solution or a simple spreadsheet. AWS VPC IPAM automates this for large-scale deployments. Never use <code>/24</code> or smaller VPCs for any environment that might grow.</li>
+                    <li><strong>Deploy NAT Gateways per AZ for production.</strong> A single NAT Gateway creates a cross-AZ dependency. If the AZ hosting the NAT Gateway fails, all private subnets in other AZs lose internet connectivity. The additional cost of per-AZ NAT Gateways is justified for production workloads. For non-production, a single NAT Gateway is acceptable.</li>
+                    <li><strong>Use VPC endpoints for all high-volume AWS service traffic.</strong> Gateway endpoints for S3 and DynamoDB are free and should be deployed in every VPC without exception. Interface endpoints for ECR, CloudWatch, and STS eliminate NAT Gateway data processing charges and improve reliability. Calculate the break-even point: if endpoint hourly costs are less than NAT data processing costs, deploy the endpoint.</li>
+                    <li><strong>Enable VPC flow logs in every VPC.</strong> Flow logs provide the network visibility required for security monitoring, troubleshooting, and cost optimization. Publish to S3 in Parquet format for cost-effective long-term storage. Set up Athena tables for ad-hoc analysis and CloudWatch Metrics filters for automated alerting on rejected traffic spikes.</li>
+                    <li><strong>Implement three subnet tiers: public, private, isolated.</strong> Public subnets for load balancers and NAT Gateways only. Private subnets for application workloads with NAT egress. Isolated subnets for databases with no internet route. Each tier gets its own route table. This segmentation limits blast radius and simplifies security group management.</li>
+                    <li><strong>Use Transit Gateway for environments with more than three VPCs.</strong> The operational complexity of VPC peering grows quadratically. Transit Gateway centralizes routing, enables network segmentation through route tables, and supports centralized inspection through firewall VPCs. The cost is predictable and scales linearly with the number of attachments.</li>
+                    <li><strong>Tag subnets for Kubernetes integration.</strong> EKS requires specific subnet tags for automatic load balancer placement. Tag public subnets with <code>kubernetes.io/role/elb = 1</code> for internet-facing ALBs and private subnets with <code>kubernetes.io/role/internal-elb = 1</code> for internal ALBs. Include the cluster name tag for multi-cluster VPCs.</li>
+                    <li><strong>Avoid overlapping CIDRs across your organization.</strong> CIDR conflicts prevent VPC peering, Transit Gateway connectivity, and VPN routing. Maintain a central CIDR registry and enforce allocation through Terraform modules that validate against the registry before creating subnets.</li>
+                    <li><strong>Use Network ACLs as a secondary defense layer.</strong> While security groups provide primary instance-level filtering, Network ACLs add subnet-level stateless filtering. Use them to block entire CIDR ranges, enforce deny rules that security groups cannot express, and provide an additional layer of defense for compliance requirements.</li>
+                    <li><strong>Implement DNS resolution across VPCs with Route 53 Resolver.</strong> When using Transit Gateway or VPC peering, centralize DNS resolution with Route 53 Resolver endpoints. Create resolver rules for private hosted zones shared across VPCs, on-premises DNS forwarding, and split-horizon DNS for hybrid environments.</li>
+                </ol>
+            </section>
+
+            <section id="faq">
+                <h2>Frequently Asked Questions</h2>
+
+                <div class="faq-item">
+                    <h3>What is the best VPC subnet architecture for production AWS workloads?</h3>
+                    <p>The recommended production VPC architecture uses three subnet tiers across three or more availability zones: public subnets for load balancers and NAT Gateways, private subnets for application workloads like ECS/EKS and EC2 instances, and isolated subnets for databases and sensitive data stores with no internet access. Each tier has its own route table with appropriate routing rules. Use <code>/16</code> VPC CIDRs to allow for growth.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>When should I use Transit Gateway instead of VPC Peering?</h3>
+                    <p>Use Transit Gateway when connecting more than 3-4 VPCs, when you need transitive routing between VPCs, or when centralizing network inspection through a firewall VPC. VPC Peering is simpler and free for data transfer within the same AZ, making it ideal for connecting 2-3 VPCs with direct communication requirements. Transit Gateway charges per attachment and per GB processed but provides centralized management.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How do I reduce NAT Gateway costs in AWS?</h3>
+                    <p>Reduce NAT Gateway costs by using VPC endpoints for AWS service traffic (S3, DynamoDB, ECR, CloudWatch), which eliminates NAT Gateway data processing charges for those services. Use a single NAT Gateway per AZ rather than per subnet. Consider NAT instances for development environments. Enable VPC flow logs to identify unexpected outbound traffic patterns driving costs. Interface endpoints for high-volume services often pay for themselves within days.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>What is AWS PrivateLink and when should I use it?</h3>
+                    <p>AWS PrivateLink provides private connectivity between VPCs, AWS services, and on-premises networks without exposing traffic to the public internet. Use PrivateLink when consuming AWS services from private subnets, when exposing your services to other AWS accounts securely, or when connecting to SaaS providers that support PrivateLink. It creates elastic network interfaces in your VPC with private IP addresses, avoiding NAT Gateway costs and internet exposure.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How do I implement network segmentation with Terraform in AWS VPC?</h3>
+                    <p>Implement network segmentation using multiple route tables (one per subnet tier), security groups for stateful instance-level filtering, network ACLs for stateless subnet-level filtering, and AWS Network Firewall for centralized inspection. Define each component as a Terraform module with clear input variables for CIDR ranges, allowed ports, and routing destinations. Use flow logs to validate that segmentation rules work as expected.</p>
+                </div>
+            </section>
+
+            <!-- Share Buttons -->
+            <div class="share-buttons">
+                <a class="share-btn" href="https://twitter.com/intent/tweet?url=https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html&text=AWS VPC Networking with Terraform — Complete Guide" target="_blank" rel="noopener noreferrer">Share on Twitter</a>
+                <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html" target="_blank" rel="noopener noreferrer">Share on LinkedIn</a>
+                <a class="share-btn" href="https://news.ycombinator.com/submitlink?u=https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html&t=Terraform AWS VPC Networking Guide" target="_blank" rel="noopener noreferrer">Share on Hacker News</a>
+            </div>
+
+            <!-- Author Bio -->
+            <div class="author-box">
+                <div class="author-info">
+                    <h3>About Kehinde Ogunlowo</h3>
+                    <p>Kehinde Ogunlowo is a Principal Multi-Cloud DevSecOps Architect at <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a>, specializing in enterprise cloud architecture across AWS, Azure, and Google Cloud. With deep expertise in network architecture, Terraform automation, and security engineering, Kehinde helps organizations build resilient, secure, and cost-optimized cloud infrastructure.</p>
+                    <p>
+                        <a href="https://github.com/kogunlowo123">GitHub</a> |
+                        <a href="https://linkedin.com/in/kehinde-ogunlowo">LinkedIn</a> |
+                        <a href="https://kogunlowo123.github.io">Website</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            <div class="related-articles">
+                <h2>Related Articles</h2>
+                <ul>
+                    <li><a href="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html">The Complete Guide to Production EKS with Terraform</a></li>
+                    <li><a href="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html">Multi-Cloud Zero Trust Architecture</a></li>
+                    <li><a href="https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html">GKE Autopilot with Terraform</a></li>
+                </ul>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-box">
+                <h3>Need Help with AWS Network Architecture?</h3>
+                <p>Citadel Cloud Management designs and implements enterprise network architectures across AWS, Azure, and Google Cloud. From VPC design to Transit Gateway deployment, we help organizations build secure, scalable, and cost-optimized network foundations.</p>
+                <a href="https://citadelcloudmanagement.com" class="cta-button">Get in Touch</a>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+    </footer>
+</body>
+</html>

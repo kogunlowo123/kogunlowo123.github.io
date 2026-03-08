@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <title>Building Autonomous AI Workflows with AWS Bedrock Agents and Knowledge Bases | Kehinde Ogunlowo</title>
+    <meta name="description" content="Build autonomous AI workflows using AWS Bedrock Agents, knowledge bases, action groups, and foundation models. Complete guide with Python code and Terraform.">
+    <meta name="keywords" content="AWS Bedrock Agents autonomous workflows, bedrock knowledge base, action groups, agent orchestration, foundation models, vector store, opensearch serverless, lambda integration">
+    <meta name="author" content="Kehinde Ogunlowo">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Building Autonomous AI Workflows with AWS Bedrock Agents and Knowledge Bases">
+    <meta property="og:description" content="Build autonomous AI workflows using AWS Bedrock Agents, knowledge bases, action groups, and foundation models. Complete guide with Python code and Terraform.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo - Principal Multi-Cloud DevSecOps Architect">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Building Autonomous AI Workflows with AWS Bedrock Agents and Knowledge Bases">
+    <meta name="twitter:description" content="Build autonomous AI workflows using AWS Bedrock Agents, knowledge bases, action groups, and foundation models. Complete guide with Python code and Terraform.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Building Autonomous AI Workflows with AWS Bedrock Agents and Knowledge Bases",
+        "description": "Build autonomous AI workflows using AWS Bedrock Agents, knowledge bases, action groups, and foundation models. Complete guide with Python code and Terraform.",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "jobTitle": "Principal Multi-Cloud DevSecOps Architect",
+            "url": "https://kogunlowo123.github.io"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html"
+        },
+        "keywords": ["AWS Bedrock Agents", "autonomous workflows", "knowledge base", "action groups", "foundation models", "vector store", "opensearch serverless", "lambda integration"]
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What are AWS Bedrock Agents and how do they work?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "AWS Bedrock Agents are managed AI orchestration services that combine foundation models with knowledge bases and action groups to autonomously plan and execute multi-step tasks. They use ReAct-style reasoning to decompose user requests, retrieve relevant context from knowledge bases, and invoke Lambda functions through action groups to complete complex workflows."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do Bedrock Knowledge Bases integrate with vector stores?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Bedrock Knowledge Bases automatically chunk, embed, and index documents from S3 data sources into a vector store. Supported vector stores include OpenSearch Serverless, Amazon Aurora PostgreSQL with pgvector, Pinecone, and Redis Enterprise. During agent invocation, the knowledge base performs semantic search to retrieve relevant document chunks that are injected into the foundation model's context."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is the difference between Bedrock Agents and LangChain Agents?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Bedrock Agents are a fully managed AWS service with built-in integration to AWS services, automatic prompt management, and no infrastructure to maintain. LangChain Agents are an open-source framework that offers more flexibility and model choice but require self-managed infrastructure, custom orchestration code, and manual prompt engineering."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do action groups connect Bedrock Agents to external systems?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Action groups define APIs that a Bedrock Agent can invoke during task execution. Each action group is backed by a Lambda function and described by an OpenAPI schema. When the agent determines it needs to perform an action, it generates the appropriate API call parameters, invokes the Lambda function, and uses the response to continue its reasoning chain."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What foundation models work best with Bedrock Agents?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Anthropic Claude 3.5 Sonnet and Claude 3 Opus are the most capable models for Bedrock Agents, offering strong reasoning, instruction following, and tool use capabilities. Amazon Titan models provide a cost-effective alternative for simpler workflows. The choice depends on the complexity of reasoning required, latency requirements, and cost constraints."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://kogunlowo123.github.io"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "https://kogunlowo123.github.io/blog"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Building Autonomous AI Workflows with AWS Bedrock Agents",
+                "item": "https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html"
+            }
+        ]
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0e1a; color: #e2e8f0; font-family: 'Inter', sans-serif; line-height: 1.8; -webkit-font-smoothing: antialiased;">
+
+    <!-- Navigation -->
+    <nav style="background-color: #111827; border-bottom: 1px solid rgba(0, 212, 255, 0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px);">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none; font-weight: 700; font-size: 1.25rem;">Kehinde Ogunlowo</a>
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <a href="https://kogunlowo123.github.io/blog" style="color: #e2e8f0; text-decoration: none; font-weight: 500;">Blog</a>
+                <a href="https://kogunlowo123.github.io/about" style="color: #e2e8f0; text-decoration: none; font-weight: 500;">About</a>
+                <a href="https://github.com/kogunlowo123" style="color: #e2e8f0; text-decoration: none; font-weight: 500;">GitHub</a>
+                <a href="https://citadelcloudmanagement.com" style="color: #e2e8f0; text-decoration: none; font-weight: 500;">Citadel Cloud</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div style="max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem;">
+        <nav style="font-size: 0.875rem; color: #94a3b8;">
+            <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none;">Home</a>
+            <span style="margin: 0 0.5rem;">/</span>
+            <a href="https://kogunlowo123.github.io/blog" style="color: #00d4ff; text-decoration: none;">Blog</a>
+            <span style="margin: 0 0.5rem;">/</span>
+            <span>Building Autonomous AI Workflows with AWS Bedrock Agents</span>
+        </nav>
+    </div>
+
+    <!-- Article -->
+    <article style="max-width: 900px; margin: 2rem auto; padding: 0 2rem;">
+
+        <!-- Article Header -->
+        <header style="margin-bottom: 2.5rem;">
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">AWS</span>
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">Bedrock</span>
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">AI/ML</span>
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">Serverless</span>
+            </div>
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: #ffffff; line-height: 1.2; margin: 0 0 1rem 0;">Building Autonomous AI Workflows with AWS Bedrock Agents and Knowledge Bases</h1>
+            <div style="display: flex; align-items: center; gap: 1rem; color: #94a3b8; font-size: 0.9rem; flex-wrap: wrap;">
+                <span>By <a href="https://linkedin.com/in/kehinde-ogunlowo" style="color: #00d4ff; text-decoration: none;">Kehinde Ogunlowo</a></span>
+                <span>|</span>
+                <time datetime="2026-03-07">March 7, 2026</time>
+                <span>|</span>
+                <span>16 min read</span>
+            </div>
+        </header>
+
+        <!-- Table of Contents -->
+        <nav style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2.5rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 1rem 0;">Table of Contents</h2>
+            <ol style="margin: 0; padding-left: 1.25rem; color: #94a3b8;">
+                <li style="margin-bottom: 0.5rem;"><a href="#introduction" style="color: #00d4ff; text-decoration: none;">The Rise of Autonomous AI Agents in the Enterprise</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#architecture" style="color: #00d4ff; text-decoration: none;">Bedrock Agents Architecture and Orchestration</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#knowledge-bases" style="color: #00d4ff; text-decoration: none;">Knowledge Bases and Vector Store Integration</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#action-groups" style="color: #00d4ff; text-decoration: none;">Action Groups and Lambda Integration</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#python-implementation" style="color: #00d4ff; text-decoration: none;">Python Implementation: Agent Invocation with Action Group Handling</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#comparison" style="color: #00d4ff; text-decoration: none;">Bedrock Agents vs LangChain Agents vs Azure AI Agents</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#foundation-models" style="color: #00d4ff; text-decoration: none;">Choosing the Right Foundation Model</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#best-practices" style="color: #00d4ff; text-decoration: none;">Best Practices for Production Agent Deployments</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#terraform-infra" style="color: #00d4ff; text-decoration: none;">Infrastructure as Code with Terraform</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#faq" style="color: #00d4ff; text-decoration: none;">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <!-- Introduction -->
+        <section id="introduction" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">The Rise of Autonomous AI Agents in the Enterprise</h2>
+            <p style="font-size: 1.125rem; color: #cbd5e1; margin-bottom: 1.5rem;">
+                The evolution from simple chatbot interactions to autonomous AI workflows represents a fundamental shift in how enterprises leverage foundation models. Rather than requiring human intervention at every step, AWS Bedrock Agents can independently decompose complex tasks, retrieve relevant knowledge, execute actions through APIs, and synthesize results into coherent responses. This capability transforms foundation models from passive question-answering systems into active participants in business processes.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                At Citadel Cloud Management, we have deployed Bedrock Agents across several enterprise use cases: automated incident response that queries runbooks and executes remediation steps, intelligent document processing pipelines that extract and validate information across multiple data sources, and customer support systems that resolve tickets by accessing internal knowledge bases and triggering downstream workflows. Each of these implementations follows the same architectural pattern that this guide explores in depth.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The key architectural components are <strong style="color: #ffffff;">Bedrock Agents</strong> for orchestration and reasoning, <strong style="color: #ffffff;">Knowledge Bases</strong> for retrieval-augmented generation (RAG), <strong style="color: #ffffff;">Action Groups</strong> for executing external operations via Lambda functions, and <strong style="color: #ffffff;">Foundation Models</strong> that provide the reasoning engine. Understanding how these components interact is essential for building reliable, production-grade autonomous workflows.
+            </p>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Bedrock Agents Architecture and Agent Orchestration</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                A Bedrock Agent operates through a reasoning loop inspired by the ReAct (Reasoning + Acting) paradigm. When a user sends a request, the agent follows a structured cycle: it reasons about what information or actions are needed, decides whether to query a knowledge base or invoke an action group, processes the results, and either continues reasoning or delivers a final response. This cycle can repeat multiple times within a single invocation, enabling complex multi-step workflows.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The orchestration layer manages prompt construction automatically. AWS injects the agent's instructions, the available action group schemas, knowledge base descriptions, and conversation history into a structured prompt that the foundation model processes. The model's response is parsed for tool use requests (knowledge base queries or action group invocations), which are executed, and the results are fed back into the next reasoning step. This orchestration is entirely managed by AWS, eliminating the need for custom prompt chaining logic.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Each agent is configured with an instruction set that defines its persona, capabilities, and behavioral constraints. These instructions are critical for production deployments: they determine how the agent interprets ambiguous requests, when it escalates to humans, and what actions it is permitted to take autonomously. Well-crafted instructions are the difference between a reliable agent and one that produces unpredictable results. The <a href="https://github.com/kogunlowo123/terraform-aws-bedrock-agents" style="color: #00d4ff; text-decoration: none;">terraform-aws-bedrock-agents</a> module encapsulates the complete agent configuration including instruction templates, guardrails, and IAM policies.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                For a comprehensive understanding of the agent architecture, refer to the <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html" style="color: #00d4ff; text-decoration: none;" rel="noopener noreferrer">AWS Bedrock Agents documentation</a>, which details the orchestration flow, session management, and advanced configuration options.
+            </p>
+        </section>
+
+        <!-- Knowledge Bases -->
+        <section id="knowledge-bases" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Bedrock Knowledge Bases and Vector Store Integration</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Knowledge Bases provide the retrieval-augmented generation (RAG) layer that grounds agent responses in your organization's actual data. Rather than relying solely on the foundation model's training data, knowledge bases enable agents to access current, proprietary information stored in your documents, databases, and knowledge repositories.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The ingestion pipeline works as follows: documents stored in Amazon S3 are processed through a chunking strategy (fixed-size, semantic, or hierarchical), converted into vector embeddings using an embedding model (Amazon Titan Embeddings or Cohere Embed), and stored in a vector database. During query time, the user's question is embedded using the same model, and a similarity search retrieves the most relevant document chunks. These chunks are injected into the foundation model's prompt as context, enabling accurate and grounded responses.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                <strong style="color: #ffffff;">OpenSearch Serverless</strong> is the recommended vector store for most production deployments. It provides automatic scaling, encryption at rest, and fine-grained access control through AWS IAM. The serverless architecture eliminates capacity planning and cluster management, charging only for compute and storage consumed. For the complete RAG infrastructure, the <a href="https://github.com/kogunlowo123/terraform-aws-rag-pipeline" style="color: #00d4ff; text-decoration: none;">terraform-aws-rag-pipeline</a> module provisions the S3 data sources, OpenSearch Serverless collection, embedding configuration, and knowledge base with a single Terraform apply.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Chunking strategy significantly impacts retrieval quality. Fixed-size chunking at 300-500 tokens with 10-20% overlap works well for structured documents like technical manuals. Semantic chunking, which splits documents at natural boundaries like paragraphs and sections, preserves context better for narrative content. Hierarchical chunking creates parent-child relationships between large and small chunks, enabling both broad context retrieval and precise answer extraction. The <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html" style="color: #00d4ff; text-decoration: none;" rel="noopener noreferrer">AWS Bedrock Knowledge Base documentation</a> provides detailed guidance on choosing the right strategy for your data.
+            </p>
+        </section>
+
+        <!-- Action Groups -->
+        <section id="action-groups" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Action Groups and Lambda Integration for Agent Orchestration</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Action groups are the mechanism through which Bedrock Agents interact with external systems. Each action group consists of an OpenAPI schema that describes the available operations (including parameters, types, and descriptions) and a Lambda function that executes those operations. When the agent determines that an action is needed, it generates the API call parameters based on the schema definition and invokes the Lambda function.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The OpenAPI schema serves a dual purpose: it informs the foundation model about what actions are available and constrains the parameters the model can generate. Well-documented schemas with detailed descriptions, examples, and parameter constraints dramatically improve the agent's ability to correctly invoke actions. Vague or poorly documented schemas lead to hallucinated parameters and failed invocations.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Lambda functions backing action groups should follow a specific contract. The event payload contains the action group name, the API path, the HTTP method, and the parameters extracted by the agent. The function must return a response body that the agent can incorporate into its reasoning chain. Error handling is critical: the function should return structured error messages that the agent can interpret and potentially retry with corrected parameters. The <a href="https://github.com/kogunlowo123/terraform-aws-lambda" style="color: #00d4ff; text-decoration: none;">terraform-aws-lambda</a> module provides production-ready Lambda configurations with VPC integration, layers, and observability that pair with Bedrock action groups.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                A single agent can have multiple action groups, each representing a different domain or service. For example, an incident response agent might have action groups for querying monitoring systems, searching runbooks, creating tickets, and executing remediation scripts. The agent autonomously decides which action group to invoke based on the task at hand.
+            </p>
+        </section>
+
+        <!-- Python Implementation -->
+        <section id="python-implementation" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Python Implementation: Agent Invocation with Action Group Handling</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1.5rem;">
+                The following Python implementation demonstrates how to invoke a Bedrock Agent, handle streaming responses, and process action group results. This pattern is used in the <a href="https://github.com/kogunlowo123/terraform-aws-bedrock-platform" style="color: #00d4ff; text-decoration: none;">terraform-aws-bedrock-platform</a> module's companion application code for production agent deployments.
+            </p>
+
+            <div style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem;">
+                <div style="background-color: rgba(0, 212, 255, 0.05); padding: 0.75rem 1rem; border-bottom: 1px solid rgba(0, 212, 255, 0.15); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #00d4ff; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">bedrock_agent_client.py</span>
+                    <span style="color: #94a3b8; font-size: 0.8rem;">Python</span>
+                </div>
+                <pre style="margin: 0; padding: 1.25rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; color: #e2e8f0;"><code>import boto3
+import json
+import uuid
+import logging
+from typing import Generator, Optional
+
+logger = logging.getLogger(__name__)
+
+class BedrockAgentClient:
+    """Production client for invoking AWS Bedrock Agents
+    with action group handling and streaming support."""
+
+    def __init__(
+        self,
+        agent_id: str,
+        agent_alias_id: str,
+        region: str = "us-east-1",
+    ):
+        self.agent_id = agent_id
+        self.agent_alias_id = agent_alias_id
+        self.client = boto3.client(
+            "bedrock-agent-runtime",
+            region_name=region,
+        )
+
+    def invoke_agent(
+        self,
+        prompt: str,
+        session_id: Optional[str] = None,
+        enable_trace: bool = False,
+        session_attributes: Optional[dict] = None,
+    ) -> dict:
+        """Invoke a Bedrock Agent and collect the full response,
+        including action group invocations and knowledge base queries."""
+
+        session_id = session_id or str(uuid.uuid4())
+        session_state = {}
+        if session_attributes:
+            session_state["sessionAttributes"] = session_attributes
+
+        response = self.client.invoke_agent(
+            agentId=self.agent_id,
+            agentAliasId=self.agent_alias_id,
+            sessionId=session_id,
+            inputText=prompt,
+            enableTrace=enable_trace,
+            sessionState=session_state,
+        )
+
+        result = {
+            "session_id": session_id,
+            "output_text": "",
+            "citations": [],
+            "trace_steps": [],
+            "action_invocations": [],
+        }
+
+        for event in response["completion"]:
+            # Handle text output chunks
+            if "chunk" in event:
+                chunk = event["chunk"]
+                result["output_text"] += chunk["bytes"].decode("utf-8")
+
+                # Extract citations from knowledge base
+                if "attribution" in chunk:
+                    for citation in chunk["attribution"]["citations"]:
+                        for ref in citation.get("retrievedReferences", []):
+                            result["citations"].append({
+                                "source": ref["location"]["s3Location"]["uri"],
+                                "content": ref["content"]["text"][:200],
+                                "score": ref.get("score", 0),
+                            })
+
+            # Handle trace events for observability
+            if "trace" in event and enable_trace:
+                trace = event["trace"]["trace"]
+
+                # Track orchestration steps
+                if "orchestrationTrace" in trace:
+                    orch = trace["orchestrationTrace"]
+
+                    # Capture action group invocations
+                    if "invocationInput" in orch:
+                        inv = orch["invocationInput"]
+                        if "actionGroupInvocationInput" in inv:
+                            ag_input = inv["actionGroupInvocationInput"]
+                            result["action_invocations"].append({
+                                "action_group": ag_input["actionGroupName"],
+                                "api_path": ag_input.get("apiPath", ""),
+                                "verb": ag_input.get("verb", ""),
+                                "parameters": ag_input.get("parameters", []),
+                            })
+                            logger.info(
+                                "Agent invoked action group: %s %s %s",
+                                ag_input["actionGroupName"],
+                                ag_input.get("verb", ""),
+                                ag_input.get("apiPath", ""),
+                            )
+
+                    # Capture model reasoning
+                    if "rationale" in orch:
+                        result["trace_steps"].append({
+                            "type": "rationale",
+                            "text": orch["rationale"]["text"],
+                        })
+
+                    # Capture observation from action results
+                    if "observation" in orch:
+                        obs = orch["observation"]
+                        if "actionGroupInvocationOutput" in obs:
+                            result["trace_steps"].append({
+                                "type": "action_result",
+                                "text": obs["actionGroupInvocationOutput"]["text"],
+                            })
+
+        logger.info(
+            "Agent response: %d chars, %d citations, %d actions",
+            len(result["output_text"]),
+            len(result["citations"]),
+            len(result["action_invocations"]),
+        )
+        return result
+
+    def invoke_with_return_control(
+        self,
+        prompt: str,
+        session_id: Optional[str] = None,
+    ) -> dict:
+        """Invoke agent with return-of-control for human-in-the-loop
+        workflows where action execution requires approval."""
+
+        session_id = session_id or str(uuid.uuid4())
+
+        response = self.client.invoke_agent(
+            agentId=self.agent_id,
+            agentAliasId=self.agent_alias_id,
+            sessionId=session_id,
+            inputText=prompt,
+            enableTrace=True,
+        )
+
+        result = {
+            "session_id": session_id,
+            "output_text": "",
+            "pending_actions": [],
+        }
+
+        for event in response["completion"]:
+            if "chunk" in event:
+                result["output_text"] += event["chunk"]["bytes"].decode("utf-8")
+
+            if "returnControl" in event:
+                invocation = event["returnControl"]["invocationInputs"]
+                for inv in invocation:
+                    if "apiInvocationInput" in inv:
+                        api = inv["apiInvocationInput"]
+                        result["pending_actions"].append({
+                            "action_group": api["actionGroupName"],
+                            "api_path": api.get("apiPath"),
+                            "http_method": api.get("httpMethod"),
+                            "parameters": api.get("parameters", []),
+                            "request_body": api.get("requestBody", {}),
+                            "invocation_id": event["returnControl"]["invocationId"],
+                        })
+
+        return result
+
+
+# Usage example
+if __name__ == "__main__":
+    client = BedrockAgentClient(
+        agent_id="AGENT_ID_HERE",
+        agent_alias_id="ALIAS_ID_HERE",
+        region="us-east-1",
+    )
+
+    # Standard invocation with tracing
+    result = client.invoke_agent(
+        prompt="Analyze the latest deployment metrics and create "
+               "a summary report for the engineering team.",
+        enable_trace=True,
+        session_attributes={
+            "environment": "production",
+            "team": "platform-engineering",
+        },
+    )
+
+    print(f"Response: {result['output_text'][:500]}")
+    print(f"Citations: {len(result['citations'])}")
+    print(f"Actions taken: {len(result['action_invocations'])}")
+
+    for action in result["action_invocations"]:
+        print(f"  - {action['action_group']}: "
+              f"{action['verb']} {action['api_path']}")</code></pre>
+            </div>
+
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                This implementation includes several production-critical features. The <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">invoke_agent</code> method handles the complete response lifecycle including text output, knowledge base citations, and action group invocation tracking. The <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">invoke_with_return_control</code> method supports human-in-the-loop workflows where sensitive actions require approval before execution.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The trace extraction is particularly valuable for debugging and observability. By capturing the agent's rationale at each step, you can understand why the agent chose specific actions and identify reasoning failures. In production, these traces are sent to CloudWatch Logs for analysis and alerting.
+            </p>
+        </section>
+
+        <!-- Comparison Table -->
+        <section id="comparison" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Bedrock Agents vs LangChain Agents vs Azure AI Agents Comparison</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1.5rem;">
+                Choosing the right agent framework depends on your cloud strategy, operational capabilities, and customization requirements. The following comparison evaluates the three leading approaches across critical production dimensions.
+            </p>
+
+            <div style="overflow-x: auto; margin-bottom: 1.5rem;">
+                <table style="width: 100%; border-collapse: collapse; background-color: #111827; border-radius: 8px; overflow: hidden; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background-color: rgba(0, 212, 255, 0.1);">
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">Dimension</th>
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">AWS Bedrock Agents</th>
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">LangChain Agents</th>
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">Azure AI Agents</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Deployment Model</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Fully managed (serverless)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Self-managed (any infra)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Managed (Azure AI Studio)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Model Support</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Bedrock models (Claude, Titan, Llama, Mistral)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Any model (OpenAI, Anthropic, OSS, local)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Azure OpenAI models</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">RAG Integration</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Built-in Knowledge Bases</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Manual (many vector store options)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Azure AI Search integration</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Tool/Action Mechanism</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Action Groups (OpenAPI + Lambda)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Tools (Python functions)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Functions + Azure Functions</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Prompt Engineering</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Managed (instructions only)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Full control (custom prompts)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Managed with customization</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Session Management</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Built-in (automatic)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Manual (memory modules)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Built-in threads</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Guardrails</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Bedrock Guardrails (native)</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Custom implementation</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Azure AI Content Safety</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Operational Overhead</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #4ade80;">Low</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #f87171;">High</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #4ade80;">Low</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; color: #ffffff; font-weight: 500;">Best For</td>
+                            <td style="padding: 0.75rem 1rem; color: #cbd5e1;">AWS-native orgs wanting managed AI</td>
+                            <td style="padding: 0.75rem 1rem; color: #cbd5e1;">Multi-cloud, custom, research</td>
+                            <td style="padding: 0.75rem 1rem; color: #cbd5e1;">Azure-native orgs, OpenAI users</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                For organizations committed to AWS, Bedrock Agents offer the fastest path to production with the lowest operational burden. The fully managed orchestration, built-in knowledge base integration, and native guardrails eliminate weeks of custom development. For multi-cloud organizations or those requiring deep customization of the reasoning loop, LangChain provides unmatched flexibility at the cost of self-managed infrastructure and prompt engineering. Azure AI Agents occupy a similar managed space for Azure-native organizations, with tight integration into the Azure OpenAI ecosystem.
+            </p>
+        </section>
+
+        <!-- Foundation Models -->
+        <section id="foundation-models" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Choosing the Right Foundation Model for Agent Orchestration</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The foundation model is the reasoning engine of your agent, and model selection directly impacts the quality of task decomposition, action invocation accuracy, and response coherence. Not all models are equally capable of the structured reasoning required for agent workflows.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                <strong style="color: #ffffff;">Anthropic Claude 3.5 Sonnet</strong> is the recommended default for most Bedrock Agent deployments. It provides an excellent balance of reasoning capability, instruction following, and cost efficiency. Its strong performance on tool use benchmarks means it reliably generates correct action group parameters and appropriately decides when to query knowledge bases versus taking actions. For complex multi-step workflows that require nuanced reasoning or handling of ambiguous instructions, Claude 3 Opus provides superior performance at higher cost and latency.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                <strong style="color: #ffffff;">Amazon Titan</strong> models offer a cost-effective alternative for simpler agent workflows. They work well for straightforward knowledge base queries and single-action-group invocations but may struggle with complex multi-step reasoning chains that require maintaining context across many orchestration steps.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                When evaluating models, test with realistic prompts that exercise the full range of your agent's capabilities. Pay particular attention to edge cases: ambiguous requests, requests that require multiple action group invocations, and requests that should be refused based on guardrails. The cost difference between models is often negligible compared to the cost of incorrect agent behavior in production.
+            </p>
+        </section>
+
+        <!-- Best Practices -->
+        <section id="best-practices" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Best Practices for Production Agent Deployments</h2>
+            <ol style="color: #cbd5e1; padding-left: 1.5rem;">
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Write precise, unambiguous agent instructions</strong> — The agent instruction is the most critical configuration parameter. Specify exactly what the agent should and should not do, how it should handle ambiguous requests, and when it should escalate to a human. Include examples of expected behavior for common scenarios.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Document OpenAPI schemas thoroughly</strong> — Every action group parameter should have a detailed description, valid value ranges, and examples. The foundation model uses these descriptions to determine when and how to invoke actions. Poor schema documentation leads to hallucinated parameters and failed invocations.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Implement idempotent action group Lambda functions</strong> — Agents may retry actions if the first attempt fails or times out. Lambda functions must handle duplicate invocations gracefully to prevent data corruption or duplicate operations.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Enable Bedrock Guardrails</strong> — Configure content filters, denied topics, and word filters to prevent the agent from generating harmful content or performing unauthorized actions. Guardrails are evaluated on both input and output, providing defense in depth.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Use session attributes for context injection</strong> — Pass user identity, environment, and authorization context through session attributes rather than embedding them in the prompt. This ensures consistent context handling and enables action group Lambda functions to make authorization decisions.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Implement comprehensive tracing</strong> — Enable trace mode during development and in production for a percentage of invocations. Trace data reveals the agent's reasoning chain, identifying cases where the model made suboptimal decisions or hallucinated actions.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Optimize knowledge base chunking for your data</strong> — Test different chunking strategies with your actual documents. Measure retrieval precision and recall, and adjust chunk size and overlap until retrieval quality meets your requirements.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Version agent aliases for safe deployments</strong> — Use agent aliases to maintain stable production endpoints while iterating on agent configuration. Create new versions, test thoroughly with the DRAFT alias, and promote to production only after validation.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Set appropriate timeouts and limits</strong> — Configure maximum invocation time and maximum number of orchestration steps to prevent runaway agent loops. A well-designed agent should complete most tasks within 3-5 reasoning steps.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Monitor agent performance metrics</strong> — Track invocation latency, action group success rates, knowledge base retrieval scores, and end-to-end task completion rates. Set alarms on anomalous patterns that may indicate model degradation or knowledge base staleness.
+                </li>
+            </ol>
+        </section>
+
+        <!-- Terraform Infrastructure -->
+        <section id="terraform-infra" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Infrastructure as Code with Terraform</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Deploying Bedrock Agents infrastructure through Terraform ensures reproducibility, version control, and consistency across environments. The <a href="https://github.com/kogunlowo123/terraform-aws-bedrock-agents" style="color: #00d4ff; text-decoration: none;">terraform-aws-bedrock-agents</a> module provisions the complete agent stack: the agent itself with instructions and model configuration, action groups with Lambda functions and OpenAPI schemas, knowledge bases with S3 data sources and OpenSearch Serverless collections, and the IAM roles and policies that tie everything together.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                For the broader platform infrastructure including VPCs, security groups, and cross-account access patterns, the <a href="https://github.com/kogunlowo123/terraform-aws-bedrock-platform" style="color: #00d4ff; text-decoration: none;">terraform-aws-bedrock-platform</a> module provides a comprehensive landing zone designed specifically for Bedrock workloads. It includes CloudWatch dashboards, X-Ray tracing integration, and cost allocation tags for tracking AI spend by agent and use case.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The RAG pipeline, including document ingestion from S3, embedding with Titan Embeddings, and indexing into OpenSearch Serverless, is managed by the <a href="https://github.com/kogunlowo123/terraform-aws-rag-pipeline" style="color: #00d4ff; text-decoration: none;">terraform-aws-rag-pipeline</a> module. This module also provisions the data source synchronization schedule and monitoring for ingestion failures.
+            </p>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Frequently Asked Questions</h2>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">What are AWS Bedrock Agents and how do they work?</h3>
+                <p style="color: #cbd5e1;">AWS Bedrock Agents are managed AI orchestration services that combine foundation models with knowledge bases and action groups to autonomously plan and execute multi-step tasks. They use ReAct-style reasoning to decompose user requests, retrieve relevant context from knowledge bases, and invoke Lambda functions through action groups to complete complex workflows without manual intervention.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">How do Bedrock Knowledge Bases integrate with vector stores?</h3>
+                <p style="color: #cbd5e1;">Bedrock Knowledge Bases automatically chunk, embed, and index documents from S3 data sources into a vector store. Supported vector stores include OpenSearch Serverless, Amazon Aurora PostgreSQL with pgvector, Pinecone, and Redis Enterprise. During agent invocation, the knowledge base performs semantic search to retrieve relevant document chunks that are injected into the foundation model's context for grounded responses.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">What is the difference between Bedrock Agents and LangChain Agents?</h3>
+                <p style="color: #cbd5e1;">Bedrock Agents are a fully managed AWS service with built-in integration to AWS services, automatic prompt management, and no infrastructure to maintain. LangChain Agents are an open-source framework that offers more flexibility and model choice but require self-managed infrastructure, custom orchestration code, and manual prompt engineering. Choose Bedrock for operational simplicity; choose LangChain for maximum customization.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">How do action groups connect Bedrock Agents to external systems?</h3>
+                <p style="color: #cbd5e1;">Action groups define APIs that a Bedrock Agent can invoke during task execution. Each action group is backed by a Lambda function and described by an OpenAPI schema. When the agent determines it needs to perform an action, it generates the appropriate API call parameters, invokes the Lambda function, and uses the response to continue its reasoning chain for subsequent steps.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">What foundation models work best with Bedrock Agents?</h3>
+                <p style="color: #cbd5e1;">Anthropic Claude 3.5 Sonnet and Claude 3 Opus are the most capable models for Bedrock Agents, offering strong reasoning, instruction following, and tool use capabilities. Amazon Titan models provide a cost-effective alternative for simpler workflows. The choice depends on the complexity of reasoning required, latency requirements, and cost constraints for your specific use case.</p>
+            </div>
+        </section>
+
+        <!-- Related Articles -->
+        <section style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Related Articles</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <a href="https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html" style="text-decoration: none; background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 1.5rem; display: block;">
+                    <h3 style="color: #ffffff; font-size: 1.1rem; margin: 0 0 0.5rem 0;">Production-Ready AKS Clusters with Terraform</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Deploy production-grade Azure Kubernetes Service with security, networking, and auto-scaling best practices.</p>
+                </a>
+                <a href="https://kogunlowo123.github.io/blog/devsecops-pipeline-multi-cloud.html" style="text-decoration: none; background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 1.5rem; display: block;">
+                    <h3 style="color: #ffffff; font-size: 1.1rem; margin: 0 0 0.5rem 0;">Enterprise DevSecOps Pipeline Architecture for Multi-Cloud</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Build security-first CI/CD pipelines spanning AWS, Azure, and GCP with shift-left scanning.</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Social Share -->
+        <section style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem;">Share This Article</h2>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="https://twitter.com/intent/tweet?text=Building%20Autonomous%20AI%20Workflows%20with%20AWS%20Bedrock%20Agents&url=https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html" target="_blank" rel="noopener noreferrer" style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); color: #00d4ff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Share on Twitter</a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html" target="_blank" rel="noopener noreferrer" style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); color: #00d4ff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Share on LinkedIn</a>
+                <a href="https://news.ycombinator.com/submitlink?u=https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html&t=Building%20Autonomous%20AI%20Workflows%20with%20AWS%20Bedrock%20Agents" target="_blank" rel="noopener noreferrer" style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); color: #00d4ff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Share on Hacker News</a>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.02)); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 16px; padding: 2.5rem; text-align: center; margin-bottom: 3rem;">
+            <h2 style="color: #ffffff; font-size: 1.5rem; margin: 0 0 1rem 0;">Ready to Build Intelligent AI Workflows?</h2>
+            <p style="color: #cbd5e1; margin: 0 0 1.5rem 0; max-width: 600px; margin-left: auto; margin-right: auto;">Citadel Cloud Management designs and deploys production AI agent architectures on AWS. From knowledge base ingestion to multi-agent orchestration, we deliver autonomous workflows that transform your operations.</p>
+            <a href="https://citadelcloudmanagement.com" style="display: inline-block; background-color: #00d4ff; color: #0a0e1a; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1rem;">Get in Touch</a>
+        </section>
+
+        <!-- Author Bio -->
+        <section style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 1rem 0;">About the Author</h2>
+            <div style="display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap;">
+                <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #00d4ff, #0066ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: #0a0e1a; flex-shrink: 0;">KO</div>
+                <div style="flex: 1; min-width: 250px;">
+                    <h3 style="color: #ffffff; margin: 0 0 0.25rem 0; font-size: 1.1rem;">Kehinde Ogunlowo</h3>
+                    <p style="color: #00d4ff; margin: 0 0 0.75rem 0; font-size: 0.9rem;">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</p>
+                    <p style="color: #94a3b8; margin: 0 0 0.75rem 0; font-size: 0.9rem;">Kehinde architects enterprise cloud platforms across AWS, Azure, and GCP, specializing in AI/ML infrastructure, serverless architectures, and infrastructure as code. He helps organizations build production-grade AI systems that are secure, scalable, and cost-optimized.</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="https://github.com/kogunlowo123" style="color: #00d4ff; text-decoration: none; font-size: 0.9rem;">GitHub</a>
+                        <a href="https://linkedin.com/in/kehinde-ogunlowo" style="color: #00d4ff; text-decoration: none; font-size: 0.9rem;">LinkedIn</a>
+                        <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none; font-size: 0.9rem;">Website</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </article>
+
+    <!-- Footer -->
+    <footer style="background-color: #111827; border-top: 1px solid rgba(0, 212, 255, 0.15); padding: 2rem; text-align: center; color: #94a3b8; font-size: 0.875rem;">
+        <p style="margin: 0 0 0.5rem 0;">&copy; 2026 Kehinde Ogunlowo. All rights reserved.</p>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+            <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none;">Home</a>
+            <a href="https://github.com/kogunlowo123" style="color: #00d4ff; text-decoration: none;">GitHub</a>
+            <a href="https://linkedin.com/in/kehinde-ogunlowo" style="color: #00d4ff; text-decoration: none;">LinkedIn</a>
+            <a href="https://citadelcloudmanagement.com" style="color: #00d4ff; text-decoration: none;">Citadel Cloud Management</a>
+        </div>
+    </footer>
+
+</body>
+</html>

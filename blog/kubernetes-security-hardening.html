@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <title>Kubernetes Security Hardening — Pod Security, Network Policies, RBAC, and Runtime Protection | Kehinde Ogunlowo</title>
+    <meta name="description" content="Master Kubernetes security hardening with pod security standards, network policies, RBAC, OPA Gatekeeper, Falco runtime protection, and admission controllers.">
+    <meta name="keywords" content="Kubernetes security hardening, pod security standards, network policies, RBAC, runtime security, Falco, OPA Gatekeeper, admission controllers, image scanning, container security">
+    <meta name="author" content="Kehinde Ogunlowo">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Kubernetes Security Hardening — Pod Security, Network Policies, RBAC, and Runtime Protection">
+    <meta property="og:description" content="Master Kubernetes security hardening with pod security standards, network policies, RBAC, OPA Gatekeeper, Falco runtime protection, and admission controllers.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kubernetes Security Hardening — Pod Security, Network Policies, RBAC, and Runtime Protection">
+    <meta name="twitter:description" content="Master Kubernetes security hardening with pod security standards, network policies, RBAC, OPA Gatekeeper, Falco runtime protection, and admission controllers.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Kubernetes Security Hardening — Pod Security, Network Policies, RBAC, and Runtime Protection",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "jobTitle": "Principal Multi-Cloud DevSecOps Architect",
+            "url": "https://kogunlowo123.github.io"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Master Kubernetes security hardening with pod security standards, network policies, RBAC, OPA Gatekeeper, Falco runtime protection, and admission controllers.",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html"
+        },
+        "keywords": ["Kubernetes security hardening", "pod security standards", "network policies", "RBAC", "runtime security", "Falco", "OPA Gatekeeper"]
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What are the three Pod Security Standards in Kubernetes?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Kubernetes defines three Pod Security Standards: Privileged (unrestricted, for system-level workloads), Baseline (minimally restrictive, prevents known privilege escalations), and Restricted (heavily restricted, follows hardening best practices). These standards replaced the deprecated PodSecurityPolicy in Kubernetes 1.25+."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do Kubernetes Network Policies work?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Kubernetes Network Policies are namespace-scoped resources that control traffic flow between pods. They use label selectors to define ingress and egress rules, and require a CNI plugin (like Calico or Cilium) that supports NetworkPolicy enforcement. By default, all traffic is allowed; once a policy selects a pod, only explicitly allowed traffic is permitted."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is OPA Gatekeeper and how does it secure Kubernetes?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "OPA Gatekeeper is a Kubernetes admission controller that enforces policies written in Rego. It intercepts API requests and evaluates them against ConstraintTemplates and Constraints, rejecting resources that violate policies such as requiring resource limits, blocking privileged containers, or enforcing image registries."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does Falco provide runtime security for Kubernetes?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Falco is a CNCF runtime security tool that monitors system calls at the kernel level using eBPF or a kernel module. It detects anomalous behavior in containers such as shell spawning, unexpected file access, network connections, and privilege escalation attempts, then generates alerts for incident response."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What RBAC best practices should I follow in Kubernetes?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Key RBAC best practices include: use the principle of least privilege, prefer RoleBindings over ClusterRoleBindings, avoid wildcard permissions, regularly audit RBAC configurations, use service accounts per workload rather than the default, disable automounting of service account tokens when not needed, and integrate with external identity providers via OIDC."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://kogunlowo123.github.io"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "https://kogunlowo123.github.io/blog/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Kubernetes Security Hardening",
+                "item": "https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html"
+            }
+        ]
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid #1e293b; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .nav-brand { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .breadcrumb { max-width: 880px; margin: 2rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb span { margin: 0 0.5rem; }
+        .article-header { max-width: 880px; margin: 2rem auto; padding: 0 2rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1rem; font-size: 0.85rem; color: #94a3b8; }
+        .tag { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.2rem 0.7rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.3; margin-bottom: 1rem; color: #f1f5f9; }
+        .article-body { max-width: 880px; margin: 0 auto; padding: 0 2rem 4rem; }
+        h2 { font-size: 1.6rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #f1f5f9; border-left: 4px solid #00d4ff; padding-left: 1rem; }
+        h3 { font-size: 1.25rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.5rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.7; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.88rem; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid #1e293b; padding: 0.75rem 1rem; text-align: left; }
+        th { background: #111827; color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(17,24,39,0.5); }
+        ol, ul { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        .best-practices { background: #111827; border-left: 4px solid #00d4ff; border-radius: 0 8px 8px 0; padding: 1.5rem 2rem; margin: 1.5rem 0; }
+        .best-practices ol { margin-bottom: 0; }
+        .author-box { display: flex; gap: 1.5rem; align-items: flex-start; background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 2rem; margin: 3rem 0; }
+        .author-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, #00d4ff, #0ea5e9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: #0a0e1a; flex-shrink: 0; }
+        .author-info h3 { margin: 0 0 0.5rem; color: #f1f5f9; font-size: 1.1rem; }
+        .author-info p { font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem; }
+        .share-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 2rem 0; }
+        .share-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; color: #fff; }
+        .share-twitter { background: #1da1f2; }
+        .share-linkedin { background: #0077b5; }
+        .share-reddit { background: #ff4500; }
+        .related-articles { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 2rem; margin: 2rem 0; }
+        .related-articles h2 { border: none; padding: 0; margin: 0 0 1rem; font-size: 1.25rem; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .related-card { background: #0a0e1a; border: 1px solid #1e293b; border-radius: 6px; padding: 1.25rem; transition: border-color 0.2s; }
+        .related-card:hover { border-color: #00d4ff; }
+        .related-card h3 { font-size: 0.95rem; margin: 0 0 0.5rem; }
+        .related-card p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+        .cta-box { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(14,165,233,0.05)); border: 1px solid #00d4ff; border-radius: 8px; padding: 2rem; text-align: center; margin: 2.5rem 0; }
+        .cta-box h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .cta-button { display: inline-block; background: #00d4ff; color: #0a0e1a; font-weight: 600; padding: 0.75rem 2rem; border-radius: 6px; margin-top: 1rem; }
+        .faq-section { margin: 2.5rem 0; }
+        .faq-item { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1rem; margin: 0 0 0.75rem; }
+        .faq-item p { margin: 0; font-size: 0.9rem; color: #94a3b8; }
+        footer { background: #111827; border-top: 1px solid #1e293b; padding: 2rem; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.3rem; }
+            .author-box { flex-direction: column; align-items: center; text-align: center; }
+            nav { padding: 1rem; }
+            .article-header, .article-body, .breadcrumb { padding: 0 1rem; }
+            table { font-size: 0.78rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <a href="https://kogunlowo123.github.io" class="nav-brand">Kehinde Ogunlowo</a>
+        <div class="nav-links">
+            <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+            <a href="https://kogunlowo123.github.io/about/">About</a>
+            <a href="https://github.com/kogunlowo123">GitHub</a>
+            <a href="https://kogunlowo123.github.io">Citadel Cloud</a>
+        </div>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> <span>/</span>
+    <a href="https://kogunlowo123.github.io/blog/">Blog</a> <span>/</span>
+    Kubernetes Security Hardening
+</div>
+
+<header class="article-header">
+    <div class="article-meta">
+        <span>Published: March 7, 2026</span>
+        <span>|</span>
+        <span>Reading Time: 18 min</span>
+        <span>|</span>
+        <span>Kehinde Ogunlowo</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <span class="tag">Kubernetes</span>
+        <span class="tag">Security</span>
+        <span class="tag">DevSecOps</span>
+        <span class="tag">RBAC</span>
+        <span class="tag">Network Policies</span>
+        <span class="tag">OPA Gatekeeper</span>
+        <span class="tag">Falco</span>
+    </div>
+    <h1>Kubernetes Security Hardening: Pod Security, Network Policies, RBAC, and Runtime Protection</h1>
+    <p style="font-size: 1.15rem; color: #94a3b8; line-height: 1.7;">A comprehensive guide to hardening Kubernetes clusters across every layer of the stack, from admission control and pod security standards to runtime threat detection with Falco and policy enforcement with OPA Gatekeeper.</p>
+</header>
+
+<article class="article-body">
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ol>
+            <li><a href="#why-kubernetes-security-matters">Why Kubernetes Security Matters</a></li>
+            <li><a href="#pod-security-standards">Pod Security Standards (Privileged, Baseline, Restricted)</a></li>
+            <li><a href="#network-policies">Network Policies for Microsegmentation</a></li>
+            <li><a href="#rbac-best-practices">RBAC Configuration and Best Practices</a></li>
+            <li><a href="#admission-controllers">Admission Controllers and OPA Gatekeeper</a></li>
+            <li><a href="#runtime-security">Runtime Security with Falco</a></li>
+            <li><a href="#image-scanning">Container Image Scanning and Supply Chain Security</a></li>
+            <li><a href="#secrets-management">Secrets Management in Kubernetes</a></li>
+            <li><a href="#multi-cloud-eks-aks-gke">Multi-Cloud Kubernetes Security: EKS, AKS, GKE</a></li>
+            <li><a href="#best-practices">Top 10 Kubernetes Security Best Practices</a></li>
+            <li><a href="#comparison-table">Pod Security Standards Comparison</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ol>
+    </div>
+
+    <h2 id="why-kubernetes-security-matters">Why Kubernetes Security Matters</h2>
+
+    <p>Kubernetes has become the de facto standard for container orchestration, powering workloads from startup microservices to the most demanding enterprise applications. However, its power and flexibility come with a sprawling attack surface that demands deliberate security engineering. According to the <a href="https://media.defense.gov/2022/Aug/29/2003066362/-1/-1/0/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.PDF" target="_blank" rel="noopener">NSA/CISA Kubernetes Hardening Guide</a>, misconfigured Kubernetes clusters are among the most commonly exploited infrastructure targets in both public and private sectors.</p>
+
+    <p>The Kubernetes threat model spans multiple layers: the control plane API, kubelet communications, inter-pod networking, container runtimes, supply chain integrity, and the workloads themselves. A single misconfigured RBAC binding or a pod running as root can be the foothold an attacker needs to move laterally through your entire cluster. I have spent years deploying production Kubernetes clusters across AWS EKS, Azure AKS, and Google GKE through my infrastructure-as-code modules at <a href="https://github.com/kogunlowo123/terraform-aws-eks">terraform-aws-eks</a>, and the security lessons I have learned are distilled into this guide.</p>
+
+    <p>Security in Kubernetes is not a single tool or toggle. It is a defense-in-depth strategy that requires coordinated controls at every layer. This article walks through each critical security domain, provides working configurations, and ties everything back to real-world infrastructure deployments.</p>
+
+    <h2 id="pod-security-standards">Pod Security Standards: Privileged, Baseline, and Restricted</h2>
+
+    <p>With the deprecation of PodSecurityPolicy in Kubernetes 1.21 and its removal in 1.25, the community introduced Pod Security Standards (PSS) enforced via the built-in Pod Security Admission controller. PSS defines three profiles that represent progressively stricter security postures.</p>
+
+    <h3>Understanding the Three Levels</h3>
+
+    <p>The <strong>Privileged</strong> level applies no restrictions. It is intended for system-level workloads such as CNI plugins, logging agents, and storage drivers that genuinely need elevated access. The <strong>Baseline</strong> level blocks known privilege escalation vectors while remaining compatible with the vast majority of applications. The <strong>Restricted</strong> level enforces the tightest hardening posture and is the recommended target for all application workloads.</p>
+
+    <p>You apply Pod Security Standards at the namespace level using labels. The admission controller then enforces, audits, or warns depending on the mode you select. Most production clusters should enforce the Restricted standard on application namespaces while allowing Privileged only in dedicated system namespaces such as <code>kube-system</code>.</p>
+
+    <p>In our <a href="https://github.com/kogunlowo123/terraform-azure-aks">terraform-azure-aks</a> module, namespace security labels are applied automatically during provisioning, ensuring that new namespaces start in a hardened state from the moment they are created. This eliminates the gap between cluster creation and security configuration that often plagues manual setups.</p>
+
+    <h3>Applying PSS Labels to a Namespace</h3>
+
+    <p>The following YAML demonstrates how to configure a production namespace with the Restricted standard enforced, Restricted auditing, and Baseline warnings:</p>
+
+<pre><code>apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: baseline
+    pod-security.kubernetes.io/warn-version: latest</code></pre>
+
+    <p>This configuration rejects any pod that violates the Restricted standard, logs audit events for Restricted violations, and warns developers about Baseline violations. The layered approach provides visibility into workloads that would break under stricter policies before you enforce them.</p>
+
+    <h2 id="network-policies">Network Policies for Microsegmentation</h2>
+
+    <p>By default, Kubernetes allows unrestricted pod-to-pod communication across the entire cluster. This means that if an attacker compromises a single pod, they can freely scan and reach every other pod, including databases, internal APIs, and control-plane components. Network Policies are the primary mechanism for implementing microsegmentation within a cluster.</p>
+
+    <h3>How Network Policies Work</h3>
+
+    <p>Network Policies are namespace-scoped Kubernetes resources that define ingress and egress rules for pods selected by label. They require a CNI plugin that supports NetworkPolicy enforcement, such as Calico, Cilium, or Antrea. Without a compatible CNI, NetworkPolicy resources are accepted by the API server but silently ignored, creating a false sense of security.</p>
+
+    <p>The fundamental principle is default-deny: once any Network Policy selects a pod, all traffic not explicitly allowed by a policy is blocked. This is the opposite of the default Kubernetes behavior, so the very first policy you should apply to any namespace is a blanket deny-all rule.</p>
+
+    <h3>Default Deny and Selective Allow Policies</h3>
+
+    <p>The following YAML implements a default deny-all ingress policy followed by a selective allow policy for a typical three-tier application:</p>
+
+<pre><code># Default deny all ingress traffic in the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# Default deny all egress traffic in the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+---
+# Allow frontend to receive traffic from ingress controller
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-ingress
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+# Allow backend to receive traffic only from frontend
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-from-frontend
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - protocol: TCP
+          port: 3000
+---
+# Allow backend egress to database only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-database
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: database
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:  # Allow DNS resolution
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53</code></pre>
+
+    <p>Notice the DNS egress rule in the last policy. This is a commonly overlooked requirement. Without DNS egress, pods cannot resolve service names, and applications fail in ways that are difficult to debug. Always include DNS as an allowed egress target when applying deny-all egress policies.</p>
+
+    <h2 id="rbac-best-practices">RBAC Configuration and Best Practices</h2>
+
+    <p>Role-Based Access Control (RBAC) governs who can perform which actions on which resources within your Kubernetes cluster. RBAC is enabled by default in all modern Kubernetes distributions, but a default-enabled feature is only as good as its configuration. Poorly configured RBAC is functionally equivalent to no RBAC at all.</p>
+
+    <h3>Roles, ClusterRoles, and Bindings</h3>
+
+    <p>Kubernetes RBAC consists of four primary objects: <code>Role</code> (namespace-scoped permissions), <code>ClusterRole</code> (cluster-scoped permissions), <code>RoleBinding</code> (binds a Role or ClusterRole to subjects within a namespace), and <code>ClusterRoleBinding</code> (binds a ClusterRole to subjects across the entire cluster). The golden rule is to always prefer the most narrow scope possible: use Roles over ClusterRoles and RoleBindings over ClusterRoleBindings wherever possible.</p>
+
+    <h3>Service Account Hardening</h3>
+
+    <p>Every pod in Kubernetes runs under a service account. If no service account is specified, Kubernetes assigns the <code>default</code> service account in the namespace, which may have more permissions than your workload needs. Best practice demands creating dedicated service accounts per application and disabling automatic token mounting when the application does not need to interact with the Kubernetes API.</p>
+
+    <p>The <a href="https://kubernetes.io/docs/concepts/security/overview/" target="_blank" rel="noopener">Kubernetes Security documentation</a> strongly recommends treating service account tokens as sensitive credentials, rotating them regularly, and using projected service account tokens with short expiration times rather than legacy non-expiring tokens.</p>
+
+    <h3>Audit RBAC Regularly</h3>
+
+    <p>RBAC configurations tend to accumulate cruft over time. Teams add permissions for debugging sessions and never revoke them. Developers leave the organization but their bindings persist. Implement automated RBAC auditing using tools like <code>kubectl-who-can</code>, <code>rakkess</code>, or Fairwinds Insights to continuously evaluate the effective permissions in your cluster and flag overly permissive configurations.</p>
+
+    <h2 id="admission-controllers">Admission Controllers and OPA Gatekeeper</h2>
+
+    <p>Admission controllers intercept requests to the Kubernetes API server after authentication and authorization but before the object is persisted to etcd. They are the last line of defense for enforcing policy before a resource is created. Kubernetes ships with several built-in admission controllers (such as the Pod Security Admission controller discussed earlier), but OPA Gatekeeper extends this capability with custom, declarative policies.</p>
+
+    <h3>OPA Gatekeeper Architecture</h3>
+
+    <p>Gatekeeper operates as a validating webhook admission controller. It consists of two custom resource types: <code>ConstraintTemplate</code> (defines the policy logic in Rego) and <code>Constraint</code> (applies the template to specific resources with parameters). This separation allows platform teams to write reusable policy templates while allowing individual teams to customize enforcement parameters.</p>
+
+    <h3>OPA Gatekeeper Constraint Template Example</h3>
+
+    <p>The following ConstraintTemplate and Constraint enforce that all containers must specify CPU and memory resource limits, preventing noisy-neighbor problems and protecting cluster stability:</p>
+
+<pre><code># ConstraintTemplate: require resource limits on all containers
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredresources
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredResources
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            exemptImages:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredresources
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.resources.limits.cpu
+          msg := sprintf("Container '%v' must specify cpu limits", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.resources.limits.memory
+          msg := sprintf("Container '%v' must specify memory limits", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.resources.requests.cpu
+          msg := sprintf("Container '%v' must specify cpu requests", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.resources.requests.memory
+          msg := sprintf("Container '%v' must specify memory requests", [container.name])
+        }
+---
+# Constraint: apply the template to all pods
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredResources
+metadata:
+  name: require-resource-limits
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - gatekeeper-system
+  parameters:
+    exemptImages:
+      - "registry.k8s.io/pause:*"</code></pre>
+
+    <p>This policy blocks any pod deployment that lacks resource requests or limits on any container. The <code>excludedNamespaces</code> field ensures that system components are not blocked, while the <code>exemptImages</code> parameter allows specific images (like the pause container) to bypass the check.</p>
+
+    <h2 id="runtime-security">Runtime Security with Falco</h2>
+
+    <p>Admission controllers and policies prevent bad configurations from entering the cluster, but they cannot detect runtime threats: a legitimate container that starts behaving maliciously after deployment. This is where runtime security tools like Falco come in.</p>
+
+    <h3>How Falco Works</h3>
+
+    <p>Falco, a CNCF graduated project, monitors system calls at the Linux kernel level using eBPF probes (or a kernel module on older systems). It evaluates every syscall against a rules engine and generates alerts when it detects anomalous behavior such as a shell being spawned in a container, unexpected file writes to sensitive paths, outbound network connections to unknown endpoints, or privilege escalation attempts.</p>
+
+    <h3>Key Detection Scenarios</h3>
+
+    <p>Falco excels at detecting behaviors that static analysis and admission control cannot catch. These include cryptomining (sudden CPU consumption and connections to mining pools), reverse shells (interactive shell processes spawned by web servers), data exfiltration (unexpected DNS queries or outbound connections), lateral movement (attempts to access the Kubernetes API or cloud metadata service), and container escape (mount namespace manipulation or ptrace usage).</p>
+
+    <p>When deployed alongside our <a href="https://github.com/kogunlowo123/terraform-aws-auto-healing-eks">terraform-aws-auto-healing-eks</a> module, Falco alerts can trigger automated remediation through the auto-healing pipeline, isolating compromised nodes and replacing them with clean instances within minutes.</p>
+
+    <h2 id="image-scanning">Container Image Scanning and Supply Chain Security</h2>
+
+    <p>The container image is the atomic unit of deployment in Kubernetes, and compromised images are one of the most common attack vectors. Supply chain security ensures that only trusted, scanned, and signed images run in your cluster.</p>
+
+    <h3>Scanning Pipeline</h3>
+
+    <p>A robust image security pipeline includes vulnerability scanning during CI (using tools like Trivy, Grype, or Snyk), image signing with Cosign and verification with Sigstore, Software Bill of Materials (SBOM) generation with Syft, admission enforcement using Kyverno or Gatekeeper to require signatures, and base image pinning to specific digests rather than mutable tags.</p>
+
+    <h3>Image Policy Enforcement</h3>
+
+    <p>Never allow images from public registries to run directly in production. Establish an internal registry (ECR, ACR, or Artifact Registry), mirror approved base images, scan them on import, and configure admission policies to reject any image not originating from your approved registries.</p>
+
+    <h2 id="secrets-management">Secrets Management in Kubernetes</h2>
+
+    <p>Kubernetes Secrets are base64-encoded, not encrypted. By default, they are stored unencrypted in etcd. This means anyone with access to the etcd datastore can read every secret in the cluster. Proper secrets management requires multiple layers of protection.</p>
+
+    <h3>Encryption at Rest</h3>
+
+    <p>Enable etcd encryption at rest using the <code>EncryptionConfiguration</code> resource. Managed Kubernetes services like EKS, AKS, and GKE support envelope encryption with cloud KMS keys. Our <a href="https://github.com/kogunlowo123/terraform-gcp-gke">terraform-gcp-gke</a> module configures Application-layer Secrets Encryption using Google Cloud KMS by default, ensuring that secrets are encrypted with customer-managed keys from the moment the cluster is provisioned.</p>
+
+    <h3>External Secrets Operators</h3>
+
+    <p>For the strongest security posture, avoid Kubernetes Secrets entirely and inject secrets at runtime from external vaults. The External Secrets Operator (ESO) synchronizes secrets from AWS Secrets Manager, Azure Key Vault, Google Secret Manager, or HashiCorp Vault into Kubernetes Secrets, with automatic rotation and least-privilege IAM policies.</p>
+
+    <h2 id="multi-cloud-eks-aks-gke">Multi-Cloud Kubernetes Security: EKS, AKS, GKE</h2>
+
+    <p>Each managed Kubernetes service has unique security features and default configurations. Understanding these differences is critical for organizations operating multi-cloud environments.</p>
+
+    <h3>AWS EKS Security</h3>
+
+    <p>EKS integrates with IAM for authentication via the aws-iam-authenticator and supports IAM Roles for Service Accounts (IRSA) for pod-level AWS permissions. Enable the EKS control plane logging for all log types (api, audit, authenticator, controllerManager, scheduler), use managed node groups with custom launch templates that enforce encrypted EBS volumes, and configure security groups to restrict node-to-node and node-to-control-plane traffic.</p>
+
+    <h3>Azure AKS Security</h3>
+
+    <p>AKS integrates with Azure Active Directory for authentication, supports Azure RBAC for Kubernetes authorization, and provides Azure Policy for Kubernetes (powered by Gatekeeper) as a first-class feature. Enable Defender for Containers for vulnerability assessment and runtime protection, use authorized IP ranges for API server access, and deploy private clusters with Private Link.</p>
+
+    <h3>GKE Security</h3>
+
+    <p>GKE offers the most opinionated security defaults, including Shielded GKE nodes, Workload Identity for pod-to-GCP-service authentication, Binary Authorization for image signing enforcement, and Container-Optimized OS nodes. GKE Autopilot enforces security best practices by default, making it difficult to deploy insecure workloads.</p>
+
+    <h2 id="best-practices">Top 10 Kubernetes Security Best Practices</h2>
+
+    <div class="best-practices">
+        <ol>
+            <li><strong>Enforce Pod Security Standards at the namespace level.</strong> Apply the Restricted standard to all application namespaces and reserve Privileged only for system namespaces that genuinely need elevated access.</li>
+            <li><strong>Implement default-deny Network Policies.</strong> Start with deny-all ingress and egress, then selectively allow only the traffic your applications require. Always remember to allow DNS egress.</li>
+            <li><strong>Follow the principle of least privilege for RBAC.</strong> Use namespace-scoped Roles and RoleBindings over ClusterRoles and ClusterRoleBindings. Avoid wildcard permissions and audit RBAC regularly.</li>
+            <li><strong>Deploy OPA Gatekeeper or Kyverno for policy enforcement.</strong> Encode your organization's security requirements as admission policies that automatically reject non-compliant resources.</li>
+            <li><strong>Run Falco or a similar runtime security tool.</strong> Static policies cannot detect runtime threats. Monitor system calls to detect container escapes, reverse shells, and data exfiltration.</li>
+            <li><strong>Scan images in CI/CD and enforce signatures.</strong> Never deploy unscanned images. Use Cosign for signing, Trivy for scanning, and admission policies to enforce both.</li>
+            <li><strong>Encrypt secrets at rest and use external vaults.</strong> Enable etcd encryption, use cloud KMS for envelope encryption, and consider the External Secrets Operator for runtime secret injection.</li>
+            <li><strong>Disable automounting of service account tokens.</strong> Set <code>automountServiceAccountToken: false</code> on pods and service accounts unless the workload explicitly needs Kubernetes API access.</li>
+            <li><strong>Run containers as non-root with read-only file systems.</strong> Set <code>runAsNonRoot: true</code>, <code>readOnlyRootFilesystem: true</code>, and drop all Linux capabilities except those explicitly needed.</li>
+            <li><strong>Audit and rotate credentials continuously.</strong> Enable Kubernetes audit logging, ship logs to a SIEM, rotate service account tokens, and review RBAC bindings at least quarterly.</li>
+        </ol>
+    </div>
+
+    <h2 id="comparison-table">Pod Security Standards Comparison</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Feature / Control</th>
+                <th>Privileged</th>
+                <th>Baseline</th>
+                <th>Restricted</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>HostProcess (Windows)</td>
+                <td>Allowed</td>
+                <td>Disallowed</td>
+                <td>Disallowed</td>
+            </tr>
+            <tr>
+                <td>Host Namespaces (PID, IPC, Network)</td>
+                <td>Allowed</td>
+                <td>Disallowed</td>
+                <td>Disallowed</td>
+            </tr>
+            <tr>
+                <td>Privileged Containers</td>
+                <td>Allowed</td>
+                <td>Disallowed</td>
+                <td>Disallowed</td>
+            </tr>
+            <tr>
+                <td>Linux Capabilities</td>
+                <td>Unrestricted</td>
+                <td>Drop NET_RAW (unless added)</td>
+                <td>Drop ALL, allow only NET_BIND_SERVICE</td>
+            </tr>
+            <tr>
+                <td>HostPath Volumes</td>
+                <td>Allowed</td>
+                <td>Disallowed</td>
+                <td>Disallowed</td>
+            </tr>
+            <tr>
+                <td>Host Ports</td>
+                <td>Allowed</td>
+                <td>Restricted range (known ports)</td>
+                <td>Disallowed</td>
+            </tr>
+            <tr>
+                <td>AppArmor Profile</td>
+                <td>Unrestricted</td>
+                <td>Not localhost or unconfined</td>
+                <td>Must be RuntimeDefault or localhost</td>
+            </tr>
+            <tr>
+                <td>SELinux Context</td>
+                <td>Unrestricted</td>
+                <td>Type limited to well-known set</td>
+                <td>Type limited to well-known set</td>
+            </tr>
+            <tr>
+                <td>Seccomp Profile</td>
+                <td>Unrestricted</td>
+                <td>Unrestricted</td>
+                <td>Must be RuntimeDefault or Localhost</td>
+            </tr>
+            <tr>
+                <td>Run As Non-Root</td>
+                <td>Not required</td>
+                <td>Not required</td>
+                <td>Required (runAsNonRoot: true)</td>
+            </tr>
+            <tr>
+                <td>Privilege Escalation</td>
+                <td>Allowed</td>
+                <td>Allowed</td>
+                <td>Disallowed (allowPrivilegeEscalation: false)</td>
+            </tr>
+            <tr>
+                <td>Volume Types</td>
+                <td>All</td>
+                <td>All except hostPath</td>
+                <td>Limited to core volume types only</td>
+            </tr>
+            <tr>
+                <td>Recommended Use Case</td>
+                <td>System-level workloads (CNI, CSI, logging)</td>
+                <td>General purpose, non-sensitive workloads</td>
+                <td>Security-sensitive, production workloads</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="faq">Frequently Asked Questions</h2>
+
+    <div class="faq-section">
+        <div class="faq-item">
+            <h3>What are the three Pod Security Standards in Kubernetes?</h3>
+            <p>Kubernetes defines three Pod Security Standards: Privileged (unrestricted, for system-level workloads), Baseline (minimally restrictive, prevents known privilege escalations), and Restricted (heavily restricted, follows hardening best practices). These standards replaced the deprecated PodSecurityPolicy in Kubernetes 1.25+.</p>
+        </div>
+        <div class="faq-item">
+            <h3>How do Kubernetes Network Policies work?</h3>
+            <p>Kubernetes Network Policies are namespace-scoped resources that control traffic flow between pods. They use label selectors to define ingress and egress rules, and require a CNI plugin (like Calico or Cilium) that supports NetworkPolicy enforcement. By default, all traffic is allowed; once a policy selects a pod, only explicitly allowed traffic is permitted.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What is OPA Gatekeeper and how does it secure Kubernetes?</h3>
+            <p>OPA Gatekeeper is a Kubernetes admission controller that enforces policies written in Rego. It intercepts API requests and evaluates them against ConstraintTemplates and Constraints, rejecting resources that violate policies such as requiring resource limits, blocking privileged containers, or enforcing image registries.</p>
+        </div>
+        <div class="faq-item">
+            <h3>How does Falco provide runtime security for Kubernetes?</h3>
+            <p>Falco is a CNCF runtime security tool that monitors system calls at the kernel level using eBPF or a kernel module. It detects anomalous behavior in containers such as shell spawning, unexpected file access, network connections, and privilege escalation attempts, then generates alerts for incident response.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What RBAC best practices should I follow in Kubernetes?</h3>
+            <p>Key RBAC best practices include: use the principle of least privilege, prefer RoleBindings over ClusterRoleBindings, avoid wildcard permissions, regularly audit RBAC configurations, use service accounts per workload rather than the default, disable automounting of service account tokens when not needed, and integrate with external identity providers via OIDC.</p>
+        </div>
+    </div>
+
+    <!-- Share Buttons -->
+    <div class="share-buttons">
+        <a href="https://twitter.com/intent/tweet?url=https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html&text=Kubernetes Security Hardening Guide" class="share-btn share-twitter" target="_blank" rel="noopener">Share on Twitter</a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html" class="share-btn share-linkedin" target="_blank" rel="noopener">Share on LinkedIn</a>
+        <a href="https://reddit.com/submit?url=https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html&title=Kubernetes Security Hardening Guide" class="share-btn share-reddit" target="_blank" rel="noopener">Share on Reddit</a>
+    </div>
+
+    <!-- Author Bio -->
+    <div class="author-box">
+        <div class="author-avatar">KO</div>
+        <div class="author-info">
+            <h3>Kehinde Ogunlowo</h3>
+            <p>Principal Multi-Cloud DevSecOps Architect at Citadel Cloud Management. Specializing in infrastructure-as-code, Kubernetes security, and multi-cloud architecture across AWS, Azure, and GCP.</p>
+            <p>
+                <a href="https://github.com/kogunlowo123">GitHub</a> &middot;
+                <a href="https://linkedin.com/in/kehinde-ogunlowo">LinkedIn</a> &middot;
+                <a href="https://kogunlowo123.github.io">Website</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+        <h3>Secure Your Kubernetes Clusters with Production-Ready Terraform Modules</h3>
+        <p>Explore my open-source Terraform modules for deploying hardened EKS, AKS, and GKE clusters with security best practices built in from day one.</p>
+        <a href="https://github.com/kogunlowo123" class="cta-button">Explore Modules on GitHub</a>
+    </div>
+
+    <!-- Related Articles -->
+    <div class="related-articles">
+        <h2>Related Articles</h2>
+        <div class="related-grid">
+            <a href="https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html" class="related-card">
+                <h3>Building Azure Landing Zones with Terraform</h3>
+                <p>Management groups, Azure Policy, and hub-spoke networking for enterprise-scale cloud foundations.</p>
+            </a>
+            <a href="https://kogunlowo123.github.io/blog/cloud-disaster-recovery-terraform.html" class="related-card">
+                <h3>Multi-Cloud Disaster Recovery with Terraform</h3>
+                <p>RPO/RTO strategies, pilot light, warm standby, and cross-cloud failover architectures.</p>
+            </a>
+            <a href="https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html" class="related-card">
+                <h3>AWS Lambda Serverless Patterns with Terraform</h3>
+                <p>Event-driven architecture at scale with SQS triggers, Step Functions, and cold start optimization.</p>
+            </a>
+        </div>
+    </div>
+
+</article>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://kogunlowo123.github.io">kogunlowo123.github.io</a></p>
+</footer>
+
+</body>
+</html>

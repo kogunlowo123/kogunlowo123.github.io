@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <title>AWS Lambda Serverless Patterns with Terraform — Event-Driven Architecture at Scale | Kehinde Ogunlowo</title>
+    <meta name="description" content="Build scalable AWS Lambda serverless patterns with Terraform including event-driven architecture, SQS triggers, API Gateway, Step Functions, and cold starts.">
+    <meta name="keywords" content="AWS Lambda serverless patterns Terraform, event-driven architecture, API Gateway Lambda, SQS Lambda, DynamoDB streams, Step Functions, Lambda layers, cold start optimization">
+    <meta name="author" content="Kehinde Ogunlowo">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="AWS Lambda Serverless Patterns with Terraform — Event-Driven Architecture at Scale">
+    <meta property="og:description" content="Build scalable AWS Lambda serverless patterns with Terraform including event-driven architecture, SQS triggers, API Gateway, Step Functions, and cold starts.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AWS Lambda Serverless Patterns with Terraform — Event-Driven Architecture at Scale">
+    <meta name="twitter:description" content="Build scalable AWS Lambda serverless patterns with Terraform including event-driven architecture, SQS triggers, API Gateway, Step Functions, and cold starts.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "AWS Lambda Serverless Patterns with Terraform — Event-Driven Architecture at Scale",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "jobTitle": "Principal Multi-Cloud DevSecOps Architect",
+            "url": "https://kogunlowo123.github.io"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Build scalable AWS Lambda serverless patterns with Terraform including event-driven architecture, SQS triggers, API Gateway, Step Functions, and cold starts.",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html"
+        },
+        "keywords": ["AWS Lambda serverless patterns Terraform", "event-driven architecture", "API Gateway Lambda", "SQS Lambda", "Step Functions"]
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "When should I use AWS Lambda vs Fargate vs EC2?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use Lambda for event-driven, short-duration workloads (under 15 minutes) with variable traffic. Use Fargate for long-running containerized services, consistent workloads, or tasks needing more than 10GB memory. Use EC2 for workloads requiring GPU, specific instance types, persistent local storage, or when you need full OS-level control."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I reduce Lambda cold start latency?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Reduce cold starts by using Provisioned Concurrency for latency-sensitive functions, choosing lightweight runtimes (Python, Node.js over Java), minimizing deployment package size, keeping functions warm with scheduled pings, using Lambda SnapStart for Java, initializing SDK clients outside the handler, and avoiding VPC placement unless required."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is the best way to handle Lambda failures with SQS?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Configure a Dead Letter Queue (DLQ) on the SQS source queue with a maxReceiveCount of 3-5. When a message fails processing that many times, SQS moves it to the DLQ for investigation. Set up CloudWatch alarms on the DLQ's ApproximateNumberOfMessagesVisible metric to alert on failures. Use Lambda Destinations for asynchronous invocations."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do Lambda Layers work and when should I use them?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Lambda Layers are ZIP archives containing libraries, custom runtimes, or other dependencies that can be shared across multiple functions. Use layers for common dependencies (AWS SDK extensions, database drivers, monitoring libraries) to reduce deployment package size and standardize shared code. Each function can use up to 5 layers, with a total unzipped size limit of 250MB."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I deploy Lambda functions with Terraform instead of SAM or Serverless Framework?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Terraform is excellent for Lambda deployments, especially when Lambda is part of a larger infrastructure stack. Terraform manages IAM roles, event source mappings, API Gateway, SQS queues, DynamoDB tables, and all supporting infrastructure in a single state file. Use the archive_file data source for packaging code and the aws_lambda_function resource for deployment."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://kogunlowo123.github.io"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "https://kogunlowo123.github.io/blog/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "AWS Lambda Serverless Patterns",
+                "item": "https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html"
+            }
+        ]
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid #1e293b; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .nav-brand { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .breadcrumb { max-width: 880px; margin: 2rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb span { margin: 0 0.5rem; }
+        .article-header { max-width: 880px; margin: 2rem auto; padding: 0 2rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1rem; font-size: 0.85rem; color: #94a3b8; }
+        .tag { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.2rem 0.7rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.3; margin-bottom: 1rem; color: #f1f5f9; }
+        .article-body { max-width: 880px; margin: 0 auto; padding: 0 2rem 4rem; }
+        h2 { font-size: 1.6rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #f1f5f9; border-left: 4px solid #00d4ff; padding-left: 1rem; }
+        h3 { font-size: 1.25rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.5rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.7; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.88rem; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid #1e293b; padding: 0.75rem 1rem; text-align: left; }
+        th { background: #111827; color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(17,24,39,0.5); }
+        ol, ul { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        .best-practices { background: #111827; border-left: 4px solid #00d4ff; border-radius: 0 8px 8px 0; padding: 1.5rem 2rem; margin: 1.5rem 0; }
+        .best-practices ol { margin-bottom: 0; }
+        .author-box { display: flex; gap: 1.5rem; align-items: flex-start; background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 2rem; margin: 3rem 0; }
+        .author-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, #00d4ff, #0ea5e9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: #0a0e1a; flex-shrink: 0; }
+        .author-info h3 { margin: 0 0 0.5rem; color: #f1f5f9; font-size: 1.1rem; }
+        .author-info p { font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem; }
+        .share-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 2rem 0; }
+        .share-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; color: #fff; }
+        .share-twitter { background: #1da1f2; }
+        .share-linkedin { background: #0077b5; }
+        .share-reddit { background: #ff4500; }
+        .related-articles { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 2rem; margin: 2rem 0; }
+        .related-articles h2 { border: none; padding: 0; margin: 0 0 1rem; font-size: 1.25rem; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .related-card { background: #0a0e1a; border: 1px solid #1e293b; border-radius: 6px; padding: 1.25rem; transition: border-color 0.2s; }
+        .related-card:hover { border-color: #00d4ff; }
+        .related-card h3 { font-size: 0.95rem; margin: 0 0 0.5rem; }
+        .related-card p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+        .cta-box { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(14,165,233,0.05)); border: 1px solid #00d4ff; border-radius: 8px; padding: 2rem; text-align: center; margin: 2.5rem 0; }
+        .cta-box h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .cta-button { display: inline-block; background: #00d4ff; color: #0a0e1a; font-weight: 600; padding: 0.75rem 2rem; border-radius: 6px; margin-top: 1rem; }
+        .faq-section { margin: 2.5rem 0; }
+        .faq-item { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1rem; margin: 0 0 0.75rem; }
+        .faq-item p { margin: 0; font-size: 0.9rem; color: #94a3b8; }
+        footer { background: #111827; border-top: 1px solid #1e293b; padding: 2rem; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.3rem; }
+            .author-box { flex-direction: column; align-items: center; text-align: center; }
+            nav { padding: 1rem; }
+            .article-header, .article-body, .breadcrumb { padding: 0 1rem; }
+            table { font-size: 0.78rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <a href="https://kogunlowo123.github.io" class="nav-brand">Kehinde Ogunlowo</a>
+        <div class="nav-links">
+            <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+            <a href="https://kogunlowo123.github.io/about/">About</a>
+            <a href="https://github.com/kogunlowo123">GitHub</a>
+            <a href="https://kogunlowo123.github.io">Citadel Cloud</a>
+        </div>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> <span>/</span>
+    <a href="https://kogunlowo123.github.io/blog/">Blog</a> <span>/</span>
+    AWS Lambda Serverless Patterns
+</div>
+
+<header class="article-header">
+    <div class="article-meta">
+        <span>Published: March 7, 2026</span>
+        <span>|</span>
+        <span>Reading Time: 19 min</span>
+        <span>|</span>
+        <span>Kehinde Ogunlowo</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <span class="tag">AWS Lambda</span>
+        <span class="tag">Serverless</span>
+        <span class="tag">Terraform</span>
+        <span class="tag">Event-Driven</span>
+        <span class="tag">SQS</span>
+        <span class="tag">API Gateway</span>
+        <span class="tag">Step Functions</span>
+    </div>
+    <h1>AWS Lambda Serverless Patterns with Terraform: Event-Driven Architecture at Scale</h1>
+    <p style="font-size: 1.15rem; color: #94a3b8; line-height: 1.7;">A deep dive into production-grade AWS Lambda serverless patterns deployed with Terraform, covering SQS event-driven processing, API Gateway integrations, Step Functions orchestration, DynamoDB Streams, and cold start optimization strategies.</p>
+</header>
+
+<article class="article-body">
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ol>
+            <li><a href="#serverless-landscape">The Serverless Landscape in 2026</a></li>
+            <li><a href="#lambda-fundamentals">Lambda Fundamentals for Infrastructure Engineers</a></li>
+            <li><a href="#sqs-lambda-pattern">SQS-Lambda Pattern with Dead Letter Queues</a></li>
+            <li><a href="#api-gateway-lambda">API Gateway to Lambda Integration</a></li>
+            <li><a href="#dynamodb-streams">DynamoDB Streams and Event Processing</a></li>
+            <li><a href="#step-functions">Step Functions for Workflow Orchestration</a></li>
+            <li><a href="#lambda-layers">Lambda Layers and Shared Dependencies</a></li>
+            <li><a href="#cold-start-optimization">Cold Start Optimization Strategies</a></li>
+            <li><a href="#security-patterns">Lambda Security Patterns</a></li>
+            <li><a href="#best-practices">Top 10 Lambda Best Practices</a></li>
+            <li><a href="#comparison-table">Lambda vs Fargate vs EC2 Comparison</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ol>
+    </div>
+
+    <h2 id="serverless-landscape">The Serverless Landscape in 2026</h2>
+
+    <p>Serverless computing has matured from a niche deployment model into a foundational architecture pattern for cloud-native applications. AWS Lambda, as the pioneer and market leader, now supports execution times up to 15 minutes, memory up to 10 GB, container image deployments, ARM64 (Graviton2) processors, and advanced features like Lambda SnapStart, Provisioned Concurrency, and function URLs. These capabilities have eliminated many of the historical limitations that pushed workloads toward containers.</p>
+
+    <p>The real power of Lambda emerges not from individual functions but from the composition of functions into event-driven architectures. When Lambda is wired to SQS queues, DynamoDB streams, S3 event notifications, EventBridge rules, and API Gateway endpoints, it becomes the compute fabric of a fully reactive system that scales from zero to millions of concurrent executions without any capacity planning.</p>
+
+    <p>At Citadel Cloud Management, I deploy serverless architectures entirely through Terraform, treating Lambda functions and their event sources as infrastructure alongside VPCs, databases, and DNS records. This approach ensures that the entire system, from the API Gateway endpoint to the DynamoDB table to the dead letter queue, is version-controlled, peer-reviewed, and reproducible. My <a href="https://github.com/kogunlowo123/terraform-aws-lambda">terraform-aws-lambda</a> module encapsulates the Lambda function, IAM role, CloudWatch log group, and event source mappings into a single reusable module.</p>
+
+    <h2 id="lambda-fundamentals">Lambda Fundamentals for Infrastructure Engineers</h2>
+
+    <p>Understanding Lambda's execution model is essential for designing reliable serverless systems. When a Lambda function is invoked, AWS provisions a lightweight execution environment (a microVM based on Firecracker), downloads the function code, initializes the runtime, runs the initialization code outside the handler, and then executes the handler function. This entire process is the cold start.</p>
+
+    <h3>Invocation Models</h3>
+
+    <p>Lambda supports three invocation models. <strong>Synchronous</strong> invocation (API Gateway, Application Load Balancer) blocks the caller until the function completes and returns a response. <strong>Asynchronous</strong> invocation (S3 events, SNS, EventBridge) queues the event and returns immediately; Lambda handles retries (twice by default) and can route failures to a destination. <strong>Event Source Mapping</strong> (SQS, DynamoDB Streams, Kinesis) has Lambda poll the source, retrieve batches of records, and invoke the function synchronously with each batch.</p>
+
+    <p>Each invocation model has different failure handling semantics, and choosing the right model is critical for building reliable systems. The <a href="https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html" target="_blank" rel="noopener">AWS Lambda best practices documentation</a> provides detailed guidance on invocation patterns and error handling.</p>
+
+    <h3>Concurrency and Scaling</h3>
+
+    <p>Lambda scales automatically by creating new execution environments for each concurrent invocation. The default account-level concurrency limit is 1,000 concurrent executions (can be increased). Reserved Concurrency allocates a fixed pool of concurrency for a specific function, preventing one function from consuming all available concurrency. Provisioned Concurrency pre-warms a specified number of execution environments, eliminating cold starts for latency-sensitive functions.</p>
+
+    <h2 id="sqs-lambda-pattern">SQS-Lambda Pattern with Dead Letter Queues</h2>
+
+    <p>The SQS-Lambda pattern is the workhorse of event-driven architecture. Producers send messages to an SQS queue, and Lambda automatically polls the queue, retrieves batches of messages, and processes them. This pattern decouples producers from consumers, absorbs traffic spikes through the queue buffer, and provides built-in retry and dead-letter handling.</p>
+
+    <h3>Terraform Implementation</h3>
+
+    <p>The following Terraform configuration deploys a complete SQS-Lambda pipeline with a dead letter queue, IAM roles, and CloudWatch monitoring. This is a production-ready pattern used in my <a href="https://github.com/kogunlowo123/terraform-aws-sns-sqs">terraform-aws-sns-sqs</a> module:</p>
+
+<pre><code># Dead Letter Queue for failed messages
+resource "aws_sqs_queue" "dlq" {
+  name                      = "${var.project}-dlq"
+  message_retention_seconds = 1209600  # 14 days
+  kms_master_key_id         = aws_kms_key.sqs.arn
+
+  tags = var.tags
+}
+
+# Main processing queue
+resource "aws_sqs_queue" "main" {
+  name                       = "${var.project}-processing"
+  visibility_timeout_seconds = 360  # 6x Lambda timeout
+  message_retention_seconds  = 86400
+  kms_master_key_id          = aws_kms_key.sqs.arn
+  receive_wait_time_seconds  = 20   # Long polling
+
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.dlq.arn
+    maxReceiveCount     = 3
+  })
+
+  tags = var.tags
+}
+
+# Lambda execution role
+resource "aws_iam_role" "lambda" {
+  name = "${var.project}-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+}
+
+# Lambda permissions for SQS and CloudWatch Logs
+resource "aws_iam_role_policy" "lambda" {
+  name = "${var.project}-lambda-policy"
+  role = aws_iam_role.lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Resource = aws_sqs_queue.main.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt"]
+        Resource = aws_kms_key.sqs.arn
+      }
+    ]
+  })
+}
+
+# Lambda function
+resource "aws_lambda_function" "processor" {
+  function_name = "${var.project}-processor"
+  role          = aws_iam_role.lambda.arn
+  handler       = "index.handler"
+  runtime       = "python3.12"
+  timeout       = 60
+  memory_size   = 256
+  architectures = ["arm64"]  # Graviton2 for cost savings
+
+  filename         = data.archive_file.lambda.output_path
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+
+  environment {
+    variables = {
+      ENVIRONMENT   = var.environment
+      LOG_LEVEL     = "INFO"
+      DYNAMODB_TABLE = aws_dynamodb_table.results.name
+    }
+  }
+
+  dead_letter_config {
+    target_arn = aws_sqs_queue.dlq.arn
+  }
+
+  tracing_config {
+    mode = "Active"  # X-Ray tracing
+  }
+
+  tags = var.tags
+}
+
+# CloudWatch Log Group with retention
+resource "aws_cloudwatch_log_group" "lambda" {
+  name              = "/aws/lambda/${aws_lambda_function.processor.function_name}"
+  retention_in_days = 30
+  kms_key_id        = aws_kms_key.logs.arn
+}
+
+# SQS Event Source Mapping
+resource "aws_lambda_event_source_mapping" "sqs" {
+  event_source_arn                   = aws_sqs_queue.main.arn
+  function_name                      = aws_lambda_function.processor.arn
+  batch_size                         = 10
+  maximum_batching_window_in_seconds = 5
+  function_response_types            = ["ReportBatchItemFailures"]
+
+  scaling_config {
+    maximum_concurrency = 50
+  }
+}
+
+# CloudWatch Alarm for DLQ messages
+resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
+  alarm_name          = "${var.project}-dlq-messages"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 0
+  alarm_actions       = [var.sns_alert_topic_arn]
+
+  dimensions = {
+    QueueName = aws_sqs_queue.dlq.name
+  }
+}
+
+# KMS key for encryption
+resource "aws_kms_key" "sqs" {
+  description             = "KMS key for SQS queue encryption"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+  tags                    = var.tags
+}</code></pre>
+
+    <p>Several design decisions in this configuration deserve attention. The visibility timeout is set to 6 times the Lambda timeout, which is the AWS recommended minimum to prevent messages from becoming visible again while Lambda is still processing them. Long polling (<code>receive_wait_time_seconds = 20</code>) reduces empty responses and API costs. The <code>ReportBatchItemFailures</code> response type enables partial batch failure reporting, so a single failed message does not cause the entire batch to retry. The <code>maximum_concurrency</code> setting on the event source mapping limits how many concurrent Lambda instances the SQS trigger creates, preventing downstream services from being overwhelmed.</p>
+
+    <h2 id="api-gateway-lambda">API Gateway to Lambda Integration</h2>
+
+    <p>API Gateway provides a fully managed HTTP endpoint for Lambda functions, handling TLS termination, request validation, authorization, throttling, and response transformation. HTTP APIs (API Gateway V2) offer lower latency and cost compared to REST APIs (V1) and are the recommended choice for most Lambda integrations.</p>
+
+    <h3>Proxy Integration Pattern</h3>
+
+    <p>The proxy integration pattern sends the entire HTTP request to Lambda and returns the Lambda response directly to the client. This gives the Lambda function full control over request routing, headers, and response formatting. It is the simplest pattern and works well with web frameworks like FastAPI, Express, or Flask running inside Lambda.</p>
+
+    <p>The <a href="https://github.com/kogunlowo123/terraform-aws-api-gateway-v2">terraform-aws-api-gateway-v2</a> module provides a complete HTTP API implementation with Lambda integration, custom domain names, and CloudWatch logging pre-configured.</p>
+
+    <h3>Authorization Patterns</h3>
+
+    <p>API Gateway supports multiple authorization mechanisms: IAM authorization (for service-to-service calls), Cognito authorizers (for user authentication), Lambda authorizers (for custom token validation), and JWT authorizers (for OIDC/OAuth2 providers). Choose JWT authorizers with HTTP APIs for the simplest integration with modern identity providers, and Lambda authorizers when you need custom logic such as API key validation or IP whitelisting.</p>
+
+    <h2 id="dynamodb-streams">DynamoDB Streams and Event Processing</h2>
+
+    <p>DynamoDB Streams capture item-level changes (inserts, updates, deletes) in a DynamoDB table and make them available as an ordered stream of records. When paired with Lambda, DynamoDB Streams enable powerful patterns like change data capture, materialized views, cross-region replication, and event sourcing.</p>
+
+    <p>My <a href="https://github.com/kogunlowo123/terraform-aws-dynamodb">terraform-aws-dynamodb</a> module configures DynamoDB tables with streams enabled, point-in-time recovery, auto-scaling, and encryption using customer-managed KMS keys.</p>
+
+    <h3>Stream Processing Considerations</h3>
+
+    <p>DynamoDB Streams are ordered per partition key, meaning events for the same item are always processed in order. However, events for different items may be processed concurrently across multiple shards. Design your stream processors to be idempotent, as Lambda may retry records on failure. Use the <code>bisectBatchOnFunctionError</code> option to automatically split a failed batch in half, isolating the problematic record more quickly.</p>
+
+    <h2 id="step-functions">Step Functions for Workflow Orchestration</h2>
+
+    <p>Step Functions orchestrate multiple Lambda functions into complex workflows with branching logic, parallel execution, error handling, and retries. They solve the problem of coordinating long-running, multi-step processes that exceed Lambda's 15-minute timeout or require human approval steps.</p>
+
+    <h3>Common Patterns</h3>
+
+    <p>The <strong>Sequential Processing</strong> pattern chains Lambda functions where each step's output feeds into the next. The <strong>Fan-Out/Fan-In</strong> pattern uses a Map state to process a list of items in parallel, then aggregates the results. The <strong>Saga Pattern</strong> implements distributed transactions with compensating actions, where each step has a corresponding rollback step that executes if a later step fails. The <strong>Human Approval</strong> pattern pauses the workflow using a task token and resumes when an external system (Slack bot, email link) sends the token back to Step Functions.</p>
+
+    <h3>Express vs Standard Workflows</h3>
+
+    <p>Standard Workflows are durable, support execution times up to one year, guarantee exactly-once processing, and cost per state transition. Express Workflows are designed for high-volume, short-duration workloads (up to 5 minutes), support at-least-once processing, and cost per execution and duration. Use Express Workflows for data processing pipelines and Standard Workflows for business-critical orchestration.</p>
+
+    <h2 id="lambda-layers">Lambda Layers and Shared Dependencies</h2>
+
+    <p>Lambda Layers provide a mechanism for sharing code and dependencies across multiple functions. A layer is a ZIP archive that is extracted into the <code>/opt</code> directory of the Lambda execution environment. Common use cases include shared libraries (AWS SDK extensions, database drivers), custom runtimes, monitoring agents (Datadog, New Relic), and shared business logic.</p>
+
+    <h3>Layer Management with Terraform</h3>
+
+    <p>Manage layers as versioned Terraform resources. Each update creates a new layer version (layers are immutable), and functions reference specific versions. Use a separate Terraform module or workspace for layers so they can be updated independently from the functions that consume them. Store layer artifacts in S3 with versioning enabled for audit trails.</p>
+
+    <h2 id="cold-start-optimization">Cold Start Optimization Strategies</h2>
+
+    <p>Cold starts remain the primary challenge for latency-sensitive Lambda workloads. A cold start occurs when Lambda creates a new execution environment, which adds latency ranging from 100ms (Python/Node.js) to several seconds (Java/.NET with large dependencies). Multiple strategies can minimize cold start impact.</p>
+
+    <h3>Runtime Selection</h3>
+
+    <p>Python and Node.js have the fastest cold starts due to their lightweight runtimes. Java and .NET have traditionally had the slowest cold starts, but Lambda SnapStart (for Java) reduces cold start latency by up to 90% by pre-initializing and caching a snapshot of the execution environment. If you must use Java, enable SnapStart. For new projects, Python 3.12 on ARM64 offers the best balance of performance, cost, and cold start latency.</p>
+
+    <h3>Package Size Optimization</h3>
+
+    <p>The deployment package size directly impacts cold start duration. Use layers for large dependencies that do not change frequently, tree-shake unused code in Node.js builds, avoid including test files and documentation, and use container images only when the deployment package exceeds the 250MB limit. For Python, use <code>pip install --target . --no-cache-dir</code> and exclude unnecessary files.</p>
+
+    <h3>Provisioned Concurrency</h3>
+
+    <p>For functions where cold starts are unacceptable (payment processing, real-time APIs), use Provisioned Concurrency. This pre-warms a specified number of execution environments, ensuring they are always ready to handle requests. Combine with Application Auto Scaling to adjust provisioned concurrency based on schedules or utilization metrics. The cost is approximately 40% of on-demand Lambda pricing for the provisioned capacity.</p>
+
+    <h2 id="security-patterns">Lambda Security Patterns</h2>
+
+    <p>Lambda security follows the principle of least privilege at every layer. Each function should have its own IAM role with the minimum permissions required. Never use wildcards in resource ARNs. Use environment variables for configuration but store secrets in AWS Secrets Manager or Parameter Store (SecureString). Enable X-Ray tracing for observability and use VPC placement only when the function needs to access private resources.</p>
+
+    <h3>VPC Considerations</h3>
+
+    <p>Lambda functions placed in a VPC lose access to the public internet by default. If the function needs to call AWS APIs or external services, you must either configure a NAT Gateway (adding cost and a single point of failure) or use VPC endpoints for AWS services. VPC-placed Lambda functions also have slightly longer cold starts due to ENI attachment. Only place functions in a VPC when they need to access private resources like RDS databases or ElastiCache clusters. Refer to the <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html" target="_blank" rel="noopener">AWS serverless patterns documentation</a> for detailed VPC networking guidance.</p>
+
+    <h2 id="best-practices">Top 10 Lambda Best Practices</h2>
+
+    <div class="best-practices">
+        <ol>
+            <li><strong>Use ARM64 (Graviton2) architecture for cost and performance.</strong> ARM64 Lambda functions offer up to 34% better price-performance compared to x86. Most runtimes and libraries support ARM64 natively.</li>
+            <li><strong>Set visibility timeout to 6x the Lambda timeout for SQS triggers.</strong> This prevents messages from becoming visible and being processed again while the original invocation is still running.</li>
+            <li><strong>Enable ReportBatchItemFailures for SQS event source mappings.</strong> This allows partial batch failures to be reported, so only failed messages are retried rather than the entire batch.</li>
+            <li><strong>Initialize SDK clients and database connections outside the handler.</strong> Code outside the handler runs once during initialization and is reused across invocations, reducing execution time significantly.</li>
+            <li><strong>Configure dead letter queues and CloudWatch alarms.</strong> Every asynchronous Lambda invocation and SQS queue should have a DLQ configured, with alarms on DLQ message counts.</li>
+            <li><strong>Use environment variables for configuration and Secrets Manager for secrets.</strong> Never hardcode connection strings, API keys, or credentials. Cache secrets in memory across invocations.</li>
+            <li><strong>Right-size memory allocation.</strong> Lambda CPU scales linearly with memory. Use AWS Lambda Power Tuning to find the optimal memory setting that balances cost and performance.</li>
+            <li><strong>Enable X-Ray tracing for distributed observability.</strong> Active tracing provides end-to-end visibility across Lambda, API Gateway, SQS, DynamoDB, and other AWS services.</li>
+            <li><strong>Minimize deployment package size.</strong> Smaller packages mean faster cold starts. Use layers for large dependencies and exclude unnecessary files from the deployment package.</li>
+            <li><strong>Use Terraform to manage the entire serverless stack.</strong> Define Lambda functions, event sources, IAM roles, queues, tables, and monitoring in a single Terraform configuration for reproducibility and drift detection.</li>
+        </ol>
+    </div>
+
+    <h2 id="comparison-table">Lambda vs Fargate vs EC2 Comparison</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Criteria</th>
+                <th>AWS Lambda</th>
+                <th>AWS Fargate</th>
+                <th>Amazon EC2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Max Execution Time</td>
+                <td>15 minutes</td>
+                <td>Unlimited</td>
+                <td>Unlimited</td>
+            </tr>
+            <tr>
+                <td>Max Memory</td>
+                <td>10 GB</td>
+                <td>120 GB</td>
+                <td>Instance-dependent (up to TBs)</td>
+            </tr>
+            <tr>
+                <td>Scaling</td>
+                <td>Automatic, per-request</td>
+                <td>Automatic with ECS Service Auto Scaling</td>
+                <td>Manual or Auto Scaling Groups</td>
+            </tr>
+            <tr>
+                <td>Scale to Zero</td>
+                <td>Yes</td>
+                <td>Yes (with ECS)</td>
+                <td>No (minimum 1 instance)</td>
+            </tr>
+            <tr>
+                <td>Cold Start</td>
+                <td>100ms - 10s</td>
+                <td>30s - 2min</td>
+                <td>Minutes (AMI launch)</td>
+            </tr>
+            <tr>
+                <td>Pricing Model</td>
+                <td>Per request + duration</td>
+                <td>Per vCPU/hour + memory/hour</td>
+                <td>Per instance/hour (On-Demand/Spot/Reserved)</td>
+            </tr>
+            <tr>
+                <td>GPU Support</td>
+                <td>No</td>
+                <td>No</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Persistent Storage</td>
+                <td>/tmp (10 GB, ephemeral)</td>
+                <td>EFS, ephemeral storage</td>
+                <td>EBS, instance store, EFS</td>
+            </tr>
+            <tr>
+                <td>Container Support</td>
+                <td>Container images up to 10 GB</td>
+                <td>Native Docker containers</td>
+                <td>Full Docker/containerd support</td>
+            </tr>
+            <tr>
+                <td>OS-Level Control</td>
+                <td>None</td>
+                <td>Limited (no SSH)</td>
+                <td>Full (SSH, custom kernels)</td>
+            </tr>
+            <tr>
+                <td>Networking</td>
+                <td>Optional VPC, no static IP</td>
+                <td>VPC required, ENI per task</td>
+                <td>Full VPC, static IPs, security groups</td>
+            </tr>
+            <tr>
+                <td>Best For</td>
+                <td>Event-driven, variable traffic, short tasks</td>
+                <td>Long-running services, consistent load, containers</td>
+                <td>Specialized workloads, GPU, full OS control</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="faq">Frequently Asked Questions</h2>
+
+    <div class="faq-section">
+        <div class="faq-item">
+            <h3>When should I use AWS Lambda vs Fargate vs EC2?</h3>
+            <p>Use Lambda for event-driven, short-duration workloads (under 15 minutes) with variable traffic. Use Fargate for long-running containerized services, consistent workloads, or tasks needing more than 10GB memory. Use EC2 for workloads requiring GPU, specific instance types, persistent local storage, or when you need full OS-level control.</p>
+        </div>
+        <div class="faq-item">
+            <h3>How do I reduce Lambda cold start latency?</h3>
+            <p>Reduce cold starts by using Provisioned Concurrency for latency-sensitive functions, choosing lightweight runtimes (Python, Node.js over Java), minimizing deployment package size, keeping functions warm with scheduled pings, using Lambda SnapStart for Java, initializing SDK clients outside the handler, and avoiding VPC placement unless required.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What is the best way to handle Lambda failures with SQS?</h3>
+            <p>Configure a Dead Letter Queue (DLQ) on the SQS source queue with a maxReceiveCount of 3-5. When a message fails processing that many times, SQS moves it to the DLQ for investigation. Set up CloudWatch alarms on the DLQ's ApproximateNumberOfMessagesVisible metric to alert on failures. Use Lambda Destinations for asynchronous invocations.</p>
+        </div>
+        <div class="faq-item">
+            <h3>How do Lambda Layers work and when should I use them?</h3>
+            <p>Lambda Layers are ZIP archives containing libraries, custom runtimes, or other dependencies that can be shared across multiple functions. Use layers for common dependencies (AWS SDK extensions, database drivers, monitoring libraries) to reduce deployment package size and standardize shared code. Each function can use up to 5 layers, with a total unzipped size limit of 250MB.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Can I deploy Lambda functions with Terraform instead of SAM or Serverless Framework?</h3>
+            <p>Yes, Terraform is excellent for Lambda deployments, especially when Lambda is part of a larger infrastructure stack. Terraform manages IAM roles, event source mappings, API Gateway, SQS queues, DynamoDB tables, and all supporting infrastructure in a single state file. Use the archive_file data source for packaging code and the aws_lambda_function resource for deployment.</p>
+        </div>
+    </div>
+
+    <!-- Share Buttons -->
+    <div class="share-buttons">
+        <a href="https://twitter.com/intent/tweet?url=https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html&text=AWS Lambda Serverless Patterns with Terraform" class="share-btn share-twitter" target="_blank" rel="noopener">Share on Twitter</a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html" class="share-btn share-linkedin" target="_blank" rel="noopener">Share on LinkedIn</a>
+        <a href="https://reddit.com/submit?url=https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html&title=AWS Lambda Serverless Patterns with Terraform" class="share-btn share-reddit" target="_blank" rel="noopener">Share on Reddit</a>
+    </div>
+
+    <!-- Author Bio -->
+    <div class="author-box">
+        <div class="author-avatar">KO</div>
+        <div class="author-info">
+            <h3>Kehinde Ogunlowo</h3>
+            <p>Principal Multi-Cloud DevSecOps Architect at Citadel Cloud Management. Building production serverless architectures and infrastructure-as-code modules across AWS, Azure, and GCP.</p>
+            <p>
+                <a href="https://github.com/kogunlowo123">GitHub</a> &middot;
+                <a href="https://linkedin.com/in/kehinde-ogunlowo">LinkedIn</a> &middot;
+                <a href="https://kogunlowo123.github.io">Website</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+        <h3>Build Serverless Architectures with Production-Ready Terraform Modules</h3>
+        <p>Explore my open-source Terraform modules for AWS Lambda, API Gateway, SQS, DynamoDB, and complete serverless application stacks.</p>
+        <a href="https://github.com/kogunlowo123" class="cta-button">Explore Modules on GitHub</a>
+    </div>
+
+    <!-- Related Articles -->
+    <div class="related-articles">
+        <h2>Related Articles</h2>
+        <div class="related-grid">
+            <a href="https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html" class="related-card">
+                <h3>Kubernetes Security Hardening</h3>
+                <p>Pod security standards, network policies, RBAC, and runtime protection for production clusters.</p>
+            </a>
+            <a href="https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html" class="related-card">
+                <h3>Building Azure Landing Zones with Terraform</h3>
+                <p>Management groups, Azure Policy, and hub-spoke networking for enterprise-scale cloud foundations.</p>
+            </a>
+            <a href="https://kogunlowo123.github.io/blog/cloud-disaster-recovery-terraform.html" class="related-card">
+                <h3>Multi-Cloud Disaster Recovery with Terraform</h3>
+                <p>RPO/RTO strategies, pilot light, warm standby, and cross-cloud failover architectures.</p>
+            </a>
+        </div>
+    </div>
+
+</article>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://kogunlowo123.github.io">kogunlowo123.github.io</a></p>
+</footer>
+
+</body>
+</html>

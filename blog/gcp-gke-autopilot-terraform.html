@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>GKE Autopilot with Terraform — Serverless Kubernetes on Google Cloud | Kehinde Ogunlowo</title>
+    <meta name="description" content="Deploy GKE Autopilot with Terraform for serverless Kubernetes on Google Cloud. Covers Gateway API, workload identity federation, and binary authorization.">
+    <meta name="keywords" content="GKE Autopilot Terraform, google kubernetes engine, serverless kubernetes, gke standard vs autopilot, workload identity federation, gateway api, binary authorization">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="GKE Autopilot with Terraform — Serverless Kubernetes on Google Cloud">
+    <meta property="og:description" content="Deploy GKE Autopilot with Terraform for serverless Kubernetes on Google Cloud. Covers Gateway API, workload identity federation, and binary authorization.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-07">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GKE Autopilot with Terraform — Serverless Kubernetes on Google Cloud">
+    <meta name="twitter:description" content="Deploy GKE Autopilot with Terraform for serverless Kubernetes on Google Cloud. Covers Gateway API, workload identity federation, and binary authorization.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "GKE Autopilot with Terraform — Serverless Kubernetes on Google Cloud",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "url": "https://linkedin.com/in/kehinde-ogunlowo"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "description": "Deploy GKE Autopilot with Terraform for serverless Kubernetes on Google Cloud. Covers Gateway API, workload identity federation, and binary authorization.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html"
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is GKE Autopilot and how does it differ from GKE Standard?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GKE Autopilot is a fully managed Kubernetes mode where Google manages the node infrastructure, scaling, and security hardening. Unlike GKE Standard where you manage node pools and VMs, Autopilot abstracts away node management entirely, charging per pod resource request rather than per VM. It enforces security best practices by default including workload identity, shielded nodes, and container-optimized OS."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I deploy GKE Autopilot with Terraform?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Deploy GKE Autopilot with Terraform using the google_container_cluster resource with enable_autopilot set to true. Configure the VPC-native networking, private cluster settings, release channel, and workload identity. Use the google-beta provider for features like Gateway API and binary authorization. Structure your Terraform into modules for VPC, IAM, and GKE for reusability."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Does GKE Autopilot support Gateway API?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, GKE Autopilot fully supports the Kubernetes Gateway API. Gateway API provides a more expressive and role-oriented approach to traffic routing compared to Ingress. Enable it via the gateway_api_config block in Terraform. GKE implements Gateway API through Google Cloud Load Balancers, supporting HTTP routing, traffic splitting, and header-based matching natively."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What are the limitations of GKE Autopilot?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GKE Autopilot has specific limitations: no SSH access to nodes, no privileged containers by default, no DaemonSets unless using allowed partners, restricted hostPath volumes, minimum resource requests of 250m CPU and 512Mi memory per container, no custom machine types, and no GPU support for all GPU types. These trade-offs enable the fully managed security and operations model."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does workload identity federation work with GKE Autopilot?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Workload identity federation is enabled by default on GKE Autopilot and cannot be disabled. It maps Kubernetes service accounts to Google Cloud IAM service accounts, eliminating the need for exported service account keys. Pods authenticate to Google Cloud APIs using short-lived tokens automatically rotated by the GKE metadata server. Configure it by annotating Kubernetes service accounts with the IAM service account email and granting the workloadIdentityUser role."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "GKE Autopilot with Terraform"}
+        ]
+    }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid rgba(0,212,255,0.15); padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(0,212,255,0.1); color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .tag { display: inline-block; background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500; margin: 0.25rem; }
+        .author-box { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+        .author-info h3 { margin-top: 0; }
+        .share-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 2rem 0; }
+        .share-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; border: 1px solid rgba(0,212,255,0.2); color: #e2e8f0; transition: all 0.2s; cursor: pointer; background: transparent; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); color: #00d4ff; }
+        .related-articles { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related-articles h2 { margin-top: 0; }
+        .related-articles ul { list-style: none; padding: 0; }
+        .related-articles li { margin-bottom: 0.75rem; }
+        .cta-box { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta-box h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .cta-button { display: inline-block; background: #00d4ff; color: #0a0e1a; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 600; font-size: 1rem; margin-top: 1rem; transition: transform 0.2s, box-shadow 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,212,255,0.3); opacity: 1; }
+        .faq-item { margin-bottom: 1.5rem; }
+        .faq-item h3 { color: #00d4ff; font-size: 1.1rem; }
+        ol.best-practices { padding-left: 1.25rem; }
+        ol.best-practices li { margin-bottom: 1rem; }
+        footer { background: #111827; border-top: 1px solid rgba(0,212,255,0.15); padding: 2rem; text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 3rem; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.25rem; }
+            .container { padding: 1rem; }
+            nav { padding: 0.75rem 1rem; }
+            .author-box { flex-direction: column; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+        <div class="nav-links">
+            <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+            <a href="https://kogunlowo123.github.io/about">About</a>
+            <a href="https://github.com/kogunlowo123">GitHub</a>
+            <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+        </div>
+    </nav>
+
+    <div class="breadcrumb">
+        <a href="https://kogunlowo123.github.io">Home</a> &raquo;
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a> &raquo;
+        GKE Autopilot with Terraform
+    </div>
+
+    <main class="container">
+        <article>
+            <header class="article-header">
+                <div class="article-meta">
+                    <span>March 7, 2026</span>
+                    <span>|</span>
+                    <span>Kehinde Ogunlowo</span>
+                    <span>|</span>
+                    <span>18 min read</span>
+                </div>
+                <h1>GKE Autopilot with Terraform: Serverless Kubernetes on Google Cloud</h1>
+                <div style="margin-top: 1rem;">
+                    <span class="tag">GKE Autopilot</span>
+                    <span class="tag">Terraform</span>
+                    <span class="tag">Google Cloud</span>
+                    <span class="tag">Kubernetes</span>
+                    <span class="tag">Gateway API</span>
+                    <span class="tag">Workload Identity</span>
+                </div>
+            </header>
+
+            <nav class="toc">
+                <h2>Table of Contents</h2>
+                <ol>
+                    <li><a href="#introduction">Why GKE Autopilot for Serverless Kubernetes</a></li>
+                    <li><a href="#standard-vs-autopilot">GKE Standard vs GKE Autopilot vs Cloud Run</a></li>
+                    <li><a href="#architecture">Architecture Overview and Prerequisites</a></li>
+                    <li><a href="#vpc-setup">VPC Network Foundation with Terraform</a></li>
+                    <li><a href="#autopilot-cluster">Deploying GKE Autopilot with Terraform</a></li>
+                    <li><a href="#workload-identity">Workload Identity Federation Configuration</a></li>
+                    <li><a href="#gateway-api">Gateway API for Advanced Traffic Routing</a></li>
+                    <li><a href="#binary-authorization">Binary Authorization for Supply Chain Security</a></li>
+                    <li><a href="#best-practices">Best Practices for GKE Autopilot in Production</a></li>
+                    <li><a href="#faq">Frequently Asked Questions</a></li>
+                </ol>
+            </nav>
+
+            <section id="introduction">
+                <h2>Why GKE Autopilot for Serverless Kubernetes</h2>
+                <p>Google Kubernetes Engine Autopilot represents a fundamental shift in how organizations consume Kubernetes. Rather than managing node pools, configuring autoscalers, and patching operating systems, Autopilot delegates all infrastructure decisions to Google. You define your workloads, and GKE provisions exactly the right compute resources to run them. The result is a serverless Kubernetes experience that maintains full API compatibility while eliminating undifferentiated operational overhead.</p>
+
+                <p>For platform engineering teams running multi-cloud environments, GKE Autopilot offers a compelling value proposition. The per-pod billing model means you pay only for the resources your containers actually request, not for idle VM capacity. Security hardening is enforced by default: container-optimized OS, shielded nodes, workload identity, and automatic node upgrades are all non-negotiable. This aligns perfectly with zero-trust principles that enterprise organizations demand.</p>
+
+                <p>In this guide, I walk through deploying a production-grade GKE Autopilot cluster using Terraform, covering VPC networking, workload identity federation, Gateway API for traffic management, and binary authorization for supply chain security. The infrastructure code follows the modular patterns I use at <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a> for client engagements across Google Cloud, AWS, and Azure.</p>
+            </section>
+
+            <section id="standard-vs-autopilot">
+                <h2>GKE Standard vs GKE Autopilot vs Cloud Run Comparison</h2>
+                <p>Choosing the right Google Cloud compute platform depends on your workload characteristics, team expertise, and operational requirements. The following comparison table breaks down the key differences between GKE Standard, GKE Autopilot, and Cloud Run to help you make an informed decision.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>GKE Standard</th>
+                            <th>GKE Autopilot</th>
+                            <th>Cloud Run</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Node Management</td>
+                            <td>User-managed node pools</td>
+                            <td>Fully managed by Google</td>
+                            <td>Fully serverless, no nodes</td>
+                        </tr>
+                        <tr>
+                            <td>Billing Model</td>
+                            <td>Per VM (node), regardless of utilization</td>
+                            <td>Per pod resource request (CPU, memory, ephemeral storage)</td>
+                            <td>Per request + CPU/memory per 100ms</td>
+                        </tr>
+                        <tr>
+                            <td>Kubernetes API Access</td>
+                            <td>Full API access</td>
+                            <td>Full API with some restrictions</td>
+                            <td>No Kubernetes API</td>
+                        </tr>
+                        <tr>
+                            <td>DaemonSets</td>
+                            <td>Fully supported</td>
+                            <td>Allowed partner DaemonSets only</td>
+                            <td>Not applicable</td>
+                        </tr>
+                        <tr>
+                            <td>Privileged Containers</td>
+                            <td>Supported</td>
+                            <td>Not allowed by default</td>
+                            <td>Not applicable</td>
+                        </tr>
+                        <tr>
+                            <td>GPU Workloads</td>
+                            <td>Full GPU support</td>
+                            <td>Supported (NVIDIA L4, A100, H100)</td>
+                            <td>GPU support (limited)</td>
+                        </tr>
+                        <tr>
+                            <td>Minimum Resources</td>
+                            <td>No minimum per pod</td>
+                            <td>250m CPU, 512Mi memory per container</td>
+                            <td>No minimum</td>
+                        </tr>
+                        <tr>
+                            <td>Scaling Speed</td>
+                            <td>Minutes (node provisioning)</td>
+                            <td>Seconds to minutes</td>
+                            <td>Seconds (scale to zero)</td>
+                        </tr>
+                        <tr>
+                            <td>Workload Identity</td>
+                            <td>Optional, configurable</td>
+                            <td>Mandatory, always enabled</td>
+                            <td>Built-in service identity</td>
+                        </tr>
+                        <tr>
+                            <td>Security Hardening</td>
+                            <td>User responsibility</td>
+                            <td>Enforced by Google</td>
+                            <td>Managed by Google</td>
+                        </tr>
+                        <tr>
+                            <td>Best For</td>
+                            <td>Custom infrastructure, special requirements</td>
+                            <td>Production Kubernetes without node ops</td>
+                            <td>Stateless HTTP services, event-driven</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>GKE Autopilot is the ideal middle ground for teams that need the full power of the Kubernetes API but want to eliminate node management overhead. If your workloads require privileged containers, custom kernel modules, or DaemonSets beyond the allowed partner list, GKE Standard remains the appropriate choice. For simple stateless HTTP services that benefit from scale-to-zero, Cloud Run provides the simplest operational model.</p>
+            </section>
+
+            <section id="architecture">
+                <h2>Architecture Overview and Prerequisites</h2>
+                <p>The architecture we deploy spans a VPC with secondary IP ranges for pods and services, a private GKE Autopilot cluster with authorized networks, workload identity federation for secure GCP API access, Gateway API for L7 traffic routing, and binary authorization for image verification. All resources are defined as Terraform modules to enable reuse across environments.</p>
+
+                <h3>Prerequisites</h3>
+                <p>Before deploying, ensure you have the following in place:</p>
+                <ul style="margin-bottom: 1.25rem; padding-left: 1.5rem;">
+                    <li>Google Cloud project with billing enabled</li>
+                    <li>Terraform 1.5+ installed locally or in your CI/CD pipeline</li>
+                    <li>Google Cloud SDK (<code>gcloud</code>) configured with appropriate permissions</li>
+                    <li>APIs enabled: <code>container.googleapis.com</code>, <code>compute.googleapis.com</code>, <code>binaryauthorization.googleapis.com</code></li>
+                    <li>IAM roles: <code>roles/container.admin</code>, <code>roles/compute.networkAdmin</code>, <code>roles/iam.serviceAccountAdmin</code></li>
+                </ul>
+
+                <p>The Terraform modules referenced in this guide are available in my GitHub repositories: <a href="https://github.com/kogunlowo123/terraform-gcp-gke">terraform-gcp-gke</a> for the cluster configuration, <a href="https://github.com/kogunlowo123/terraform-gcp-vpc-network">terraform-gcp-vpc-network</a> for the VPC foundation, and <a href="https://github.com/kogunlowo123/terraform-gcp-iam">terraform-gcp-iam</a> for IAM bindings and workload identity setup.</p>
+            </section>
+
+            <section id="vpc-setup">
+                <h2>VPC Network Foundation with Terraform</h2>
+                <p>GKE Autopilot requires a VPC-native cluster configuration with secondary IP ranges for pods and services. Proper network planning is essential because the pod and service CIDR ranges cannot be changed after cluster creation. For production deployments, I recommend using a Shared VPC to centralize network management while granting service projects access to deploy GKE clusters.</p>
+
+                <h3>Secondary IP Range Planning for Google Kubernetes Engine</h3>
+                <p>The pod IP range determines the maximum number of pods your cluster can support. GKE Autopilot uses <code>/17</code> as the default pod range, supporting up to 32,768 pod IPs. The service range defaults to <code>/22</code>, providing 1,024 service IPs. For large-scale deployments, plan your IP ranges carefully to avoid conflicts with other VPCs connected via VPC Peering or Cloud Interconnect.</p>
+
+                <p>A well-structured VPC module from my <a href="https://github.com/kogunlowo123/terraform-gcp-vpc-network">terraform-gcp-vpc-network</a> repository handles subnet creation, secondary ranges, Cloud NAT for egress, and firewall rules. The network foundation is intentionally separated from the GKE cluster module so that networking changes do not trigger cluster recreation.</p>
+
+                <h3>Private Cluster Networking</h3>
+                <p>Production GKE clusters should always use private nodes with no public IP addresses. The control plane endpoint can be configured as private, public, or public with authorized networks. For most enterprise deployments, I recommend a private endpoint with authorized networks that include your CI/CD runners, VPN gateways, and developer workstations. Cloud NAT provides outbound internet access for nodes that need to pull container images from public registries, though <a href="https://github.com/kogunlowo123/terraform-gcp-artifact-registry">Artifact Registry</a> with VPC Service Controls eliminates this need for internal images.</p>
+            </section>
+
+            <section id="autopilot-cluster">
+                <h2>Deploying GKE Autopilot with Terraform</h2>
+                <p>The following Terraform configuration deploys a production-grade GKE Autopilot cluster with Gateway API enabled, workload identity federation, private networking, and binary authorization. This configuration reflects the patterns used in my <a href="https://github.com/kogunlowo123/terraform-gcp-gke">terraform-gcp-gke</a> module.</p>
+
+<pre><code># providers.tf
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.20"
+    }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 5.20"
+    }
+  }
+  backend "gcs" {
+    bucket = "your-terraform-state-bucket"
+    prefix = "gke-autopilot"
+  }
+}
+
+# variables.tf
+variable "project_id" {
+  description = "GCP project ID"
+  type        = string
+}
+
+variable "region" {
+  description = "GCP region for the GKE cluster"
+  type        = string
+  default     = "us-central1"
+}
+
+variable "cluster_name" {
+  description = "Name of the GKE Autopilot cluster"
+  type        = string
+  default     = "autopilot-prod"
+}
+
+variable "network_name" {
+  description = "VPC network name"
+  type        = string
+}
+
+variable "subnet_name" {
+  description = "Subnet name for GKE nodes"
+  type        = string
+}
+
+# vpc.tf - VPC with secondary ranges for GKE
+resource "google_compute_network" "vpc" {
+  name                    = var.network_name
+  project                 = var.project_id
+  auto_create_subnetworks = false
+  routing_mode            = "REGIONAL"
+}
+
+resource "google_compute_subnetwork" "gke_subnet" {
+  name          = var.subnet_name
+  project       = var.project_id
+  region        = var.region
+  network       = google_compute_network.vpc.id
+  ip_cidr_range = "10.0.0.0/20"
+
+  secondary_ip_range {
+    range_name    = "pods"
+    ip_cidr_range = "10.4.0.0/14"
+  }
+
+  secondary_ip_range {
+    range_name    = "services"
+    ip_cidr_range = "10.8.0.0/20"
+  }
+
+  private_ip_google_access = true
+
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+# Cloud NAT for outbound connectivity
+resource "google_compute_router" "router" {
+  name    = "${var.cluster_name}-router"
+  project = var.project_id
+  region  = var.region
+  network = google_compute_network.vpc.id
+}
+
+resource "google_compute_router_nat" "nat" {
+  name                               = "${var.cluster_name}-nat"
+  project                            = var.project_id
+  router                             = google_compute_router.router.name
+  region                             = var.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+
+  log_config {
+    enable = true
+    filter = "ERRORS_ONLY"
+  }
+}
+
+# gke.tf - GKE Autopilot cluster with Gateway API
+resource "google_container_cluster" "autopilot" {
+  provider = google-beta
+
+  name     = var.cluster_name
+  project  = var.project_id
+  location = var.region
+
+  # Enable Autopilot mode
+  enable_autopilot = true
+
+  # Networking configuration
+  network    = google_compute_network.vpc.id
+  subnetwork = google_compute_subnetwork.gke_subnet.id
+
+  ip_allocation_policy {
+    cluster_secondary_range_name  = "pods"
+    services_secondary_range_name = "services"
+  }
+
+  # Private cluster configuration
+  private_cluster_config {
+    enable_private_nodes    = true
+    enable_private_endpoint = false
+    master_ipv4_cidr_block  = "172.16.0.0/28"
+  }
+
+  # Authorized networks for control plane access
+  master_authorized_networks_config {
+    cidr_blocks {
+      cidr_block   = "10.0.0.0/8"
+      display_name = "Internal VPC"
+    }
+    cidr_blocks {
+      cidr_block   = "YOUR_CI_CD_IP/32"
+      display_name = "CI/CD Pipeline"
+    }
+  }
+
+  # Release channel for automatic upgrades
+  release_channel {
+    channel = "REGULAR"
+  }
+
+  # Gateway API configuration
+  gateway_api_config {
+    channel = "CHANNEL_STANDARD"
+  }
+
+  # Binary authorization
+  binary_authorization {
+    evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
+  }
+
+  # Workload identity (always enabled in Autopilot)
+  workload_identity_config {
+    workload_pool = "${var.project_id}.svc.id.goog"
+  }
+
+  # Security posture configuration
+  security_posture_config {
+    mode               = "BASIC"
+    vulnerability_mode = "VULNERABILITY_BASIC"
+  }
+
+  # DNS configuration
+  dns_config {
+    cluster_dns        = "CLOUD_DNS"
+    cluster_dns_scope  = "CLUSTER_SCOPE"
+    cluster_dns_domain = "cluster.local"
+  }
+
+  # Logging and monitoring
+  logging_config {
+    enable_components = [
+      "SYSTEM_COMPONENTS",
+      "WORKLOADS"
+    ]
+  }
+
+  monitoring_config {
+    enable_components = [
+      "SYSTEM_COMPONENTS",
+      "STORAGE",
+      "POD",
+      "DEPLOYMENT",
+      "STATEFULSET"
+    ]
+    managed_prometheus {
+      enabled = true
+    }
+  }
+
+  # Maintenance window
+  maintenance_policy {
+    recurring_window {
+      start_time = "2026-01-01T09:00:00Z"
+      end_time   = "2026-01-01T17:00:00Z"
+      recurrence = "FREQ=WEEKLY;BYDAY=SA,SU"
+    }
+  }
+
+  # Resource labels
+  resource_labels = {
+    environment = "production"
+    managed_by  = "terraform"
+    team        = "platform"
+  }
+
+  deletion_protection = true
+}
+
+# Outputs
+output "cluster_name" {
+  value = google_container_cluster.autopilot.name
+}
+
+output "cluster_endpoint" {
+  value     = google_container_cluster.autopilot.endpoint
+  sensitive = true
+}
+
+output "cluster_ca_certificate" {
+  value     = google_container_cluster.autopilot.master_auth[0].cluster_ca_certificate
+  sensitive = true
+}</code></pre>
+
+                <p>Several elements of this configuration deserve attention. The <code>enable_autopilot = true</code> flag is what differentiates this from a Standard cluster. The <code>google-beta</code> provider is required for Gateway API and some monitoring features. The <code>release_channel</code> is set to <code>REGULAR</code>, providing a balance between new features and stability. For more conservative environments, use <code>STABLE</code>.</p>
+
+                <h3>Understanding Autopilot Resource Classes</h3>
+                <p>GKE Autopilot introduced compute classes to give workloads access to different hardware profiles. The <code>general-purpose</code> class runs on E2 or N2 machines and suits most workloads. The <code>scale-out</code> class uses T2A ARM instances for cost-optimized batch processing. The <code>accelerator</code> class provisions GPU-attached nodes for machine learning inference. Specify the compute class in your pod spec using the <code>cloud.google.com/compute-class</code> node selector.</p>
+            </section>
+
+            <section id="workload-identity">
+                <h2>Workload Identity Federation Configuration</h2>
+                <p>Workload identity federation eliminates the need for service account key files by allowing Kubernetes service accounts to impersonate Google Cloud IAM service accounts. On GKE Autopilot, workload identity is always enabled and cannot be disabled, which is an intentional security design decision.</p>
+
+                <p>The configuration requires three components: a Google Cloud IAM service account, an IAM binding that grants the Kubernetes service account permission to impersonate it, and a Kubernetes service account annotation that references the IAM service account. My <a href="https://github.com/kogunlowo123/terraform-gcp-iam">terraform-gcp-iam</a> module handles this setup with a reusable pattern.</p>
+
+                <h3>Configuring Workload Identity for Application Pods</h3>
+                <p>When a pod uses a Kubernetes service account annotated with workload identity, the GKE metadata server intercepts calls to the instance metadata endpoint and returns short-lived OAuth2 tokens scoped to the IAM service account. This approach is significantly more secure than distributing JSON key files, which cannot be automatically rotated and are frequently leaked in source control.</p>
+
+                <p>The principle of least privilege is critical here. Each microservice should have its own IAM service account with only the permissions it needs. A payment processing service might need <code>roles/cloudkms.cryptoKeyEncrypterDecrypter</code> and <code>roles/secretmanager.secretAccessor</code>, while a frontend service might only need <code>roles/storage.objectViewer</code> to serve static assets from Cloud Storage.</p>
+            </section>
+
+            <section id="gateway-api">
+                <h2>Gateway API for Advanced Traffic Routing</h2>
+                <p>The Kubernetes <a href="https://cloud.google.com/kubernetes-engine/docs/concepts/gateway-api" rel="noopener noreferrer" target="_blank">Gateway API</a> is the successor to Ingress, providing a more expressive, extensible, and role-oriented model for traffic management. GKE implements Gateway API through Google Cloud Load Balancers, giving you enterprise-grade traffic routing with native Kubernetes resources.</p>
+
+                <h3>Gateway API vs Ingress on Google Kubernetes Engine</h3>
+                <p>Gateway API introduces several concepts that Ingress lacks. The <code>Gateway</code> resource defines the load balancer and its listeners, owned by cluster operators. <code>HTTPRoute</code> resources define routing rules and are owned by application teams. This separation of concerns maps cleanly to platform engineering team structures where infrastructure teams manage gateways and application teams manage their own routes.</p>
+
+                <p>Key advantages of Gateway API on GKE include traffic splitting for canary deployments, header-based routing for A/B testing, URL rewrites and redirects, cross-namespace routing, and TLS passthrough. These capabilities previously required third-party ingress controllers like NGINX or Istio.</p>
+
+                <h3>Connecting to Artifact Registry for Container Images</h3>
+                <p>GKE Autopilot clusters pull container images from <a href="https://github.com/kogunlowo123/terraform-gcp-artifact-registry">Artifact Registry</a> without additional authentication when the cluster and registry are in the same project. For cross-project access, configure the GKE service account with <code>roles/artifactregistry.reader</code> on the registry project. Artifact Registry integrates with binary authorization for image signing verification, closing the loop on supply chain security.</p>
+            </section>
+
+            <section id="binary-authorization">
+                <h2>Binary Authorization for Supply Chain Security</h2>
+                <p><a href="https://cloud.google.com/kubernetes-engine/docs/concepts/binary-authorization" rel="noopener noreferrer" target="_blank">Binary Authorization</a> is a deploy-time security control that ensures only trusted container images run on your GKE cluster. It uses attestations signed by trusted authorities to verify that images have passed through your CI/CD pipeline and meet your security policies before they are allowed to deploy.</p>
+
+                <h3>How Binary Authorization Works with GKE Autopilot</h3>
+                <p>The binary authorization flow begins in your CI/CD pipeline. After building a container image and pushing it to Artifact Registry, a vulnerability scan runs via Container Analysis. If the scan passes your defined threshold, an attestor signs the image digest with a Cloud KMS key. When the image is deployed to GKE, the binary authorization admission controller verifies the attestation exists and is valid before allowing the pod to start.</p>
+
+                <p>This chain of trust ensures that images cannot bypass your security pipeline. Even if an attacker gains access to your Artifact Registry, they cannot deploy unsigned images to clusters with binary authorization enforced. The evaluation mode <code>PROJECT_SINGLETON_POLICY_ENFORCE</code> in the Terraform configuration above activates this enforcement.</p>
+
+                <p>For development environments, you can configure binary authorization in <code>MONITORING</code> mode to log violations without blocking deployments. This gives teams time to integrate image signing into their pipelines before enforcement is activated.</p>
+            </section>
+
+            <section id="best-practices">
+                <h2>Best Practices for GKE Autopilot in Production</h2>
+                <p>After deploying GKE Autopilot clusters for multiple enterprise clients, I have consolidated the following best practices that consistently reduce operational incidents and optimize cost.</p>
+
+                <ol class="best-practices">
+                    <li><strong>Right-size resource requests carefully.</strong> Autopilot bills based on pod resource requests, not actual usage. Over-requesting wastes money. Under-requesting causes OOM kills and CPU throttling. Use Vertical Pod Autoscaler in recommendation mode to identify optimal requests, then set them explicitly in your manifests.</li>
+                    <li><strong>Use the REGULAR release channel for production.</strong> The REGULAR channel balances feature availability with stability. RAPID exposes you to newer but less-tested versions. STABLE trails significantly behind. Set maintenance windows during off-peak hours and use PodDisruptionBudgets to maintain availability during node upgrades.</li>
+                    <li><strong>Implement namespace-level resource quotas.</strong> Even though Autopilot manages node capacity, resource quotas prevent individual teams from over-provisioning. Define CPU, memory, and pod count quotas per namespace aligned with your cost allocation model.</li>
+                    <li><strong>Enable GKE Managed Prometheus for observability.</strong> Google Cloud Managed Prometheus provides a fully managed, cost-effective metrics backend compatible with PromQL. It integrates with Cloud Monitoring dashboards and alerting, eliminating the need to run Prometheus and Thanos infrastructure.</li>
+                    <li><strong>Use Cloud DNS for GKE instead of kube-dns.</strong> The <code>dns_config</code> block in the Terraform configuration enables Cloud DNS, which provides better performance and reliability than the in-cluster kube-dns deployment. It also reduces pod resource consumption since Cloud DNS runs outside the cluster.</li>
+                    <li><strong>Enforce network policies from day one.</strong> GKE Autopilot supports Kubernetes NetworkPolicy resources. Define default-deny ingress policies per namespace, then explicitly allow traffic between services. This prevents lateral movement in the event of a container compromise.</li>
+                    <li><strong>Leverage compute classes for cost optimization.</strong> Assign the <code>scale-out</code> compute class with ARM-based T2A instances for batch workloads, data processing, and CI/CD runners. These instances cost approximately 20% less than comparable x86 instances while delivering equivalent performance for most workloads.</li>
+                    <li><strong>Configure backup for GKE with Backup for GKE.</strong> Enable the Backup for GKE service to create scheduled backups of cluster state and persistent volumes. Define backup plans per namespace with appropriate retention policies and test restores regularly to validate your disaster recovery process.</li>
+                    <li><strong>Separate environments with Fleet management.</strong> Use GKE Fleet to manage multiple Autopilot clusters across environments and regions. Fleet enables centralized policy management, multi-cluster services, and consistent configuration through Config Sync with GitOps patterns.</li>
+                    <li><strong>Monitor costs with GKE cost allocation.</strong> Enable cost allocation in the GKE cluster settings to attribute compute costs to individual namespaces and workloads. Integrate with Cloud Billing export to BigQuery for detailed cost analytics and chargeback reporting.</li>
+                </ol>
+            </section>
+
+            <section id="faq">
+                <h2>Frequently Asked Questions</h2>
+
+                <div class="faq-item">
+                    <h3>What is GKE Autopilot and how does it differ from GKE Standard?</h3>
+                    <p>GKE Autopilot is a fully managed Kubernetes mode where Google manages the node infrastructure, scaling, and security hardening. Unlike GKE Standard where you manage node pools and VMs, Autopilot abstracts away node management entirely, charging per pod resource request rather than per VM. It enforces security best practices by default including workload identity, shielded nodes, and container-optimized OS.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How do I deploy GKE Autopilot with Terraform?</h3>
+                    <p>Deploy GKE Autopilot with Terraform using the <code>google_container_cluster</code> resource with <code>enable_autopilot</code> set to <code>true</code>. Configure VPC-native networking with secondary IP ranges for pods and services, private cluster settings, a release channel, and workload identity. Use the <code>google-beta</code> provider for features like Gateway API and binary authorization. Structure your Terraform into modules for VPC, IAM, and GKE for reusability.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Does GKE Autopilot support Gateway API?</h3>
+                    <p>Yes, GKE Autopilot fully supports the Kubernetes Gateway API. Gateway API provides a more expressive and role-oriented approach to traffic routing compared to Ingress. Enable it via the <code>gateway_api_config</code> block in Terraform. GKE implements Gateway API through Google Cloud Load Balancers, supporting HTTP routing, traffic splitting, and header-based matching natively.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>What are the limitations of GKE Autopilot?</h3>
+                    <p>GKE Autopilot has specific limitations: no SSH access to nodes, no privileged containers by default, limited DaemonSet support, restricted hostPath volumes, minimum resource requests of 250m CPU and 512Mi memory per container, no custom machine types, and limited GPU type support. These trade-offs enable the fully managed security and operations model.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How does workload identity federation work with GKE Autopilot?</h3>
+                    <p>Workload identity federation is enabled by default on GKE Autopilot and cannot be disabled. It maps Kubernetes service accounts to Google Cloud IAM service accounts, eliminating the need for exported service account keys. Pods authenticate to Google Cloud APIs using short-lived tokens automatically rotated by the GKE metadata server. Configure it by annotating Kubernetes service accounts with the IAM service account email and granting the <code>workloadIdentityUser</code> role.</p>
+                </div>
+            </section>
+
+            <!-- Share Buttons -->
+            <div class="share-buttons">
+                <a class="share-btn" href="https://twitter.com/intent/tweet?url=https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html&text=GKE Autopilot with Terraform — Serverless Kubernetes on Google Cloud" target="_blank" rel="noopener noreferrer">Share on Twitter</a>
+                <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html" target="_blank" rel="noopener noreferrer">Share on LinkedIn</a>
+                <a class="share-btn" href="https://news.ycombinator.com/submitlink?u=https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html&t=GKE Autopilot with Terraform" target="_blank" rel="noopener noreferrer">Share on Hacker News</a>
+            </div>
+
+            <!-- Author Bio -->
+            <div class="author-box">
+                <div class="author-info">
+                    <h3>About Kehinde Ogunlowo</h3>
+                    <p>Kehinde Ogunlowo is a Principal Multi-Cloud DevSecOps Architect at <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a>, specializing in enterprise cloud architecture across AWS, Azure, and Google Cloud. With deep expertise in Terraform, Kubernetes, and zero-trust security, Kehinde helps organizations build scalable, secure, and cost-effective cloud infrastructure.</p>
+                    <p>
+                        <a href="https://github.com/kogunlowo123">GitHub</a> |
+                        <a href="https://linkedin.com/in/kehinde-ogunlowo">LinkedIn</a> |
+                        <a href="https://kogunlowo123.github.io">Website</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            <div class="related-articles">
+                <h2>Related Articles</h2>
+                <ul>
+                    <li><a href="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html">The Complete Guide to Production EKS with Terraform</a></li>
+                    <li><a href="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html">Multi-Cloud Zero Trust Architecture</a></li>
+                    <li><a href="https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html">AWS VPC Networking with Terraform</a></li>
+                </ul>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-box">
+                <h3>Need Help with GKE Autopilot or Multi-Cloud Kubernetes?</h3>
+                <p>Citadel Cloud Management delivers production-grade Kubernetes platforms across Google Cloud, AWS, and Azure. From architecture design to Terraform automation, we help enterprises ship faster with confidence.</p>
+                <a href="https://citadelcloudmanagement.com" class="cta-button">Get in Touch</a>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+    </footer>
+</body>
+</html>

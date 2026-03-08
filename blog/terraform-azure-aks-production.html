@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <title>Production-Ready AKS Clusters with Terraform — Security, Networking, and Auto-Scaling | Kehinde Ogunlowo</title>
+    <meta name="description" content="Deploy production-ready AKS clusters with Terraform. Learn Azure Kubernetes Service security, Azure CNI networking, workload identity, and autoscaler config.">
+    <meta name="keywords" content="terraform AKS production, azure kubernetes service, aks cluster, azure cni, workload identity, defender for containers, aks autoscaler, node pools, multi-cloud DevSecOps">
+    <meta name="author" content="Kehinde Ogunlowo">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Production-Ready AKS Clusters with Terraform — Security, Networking, and Auto-Scaling">
+    <meta property="og:description" content="Deploy production-ready AKS clusters with Terraform. Learn Azure Kubernetes Service security, Azure CNI networking, workload identity, and autoscaler config.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo - Principal Multi-Cloud DevSecOps Architect">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Production-Ready AKS Clusters with Terraform — Security, Networking, and Auto-Scaling">
+    <meta name="twitter:description" content="Deploy production-ready AKS clusters with Terraform. Learn Azure Kubernetes Service security, Azure CNI networking, workload identity, and autoscaler config.">
+
+    <!-- JSON-LD Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Production-Ready AKS Clusters with Terraform — Security, Networking, and Auto-Scaling",
+        "description": "Deploy production-ready AKS clusters with Terraform. Learn Azure Kubernetes Service security, Azure CNI networking, workload identity, and autoscaler config.",
+        "author": {
+            "@type": "Person",
+            "name": "Kehinde Ogunlowo",
+            "jobTitle": "Principal Multi-Cloud DevSecOps Architect",
+            "url": "https://kogunlowo123.github.io"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Citadel Cloud Management"
+        },
+        "datePublished": "2026-03-07",
+        "dateModified": "2026-03-07",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html"
+        },
+        "keywords": ["terraform AKS production", "azure kubernetes service", "aks cluster", "azure cni", "workload identity", "defender for containers", "aks autoscaler", "node pools"]
+    }
+    </script>
+
+    <!-- JSON-LD FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the best networking model for production AKS clusters?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "For production AKS clusters, Azure CNI Overlay is recommended for most workloads. It provides pod-level networking without consuming VNet IP addresses for each pod, supports up to 250 pods per node, and integrates natively with Azure networking features like Network Security Groups and Azure Firewall."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I enable workload identity on AKS with Terraform?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Enable workload identity by setting oidc_issuer_enabled and workload_identity_enabled to true in the azurerm_kubernetes_cluster resource. Then create a federated identity credential linking a Kubernetes service account to an Azure managed identity for secure, passwordless access to Azure services."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Should I use the AKS cluster autoscaler or KEDA for scaling?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use both together. The AKS cluster autoscaler handles node-level scaling by adding or removing nodes based on pending pod scheduling. KEDA handles pod-level scaling based on event-driven metrics like queue depth or custom metrics. They complement each other for comprehensive autoscaling."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does Microsoft Defender for Containers protect AKS?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Microsoft Defender for Containers provides runtime threat protection, vulnerability assessment for container images in ACR, security posture management, and real-time alerts for suspicious activities. It monitors cluster-level events, node activities, and container behavior using a DaemonSet-based sensor."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is the recommended node pool strategy for production AKS?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use a dedicated system node pool with at least 3 nodes for critical system pods, separate user node pools for application workloads with autoscaling enabled, and optional spot node pools for fault-tolerant batch workloads. Apply taints and labels to control pod scheduling across pools."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://kogunlowo123.github.io"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "https://kogunlowo123.github.io/blog"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Production-Ready AKS Clusters with Terraform",
+                "item": "https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html"
+            }
+        ]
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0e1a; color: #e2e8f0; font-family: 'Inter', sans-serif; line-height: 1.8; -webkit-font-smoothing: antialiased;">
+
+    <!-- Navigation -->
+    <nav style="background-color: #111827; border-bottom: 1px solid rgba(0, 212, 255, 0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px);">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none; font-weight: 700; font-size: 1.25rem;">Kehinde Ogunlowo</a>
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <a href="https://kogunlowo123.github.io/blog" style="color: #e2e8f0; text-decoration: none; font-weight: 500; transition: color 0.3s;">Blog</a>
+                <a href="https://kogunlowo123.github.io/about" style="color: #e2e8f0; text-decoration: none; font-weight: 500; transition: color 0.3s;">About</a>
+                <a href="https://github.com/kogunlowo123" style="color: #e2e8f0; text-decoration: none; font-weight: 500; transition: color 0.3s;">GitHub</a>
+                <a href="https://citadelcloudmanagement.com" style="color: #e2e8f0; text-decoration: none; font-weight: 500; transition: color 0.3s;">Citadel Cloud</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div style="max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem;">
+        <nav style="font-size: 0.875rem; color: #94a3b8;">
+            <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none;">Home</a>
+            <span style="margin: 0 0.5rem;">/</span>
+            <a href="https://kogunlowo123.github.io/blog" style="color: #00d4ff; text-decoration: none;">Blog</a>
+            <span style="margin: 0 0.5rem;">/</span>
+            <span>Production-Ready AKS Clusters with Terraform</span>
+        </nav>
+    </div>
+
+    <!-- Article -->
+    <article style="max-width: 900px; margin: 2rem auto; padding: 0 2rem;">
+
+        <!-- Article Header -->
+        <header style="margin-bottom: 2.5rem;">
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">Terraform</span>
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">Azure</span>
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">Kubernetes</span>
+                <span style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500;">DevSecOps</span>
+            </div>
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: #ffffff; line-height: 1.2; margin: 0 0 1rem 0;">Production-Ready AKS Clusters with Terraform — Security, Networking, and Auto-Scaling</h1>
+            <div style="display: flex; align-items: center; gap: 1rem; color: #94a3b8; font-size: 0.9rem; flex-wrap: wrap;">
+                <span>By <a href="https://linkedin.com/in/kehinde-ogunlowo" style="color: #00d4ff; text-decoration: none;">Kehinde Ogunlowo</a></span>
+                <span>|</span>
+                <time datetime="2026-03-07">March 7, 2026</time>
+                <span>|</span>
+                <span>15 min read</span>
+            </div>
+        </header>
+
+        <!-- Table of Contents -->
+        <nav style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2.5rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 1rem 0;">Table of Contents</h2>
+            <ol style="margin: 0; padding-left: 1.25rem; color: #94a3b8;">
+                <li style="margin-bottom: 0.5rem;"><a href="#why-production-aks" style="color: #00d4ff; text-decoration: none;">Why Production-Grade AKS Matters</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#networking-modes" style="color: #00d4ff; text-decoration: none;">AKS Networking Modes Compared</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#terraform-module" style="color: #00d4ff; text-decoration: none;">Terraform AKS Module with Workload Identity and Defender</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#workload-identity" style="color: #00d4ff; text-decoration: none;">Configuring Workload Identity for Zero-Trust Access</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#defender-containers" style="color: #00d4ff; text-decoration: none;">Microsoft Defender for Containers Integration</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#node-pool-strategy" style="color: #00d4ff; text-decoration: none;">Node Pool Strategy and Auto-Scaling Configuration</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#network-security" style="color: #00d4ff; text-decoration: none;">Network Security with Hub-Spoke Topology</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#best-practices" style="color: #00d4ff; text-decoration: none;">Best Practices for Production AKS Deployments</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#secrets-management" style="color: #00d4ff; text-decoration: none;">Secrets Management with Azure Key Vault</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="#faq" style="color: #00d4ff; text-decoration: none;">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <!-- Introduction -->
+        <section style="margin-bottom: 3rem;">
+            <p style="font-size: 1.125rem; color: #cbd5e1; margin-bottom: 1.5rem;">
+                Deploying Azure Kubernetes Service in production demands far more than a basic <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">az aks create</code> command. A production-ready AKS cluster requires careful consideration of networking architecture, identity management, security posture, autoscaling policies, and operational readiness. In my experience managing large-scale Kubernetes deployments across enterprise environments, the difference between a development cluster and a production cluster typically spans hundreds of configuration decisions.
+            </p>
+            <p style="font-size: 1.125rem; color: #cbd5e1; margin-bottom: 1.5rem;">
+                This guide walks through building a production-grade AKS deployment using Terraform, covering every critical dimension: from choosing the right networking model to implementing workload identity, enabling Microsoft Defender for Containers, and architecting multi-pool autoscaling strategies. Every configuration shown here is drawn from real-world enterprise deployments and encapsulated in reusable Terraform modules.
+            </p>
+        </section>
+
+        <!-- Why Production AKS Matters -->
+        <section id="why-production-aks" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Why Production-Grade AKS Matters</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Azure Kubernetes Service simplifies the operational burden of running Kubernetes by managing the control plane, but the responsibility for a secure and resilient data plane remains with you. A production AKS cluster must address several critical areas that default configurations simply do not cover.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                First, there is the question of <strong style="color: #ffffff;">network isolation</strong>. By default, AKS clusters are accessible from the public internet. Production clusters should use private endpoints, integrate with a hub-spoke network topology, and enforce network policies at the pod level. The <a href="https://github.com/kogunlowo123/terraform-azure-hub-spoke-network" style="color: #00d4ff; text-decoration: none;">terraform-azure-hub-spoke-network</a> module provides the foundational networking layer that AKS clusters should be deployed into.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Second, <strong style="color: #ffffff;">identity and access management</strong> must follow zero-trust principles. Legacy approaches using service principal secrets are a security liability. Modern AKS deployments use workload identity with federated credentials, eliminating long-lived secrets entirely. This is a fundamental shift in how Kubernetes workloads authenticate to Azure services.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Third, <strong style="color: #ffffff;">runtime security</strong> requires continuous monitoring. Microsoft Defender for Containers provides threat detection, vulnerability scanning, and security posture management directly integrated with the AKS control plane. Without runtime protection, container escapes, cryptomining attacks, and lateral movement go undetected until the damage is done.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Finally, <strong style="color: #ffffff;">cost efficiency</strong> through intelligent autoscaling ensures you are not over-provisioning resources. A well-configured cluster autoscaler combined with horizontal pod autoscaling and spot node pools can reduce compute costs by 40-60% compared to statically provisioned clusters.
+            </p>
+        </section>
+
+        <!-- Networking Modes Comparison -->
+        <section id="networking-modes" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">AKS Networking Modes: Kubenet vs Azure CNI vs CNI Overlay vs CNI Cilium</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1.5rem;">
+                The networking model you choose for your AKS cluster has profound implications for scalability, security, and integration with the broader Azure ecosystem. Azure now offers four distinct networking modes, each with different trade-offs. Understanding these differences is essential for making the right architectural decision. Refer to the <a href="https://learn.microsoft.com/en-us/azure/aks/concepts-network-cni-overview" style="color: #00d4ff; text-decoration: none;" rel="noopener noreferrer">Azure CNI overlay documentation</a> for the latest updates on networking options.
+            </p>
+
+            <!-- Comparison Table -->
+            <div style="overflow-x: auto; margin-bottom: 1.5rem;">
+                <table style="width: 100%; border-collapse: collapse; background-color: #111827; border-radius: 8px; overflow: hidden; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background-color: rgba(0, 212, 255, 0.1);">
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">Feature</th>
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">Kubenet</th>
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">Azure CNI</th>
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">CNI Overlay</th>
+                            <th style="padding: 1rem; text-align: left; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">CNI Cilium</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Pod IP Allocation</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Private overlay</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">VNet subnet IPs</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Private overlay</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Private overlay</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Max Pods/Node</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">110</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">250</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">250</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">250</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">VNet IP Consumption</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Nodes only</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Nodes + Pods</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Nodes only</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Nodes only</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Network Policy Support</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Calico only</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Azure + Calico</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Azure + Calico</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Cilium (eBPF)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Windows Node Pools</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Not supported</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Supported</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Supported</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Not supported</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">Performance</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Moderate</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">High</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">High</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Very High (eBPF)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #ffffff; font-weight: 500;">IP Planning Complexity</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Low</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">High</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Low</td>
+                            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;">Low</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem; color: #ffffff; font-weight: 500;">Production Recommendation</td>
+                            <td style="padding: 0.75rem 1rem; color: #f87171;">Not recommended</td>
+                            <td style="padding: 0.75rem 1rem; color: #fbbf24;">If direct pod routing needed</td>
+                            <td style="padding: 0.75rem 1rem; color: #4ade80;">Recommended default</td>
+                            <td style="padding: 0.75rem 1rem; color: #4ade80;">Best for advanced networking</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                For most production deployments, <strong style="color: #ffffff;">Azure CNI Overlay</strong> offers the best balance of performance, scalability, and simplicity. It eliminates the IP exhaustion problems of traditional Azure CNI while maintaining full Azure networking integration. If your organization requires advanced observability, L7 network policies, or transparent encryption between pods, <strong style="color: #ffffff;">CNI with Cilium powered by eBPF</strong> is the superior choice, offering kernel-level packet processing that dramatically reduces latency and CPU overhead.
+            </p>
+        </section>
+
+        <!-- Terraform Module -->
+        <section id="terraform-module" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Terraform AKS Module with Workload Identity and Defender</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1.5rem;">
+                The following Terraform configuration represents a production-grade AKS deployment. It enables workload identity, configures Microsoft Defender for Containers, sets up CNI Overlay networking, and provisions a multi-pool architecture with autoscaling. This configuration is part of the <a href="https://github.com/kogunlowo123/terraform-azure-aks" style="color: #00d4ff; text-decoration: none;">terraform-azure-aks</a> module, which provides a complete, reusable AKS deployment framework.
+            </p>
+
+            <div style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem;">
+                <div style="background-color: rgba(0, 212, 255, 0.05); padding: 0.75rem 1rem; border-bottom: 1px solid rgba(0, 212, 255, 0.15); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #00d4ff; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">main.tf — Production AKS Cluster</span>
+                    <span style="color: #94a3b8; font-size: 0.8rem;">Terraform (HCL)</span>
+                </div>
+                <pre style="margin: 0; padding: 1.25rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; color: #e2e8f0;"><code>resource "azurerm_kubernetes_cluster" "main" {
+  name                = "${var.prefix}-aks-${var.environment}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  dns_prefix          = "${var.prefix}-${var.environment}"
+  kubernetes_version  = var.kubernetes_version
+  sku_tier            = "Standard"
+
+  # Enable workload identity and OIDC issuer
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
+
+  # Private cluster configuration
+  private_cluster_enabled             = true
+  private_cluster_public_fqdn_enabled = false
+  private_dns_zone_id                 = azurerm_private_dns_zone.aks.id
+
+  # Azure CNI Overlay networking
+  network_profile {
+    network_plugin      = "azure"
+    network_plugin_mode = "overlay"
+    network_policy      = "calico"
+    pod_cidr            = "192.168.0.0/16"
+    service_cidr        = "10.0.0.0/16"
+    dns_service_ip      = "10.0.0.10"
+    load_balancer_sku   = "standard"
+
+    load_balancer_profile {
+      managed_outbound_ip_count = 2
+      idle_timeout_in_minutes   = 30
+    }
+  }
+
+  # System node pool (dedicated for system pods)
+  default_node_pool {
+    name                         = "system"
+    vm_size                      = "Standard_D4s_v5"
+    node_count                   = 3
+    min_count                    = 3
+    max_count                    = 5
+    enable_auto_scaling          = true
+    max_pods                     = 110
+    os_disk_size_gb              = 128
+    os_disk_type                 = "Managed"
+    vnet_subnet_id               = var.aks_subnet_id
+    only_critical_addons_enabled = true
+    zones                        = ["1", "2", "3"]
+
+    node_labels = {
+      "nodepool-type" = "system"
+      "environment"   = var.environment
+    }
+
+    upgrade_settings {
+      max_surge                     = "33%"
+      drain_timeout_in_minutes      = 30
+      node_soak_duration_in_minutes = 0
+    }
+  }
+
+  # Azure Active Directory integration
+  azure_active_directory_role_based_access_control {
+    azure_rbac_enabled     = true
+    managed                = true
+    admin_group_object_ids = var.admin_group_ids
+  }
+
+  # Identity
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.aks.id]
+  }
+
+  # Microsoft Defender for Containers
+  microsoft_defender {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+  }
+
+  # Key Vault Secrets Provider
+  key_vault_secrets_provider {
+    secret_rotation_enabled  = true
+    secret_rotation_interval = "2m"
+  }
+
+  # Monitoring
+  oms_agent {
+    log_analytics_workspace_id      = azurerm_log_analytics_workspace.main.id
+    msi_auth_for_monitoring_enabled = true
+  }
+
+  # Maintenance window
+  maintenance_window {
+    allowed {
+      day   = "Sunday"
+      hours = [0, 1, 2, 3, 4]
+    }
+  }
+
+  tags = var.tags
+}
+
+# User node pool for application workloads
+resource "azurerm_kubernetes_cluster_node_pool" "app" {
+  name                  = "app"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
+  vm_size               = "Standard_D8s_v5"
+  min_count             = 2
+  max_count             = 20
+  enable_auto_scaling   = true
+  max_pods              = 250
+  os_disk_type          = "Ephemeral"
+  os_disk_size_gb       = 128
+  vnet_subnet_id        = var.aks_subnet_id
+  zones                 = ["1", "2", "3"]
+
+  node_labels = {
+    "nodepool-type" = "application"
+    "workload"      = "general"
+  }
+
+  node_taints = []
+
+  tags = var.tags
+}
+
+# Spot node pool for batch and fault-tolerant workloads
+resource "azurerm_kubernetes_cluster_node_pool" "spot" {
+  name                  = "spot"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
+  vm_size               = "Standard_D8s_v5"
+  min_count             = 0
+  max_count             = 50
+  enable_auto_scaling   = true
+  priority              = "Spot"
+  eviction_policy       = "Delete"
+  spot_max_price        = -1
+  os_disk_type          = "Ephemeral"
+  vnet_subnet_id        = var.aks_subnet_id
+  zones                 = ["1", "2", "3"]
+
+  node_labels = {
+    "nodepool-type"                        = "spot"
+    "kubernetes.azure.com/scalesetpriority" = "spot"
+  }
+
+  node_taints = [
+    "kubernetes.azure.com/scalesetpriority=spot:NoSchedule"
+  ]
+
+  tags = var.tags
+}
+
+# Federated identity credential for workload identity
+resource "azurerm_federated_identity_credential" "app" {
+  name                = "aks-app-federated"
+  resource_group_name = azurerm_resource_group.main.name
+  parent_id           = azurerm_user_assigned_identity.app_workload.id
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = azurerm_kubernetes_cluster.main.oidc_issuer_url
+  subject             = "system:serviceaccount:${var.app_namespace}:${var.app_service_account}"
+}</code></pre>
+            </div>
+
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                This configuration represents hundreds of hours of production hardening distilled into a single module. Key architectural decisions include using <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">only_critical_addons_enabled</code> on the system node pool to prevent application workloads from competing with CoreDNS and kube-proxy for resources, ephemeral OS disks on user pools for improved I/O performance, and availability zones for fault tolerance across Azure data centers.
+            </p>
+        </section>
+
+        <!-- Workload Identity -->
+        <section id="workload-identity" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Configuring Workload Identity for Zero-Trust Access</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Workload identity replaces the legacy pod identity and service principal approaches with a standards-based mechanism using OpenID Connect (OIDC) federation. Instead of mounting secrets into pods or injecting credentials through environment variables, workload identity allows Kubernetes service accounts to directly authenticate to Azure AD using short-lived tokens. This eliminates credential rotation concerns and reduces the attack surface of your application workloads.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The mechanism works by establishing a trust relationship between the AKS OIDC issuer and an Azure managed identity. When a pod requests a token, the Azure AD token exchange validates the Kubernetes service account token against the OIDC issuer URL, then issues an Azure AD token scoped to the managed identity's permissions. This entire flow happens without any secrets being stored in the cluster.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                In the Terraform configuration above, the <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">azurerm_federated_identity_credential</code> resource establishes this trust. The <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">subject</code> field binds the credential to a specific Kubernetes service account in a specific namespace, ensuring that only the intended workload can assume the identity. This is a critical security boundary: even if another pod in the same cluster is compromised, it cannot impersonate the federated identity unless it runs with the exact service account specified.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                For comprehensive virtual network integration, the <a href="https://github.com/kogunlowo123/terraform-azure-virtual-network" style="color: #00d4ff; text-decoration: none;">terraform-azure-virtual-network</a> module handles the subnet provisioning that AKS nodes are deployed into, including proper delegation and service endpoint configuration.
+            </p>
+        </section>
+
+        <!-- Defender for Containers -->
+        <section id="defender-containers" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Microsoft Defender for Containers Integration</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Enabling the <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">microsoft_defender</code> block in the Terraform configuration deploys a DaemonSet-based security sensor to every node in your AKS cluster. This sensor collects security events at the kernel level, including process execution, file system access, network connections, and system calls. These events are analyzed by Microsoft's threat intelligence engine to detect container-specific attacks such as cryptomining, reverse shells, privilege escalation attempts, and suspicious file downloads.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Defender for Containers also provides vulnerability assessment for container images stored in Azure Container Registry. Every image pushed to ACR is automatically scanned for known CVEs, and results are surfaced in the Azure Security Center dashboard with remediation recommendations. Combined with admission control policies, you can prevent vulnerable images from being deployed to production clusters.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The security posture management capabilities evaluate your cluster configuration against the CIS Kubernetes Benchmark and Azure security baselines. This includes checks for pod security standards, network policy enforcement, RBAC configuration, and secrets management. Non-compliant configurations are flagged with severity ratings and actionable remediation steps. For a thorough understanding of AKS security best practices, review the <a href="https://learn.microsoft.com/en-us/azure/aks/best-practices" style="color: #00d4ff; text-decoration: none;" rel="noopener noreferrer">Azure AKS best practices documentation</a>.
+            </p>
+        </section>
+
+        <!-- Node Pool Strategy -->
+        <section id="node-pool-strategy" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Node Pool Strategy and AKS Autoscaler Configuration</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                A well-designed node pool strategy is the foundation of a cost-effective and resilient AKS deployment. The Terraform module above implements a three-tier pool architecture that serves distinct purposes.
+            </p>
+            <h3 style="font-size: 1.3rem; font-weight: 600; color: #ffffff; margin: 1.5rem 0 0.75rem;">System Node Pool</h3>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The system pool runs with <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">only_critical_addons_enabled = true</code>, which applies a <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">CriticalAddonsOnly=true:NoSchedule</code> taint to prevent application pods from being scheduled. This guarantees that critical components like CoreDNS, metrics-server, and the AKS tunnel front have dedicated resources and are not affected by noisy neighbor workloads. The system pool uses a minimum of 3 nodes spread across availability zones for high availability.
+            </p>
+            <h3 style="font-size: 1.3rem; font-weight: 600; color: #ffffff; margin: 1.5rem 0 0.75rem;">Application Node Pool with Autoscaler</h3>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The application pool handles general workloads and scales between 2 and 20 nodes based on demand. The AKS cluster autoscaler monitors for unschedulable pods and provisions new nodes when existing capacity is exhausted. It also scales down when nodes are underutilized, respecting pod disruption budgets and graceful termination periods. Using ephemeral OS disks on this pool provides faster node startup times and improved I/O performance since the OS disk is backed by the VM's local SSD rather than remote Azure managed disk storage.
+            </p>
+            <h3 style="font-size: 1.3rem; font-weight: 600; color: #ffffff; margin: 1.5rem 0 0.75rem;">Spot Node Pool for Cost Optimization</h3>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The spot pool leverages Azure's excess capacity at up to 90% discount from regular pricing. The <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">spot_max_price = -1</code> setting accepts any price up to the on-demand rate, maximizing availability. The <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">eviction_policy = "Delete"</code> ensures evicted nodes are removed and replaced rather than deallocated. A NoSchedule taint prevents non-spot-tolerant workloads from being scheduled, ensuring only fault-tolerant jobs with appropriate tolerations land on spot nodes.
+            </p>
+        </section>
+
+        <!-- Network Security -->
+        <section id="network-security" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Network Security with Hub-Spoke Topology</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Production AKS clusters should be deployed into a hub-spoke network architecture where the hub contains centralized security services such as Azure Firewall, VPN gateways, and bastion hosts, while spoke virtual networks host individual workloads including AKS clusters. This pattern provides centralized traffic inspection, network segmentation, and simplified management of network security policies.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The <a href="https://github.com/kogunlowo123/terraform-azure-hub-spoke-network" style="color: #00d4ff; text-decoration: none;">terraform-azure-hub-spoke-network</a> module provisions the complete hub-spoke infrastructure, including VNet peering, route tables with forced tunneling through Azure Firewall, and network security groups. When combined with the AKS module, all egress traffic from pods is routed through the hub firewall for inspection, ensuring compliance with enterprise security requirements.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Inside the cluster, Calico network policies enforce micro-segmentation at the pod level. Default-deny policies block all pod-to-pod communication unless explicitly allowed, following the principle of least privilege. This prevents lateral movement in the event of a container compromise. For clusters using the Cilium CNI, eBPF-based enforcement provides the same functionality with significantly lower overhead and the additional capability of L7 filtering on HTTP headers and DNS queries.
+            </p>
+        </section>
+
+        <!-- Best Practices -->
+        <section id="best-practices" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Best Practices for Production AKS Deployments</h2>
+            <ol style="color: #cbd5e1; padding-left: 1.5rem;">
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Enable private cluster mode</strong> — Disable the public API server endpoint and access the cluster through a private endpoint within your VNet. Use Azure Private Link and a jump box or VPN for administrative access.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Use managed identities exclusively</strong> — Eliminate all service principal secrets. Use user-assigned managed identities for the cluster and workload identity for application pods. The <a href="https://github.com/kogunlowo123/terraform-azure-key-vault" style="color: #00d4ff; text-decoration: none;">terraform-azure-key-vault</a> module integrates with AKS CSI driver for any remaining secret management needs.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Implement Azure RBAC for Kubernetes</strong> — Use Azure AD groups mapped to Kubernetes RBAC roles instead of managing Kubernetes-native role bindings. This centralizes access management and enables conditional access policies.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Configure pod disruption budgets</strong> — Ensure every production deployment has a PDB that prevents voluntary disruptions from leaving fewer than the minimum required replicas running during node upgrades or scaling events.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Enable Azure Policy for AKS</strong> — Apply built-in policy initiatives that enforce pod security standards, prevent privileged containers, require resource limits, and mandate image provenance from trusted registries.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Set resource requests and limits on every pod</strong> — Without resource requests, the scheduler cannot make informed placement decisions, and the autoscaler cannot accurately determine when new nodes are needed. Without limits, a single pod can consume all node resources.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Use availability zones</strong> — Spread nodes across all three availability zones in your region. Combined with pod anti-affinity rules, this ensures your application survives the loss of an entire data center.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Implement GitOps with Flux v2</strong> — Use AKS GitOps extensions to deploy applications declaratively from Git repositories. This provides audit trails, rollback capabilities, and drift detection.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Configure maintenance windows</strong> — Schedule AKS upgrades and node image updates during off-peak hours. The maintenance window configuration in Terraform ensures predictable update behavior.
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <strong style="color: #ffffff;">Monitor with Container Insights and Prometheus</strong> — Enable Container Insights for Azure-native monitoring and deploy Azure Managed Prometheus for Kubernetes-native metrics. Use Grafana dashboards for unified observability across clusters.
+                </li>
+            </ol>
+        </section>
+
+        <!-- Secrets Management -->
+        <section id="secrets-management" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Secrets Management with Azure Key Vault CSI Driver</h2>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                Storing secrets in Kubernetes-native Secret objects is a well-known anti-pattern for production environments. Kubernetes Secrets are base64-encoded (not encrypted) and stored in etcd, making them vulnerable to cluster compromise. The Azure Key Vault Secrets Provider, enabled in the Terraform configuration through the <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">key_vault_secrets_provider</code> block, mounts secrets directly from Azure Key Vault into pods as volume mounts.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                With <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">secret_rotation_enabled = true</code> and a 2-minute rotation interval, the CSI driver automatically fetches updated secret values from Key Vault without requiring pod restarts. Combined with workload identity, this creates a completely passwordless secrets pipeline: the pod authenticates to Key Vault using its federated identity, retrieves the secrets it is authorized to access, and mounts them as files in the pod filesystem.
+            </p>
+            <p style="color: #cbd5e1; margin-bottom: 1rem;">
+                The <a href="https://github.com/kogunlowo123/terraform-azure-key-vault" style="color: #00d4ff; text-decoration: none;">terraform-azure-key-vault</a> module provisions the Key Vault instance with appropriate access policies, private endpoints, and diagnostic settings that integrate with the AKS deployment.
+            </p>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Frequently Asked Questions</h2>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">What is the best networking model for production AKS clusters?</h3>
+                <p style="color: #cbd5e1;">For production AKS clusters, Azure CNI Overlay is recommended for most workloads. It provides pod-level networking without consuming VNet IP addresses for each pod, supports up to 250 pods per node, and integrates natively with Azure networking features like Network Security Groups and Azure Firewall. For advanced use cases requiring L7 policies or transparent encryption, consider CNI with Cilium.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">How do I enable workload identity on AKS with Terraform?</h3>
+                <p style="color: #cbd5e1;">Enable workload identity by setting <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">oidc_issuer_enabled</code> and <code style="background-color: #1e293b; color: #00d4ff; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em;">workload_identity_enabled</code> to true in the azurerm_kubernetes_cluster resource. Then create a federated identity credential linking a Kubernetes service account to an Azure managed identity for secure, passwordless access to Azure services.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">Should I use the AKS cluster autoscaler or KEDA for scaling?</h3>
+                <p style="color: #cbd5e1;">Use both together. The AKS cluster autoscaler handles node-level scaling by adding or removing nodes based on pending pod scheduling. KEDA handles pod-level scaling based on event-driven metrics like queue depth or custom metrics. They complement each other for comprehensive autoscaling across both the infrastructure and application layers.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">How does Microsoft Defender for Containers protect AKS?</h3>
+                <p style="color: #cbd5e1;">Microsoft Defender for Containers provides runtime threat protection, vulnerability assessment for container images in ACR, security posture management, and real-time alerts for suspicious activities. It monitors cluster-level events, node activities, and container behavior using a DaemonSet-based sensor deployed across all cluster nodes.</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">What is the recommended node pool strategy for production AKS?</h3>
+                <p style="color: #cbd5e1;">Use a dedicated system node pool with at least 3 nodes for critical system pods, separate user node pools for application workloads with autoscaling enabled, and optional spot node pools for fault-tolerant batch workloads. Apply taints and labels to control pod scheduling across pools, and spread nodes across availability zones for resilience.</p>
+            </div>
+        </section>
+
+        <!-- Related Articles -->
+        <section style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(0, 212, 255, 0.2);">Related Articles</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <a href="https://kogunlowo123.github.io/blog/devsecops-pipeline-multi-cloud.html" style="text-decoration: none; background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 1.5rem; transition: border-color 0.3s; display: block;">
+                    <h3 style="color: #ffffff; font-size: 1.1rem; margin: 0 0 0.5rem 0;">Enterprise DevSecOps Pipeline Architecture for Multi-Cloud</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Build security-first CI/CD pipelines spanning AWS, Azure, and GCP with shift-left scanning and compliance-as-code.</p>
+                </a>
+                <a href="https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html" style="text-decoration: none; background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 1.5rem; transition: border-color 0.3s; display: block;">
+                    <h3 style="color: #ffffff; font-size: 1.1rem; margin: 0 0 0.5rem 0;">Building Autonomous AI Workflows with AWS Bedrock Agents</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Orchestrate foundation models with knowledge bases and action groups for intelligent automation.</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Social Share -->
+        <section style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin-bottom: 1rem;">Share This Article</h2>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="https://twitter.com/intent/tweet?text=Production-Ready%20AKS%20Clusters%20with%20Terraform&url=https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html" target="_blank" rel="noopener noreferrer" style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); color: #00d4ff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Share on Twitter</a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html" target="_blank" rel="noopener noreferrer" style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); color: #00d4ff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Share on LinkedIn</a>
+                <a href="https://news.ycombinator.com/submitlink?u=https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html&t=Production-Ready%20AKS%20Clusters%20with%20Terraform" target="_blank" rel="noopener noreferrer" style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); color: #00d4ff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Share on Hacker News</a>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.02)); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 16px; padding: 2.5rem; text-align: center; margin-bottom: 3rem;">
+            <h2 style="color: #ffffff; font-size: 1.5rem; margin: 0 0 1rem 0;">Need Help Building Production AKS Infrastructure?</h2>
+            <p style="color: #cbd5e1; margin: 0 0 1.5rem 0; max-width: 600px; margin-left: auto; margin-right: auto;">Citadel Cloud Management specializes in designing and implementing production-grade Kubernetes platforms on Azure. From initial architecture through to operational excellence, we deliver secure, scalable infrastructure.</p>
+            <a href="https://citadelcloudmanagement.com" style="display: inline-block; background-color: #00d4ff; color: #0a0e1a; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1rem;">Get in Touch</a>
+        </section>
+
+        <!-- Author Bio -->
+        <section style="background-color: #111827; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 1rem 0;">About the Author</h2>
+            <div style="display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap;">
+                <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #00d4ff, #0066ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: #0a0e1a; flex-shrink: 0;">KO</div>
+                <div style="flex: 1; min-width: 250px;">
+                    <h3 style="color: #ffffff; margin: 0 0 0.25rem 0; font-size: 1.1rem;">Kehinde Ogunlowo</h3>
+                    <p style="color: #00d4ff; margin: 0 0 0.75rem 0; font-size: 0.9rem;">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</p>
+                    <p style="color: #94a3b8; margin: 0 0 0.75rem 0; font-size: 0.9rem;">Kehinde architects enterprise cloud platforms across AWS, Azure, and GCP, specializing in Kubernetes orchestration, infrastructure as code, and security automation. With deep expertise in Terraform module design and multi-cloud networking, he helps organizations build resilient, compliant cloud infrastructure at scale.</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="https://github.com/kogunlowo123" style="color: #00d4ff; text-decoration: none; font-size: 0.9rem;">GitHub</a>
+                        <a href="https://linkedin.com/in/kehinde-ogunlowo" style="color: #00d4ff; text-decoration: none; font-size: 0.9rem;">LinkedIn</a>
+                        <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none; font-size: 0.9rem;">Website</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </article>
+
+    <!-- Footer -->
+    <footer style="background-color: #111827; border-top: 1px solid rgba(0, 212, 255, 0.15); padding: 2rem; text-align: center; color: #94a3b8; font-size: 0.875rem;">
+        <p style="margin: 0 0 0.5rem 0;">&copy; 2026 Kehinde Ogunlowo. All rights reserved.</p>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+            <a href="https://kogunlowo123.github.io" style="color: #00d4ff; text-decoration: none;">Home</a>
+            <a href="https://github.com/kogunlowo123" style="color: #00d4ff; text-decoration: none;">GitHub</a>
+            <a href="https://linkedin.com/in/kehinde-ogunlowo" style="color: #00d4ff; text-decoration: none;">LinkedIn</a>
+            <a href="https://citadelcloudmanagement.com" style="color: #00d4ff; text-decoration: none;">Citadel Cloud Management</a>
+        </div>
+    </footer>
+
+</body>
+</html>
