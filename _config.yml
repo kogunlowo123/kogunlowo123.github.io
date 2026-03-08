@@ -16,7 +16,6 @@ social:
 permalink: /blog/:title.html
 
 plugins:
-  - jekyll-sitemap
   - jekyll-feed
 
 exclude:
