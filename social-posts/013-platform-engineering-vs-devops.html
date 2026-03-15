@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Engineering Is Just DevOps Rebranded — Kehinde Ogunlowo</title>
+    <meta name="description" content="Is platform engineering genuinely different from DevOps or just a new title for the same role with better marketing?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0e1a;color:#e2e8f0;font-family:'Inter',sans-serif;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto;}
+        h1{font-size:2rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#00d4ff,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        h2{font-size:1.3rem;font-weight:700;color:#00d4ff;margin:2rem 0 1rem;}
+        .hook{font-size:1.1rem;color:#94a3b8;margin-bottom:2rem;border-left:3px solid #00d4ff;padding-left:1rem;}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0;}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+        .flow-row{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+        .node{background:#111827;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1rem 1.5rem;text-decoration:none;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:0.85rem;transition:all 0.3s;text-align:center;min-width:140px;}
+        .node:hover{border-color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,0.15);}
+        .node.aws{border-color:rgba(255,153,0,0.4);} .node.aws:hover{border-color:#FF9900;box-shadow:0 0 20px rgba(255,153,0,0.2);}
+        .node.k8s{border-color:rgba(50,108,229,0.4);} .node.k8s:hover{border-color:#326CE5;box-shadow:0 0 20px rgba(50,108,229,0.2);}
+        .node.tf{border-color:rgba(123,66,188,0.4);} .node.tf:hover{border-color:#7B42BC;box-shadow:0 0 20px rgba(123,66,188,0.2);}
+        .node.neutral{border-color:rgba(0,212,255,0.3);} .node.neutral:hover{border-color:#00d4ff;}
+        .node-label{font-weight:600;margin-bottom:0.25rem;}
+        .node-sub{font-size:0.75rem;color:#64748b;}
+        .arrow{color:#00d4ff;font-size:1.5rem;text-align:center;}
+        .vs-badge{background:linear-gradient(135deg,#FF9900,#00d4ff);color:#0a0e1a;font-weight:700;padding:0.5rem 1.5rem;border-radius:20px;font-size:0.9rem;}
+        .breakdown{margin:2rem 0;}
+        .breakdown ul{list-style:none;padding:0;}
+        .breakdown li{padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.95rem;}
+        .breakdown li::before{content:"⚡";margin-right:0.5rem;}
+        .breakdown a{color:#00d4ff;text-decoration:none;} .breakdown a:hover{text-decoration:underline;}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(16,185,129,0.08));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:2rem;text-align:center;margin:2rem 0;}
+        .cta a{color:#00d4ff;text-decoration:none;font-weight:600;}
+        .tag{display:inline-block;background:rgba(0,212,255,0.1);color:#00d4ff;padding:0.2rem 0.6rem;border-radius:4px;font-size:0.75rem;font-family:'JetBrains Mono',monospace;margin:0.2rem;}
+    </style>
+</head>
+<body>
+    <article>
+        <div style="margin-bottom:1rem;">
+            <span class="tag">#PlatformEngineering</span>
+            <span class="tag">#DevOps</span>
+            <span class="tag">#IDP</span>
+        </div>
+        <h1>Platform Engineering Is Just DevOps Rebranded</h1>
+        <p class="hook">DevOps engineers got tired of the title, so now they're "Platform Engineers" building "Internal Developer Platforms." It's the same Terraform, the same Kubernetes, the same CI/CD — just with a Backstage portal slapped on top. The rebrand won't fix your culture problem.</p>
+
+        <section class="diagram">
+            <h2>Architecture Comparison</h2>
+            <div class="flow">
+                <div style="color:#94a3b8;font-weight:600;">Internal Developer Platform Stack</div>
+                <a href="https://backstage.io/docs/overview/what-is-backstage" class="node neutral" target="_blank">
+                    <div class="node-label">Backstage / IDP</div>
+                    <div class="node-sub">Developer portal</div>
+                </a>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://developer.hashicorp.com/terraform/docs" class="node tf" target="_blank">
+                        <div class="node-label">Terraform Modules</div>
+                        <div class="node-sub">Self-service IaC</div>
+                    </a>
+                    <a href="https://docs.github.com/en/actions" class="node neutral" target="_blank">
+                        <div class="node-label">GitHub Actions</div>
+                        <div class="node-sub">CI/CD templates</div>
+                    </a>
+                    <a href="https://argo-cd.readthedocs.io/en/stable/" class="node k8s" target="_blank">
+                        <div class="node-label">ArgoCD</div>
+                        <div class="node-sub">GitOps deploy</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/eks/latest/userguide/" class="node aws" target="_blank">
+                        <div class="node-label">EKS</div>
+                        <div class="node-sub">Compute platform</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/" class="node aws" target="_blank">
+                        <div class="node-label">Aurora</div>
+                        <div class="node-sub">Data platform</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/" class="node aws" target="_blank">
+                        <div class="node-label">CloudWatch</div>
+                        <div class="node-sub">Observability</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><a href="https://backstage.io/docs/overview/what-is-backstage" target="_blank">Backstage</a> is powerful but takes 6+ months to customize — it's not plug-and-play</li>
+                <li>Platform engineering adds a product mindset to DevOps — treating developers as customers of the platform</li>
+                <li>Self-service <a href="https://developer.hashicorp.com/terraform/docs" target="_blank">Terraform modules</a> are what DevOps teams should have built years ago</li>
+                <li>Most "platform teams" are just DevOps teams that renamed their Jira board</li>
+                <li>The real difference is building golden paths — but <a href="https://docs.github.com/en/actions" target="_blank">GitHub Actions</a> reusable workflows already did this</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">What's your take? Drop your opinion below.</p>
+            <p>Full architecture guides → <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repository Catalog — Kehinde Ogunlowo</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0c0b;--bg2:#141514;--bg3:#1a1b1a;--text:#f5f2eb;--text2:#b0ada6;--accent:#c8420a;--accent2:#e05a1a;--border:#2a2b2a;--green:#2ea043;--blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;--yellow:#eab308;--pink:#ec4899;--orange:#f97316;--teal:#14b8a6}
+html{scroll-behavior:smooth}
+body{font-family:'Cascadia Code','Fira Code','SF Mono','Consolas',monospace;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+a{color:var(--accent2);text-decoration:none;transition:color .2s}
+a:hover{color:var(--text)}
+
+nav{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+nav .inner{max-width:1400px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+nav .brand{font-size:14px;font-weight:700;color:var(--accent)}
+nav .links{display:flex;gap:24px;flex-wrap:wrap}
+nav .links a{font-size:13px;color:var(--text2);letter-spacing:.5px;text-transform:uppercase}
+nav .links a:hover{color:var(--accent2)}
+
+.container{max-width:1400px;margin:0 auto;padding:32px 24px}
+.page-title{font-size:clamp(20px,3vw,32px);font-weight:700;margin-bottom:8px}
+.page-subtitle{color:var(--text2);font-size:14px;margin-bottom:32px}
+
+/* SEARCH */
+.controls{margin-bottom:32px}
+.search-box{width:100%;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s;margin-bottom:16px}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{color:var(--text2)}
+
+.filter-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.filter-row label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;width:100%;margin-bottom:4px}
+.filter-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:20px;font-family:inherit;font-size:12px;cursor:pointer;transition:all .2s}
+.filter-btn:hover{border-color:var(--accent);color:var(--text)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.results-count{font-size:13px;color:var(--text2);margin-bottom:16px}
+
+/* GRID */
+.repo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.repo-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;transition:border-color .2s,transform .2s;display:flex;flex-direction:column}
+.repo-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.repo-card .repo-name{font-size:15px;font-weight:700;margin-bottom:8px;word-break:break-word}
+.repo-card .repo-name a{color:var(--text)}
+.repo-card .repo-name a:hover{color:var(--accent2)}
+.repo-card .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;display:inline-block}
+.badge-aws{background:#1a2733;color:#f97316;border:1px solid #2a3a4a}
+.badge-azure{background:#1a1a33;color:#3b82f6;border:1px solid #2a2a4a}
+.badge-gcp{background:#1a2a1a;color:#2ea043;border:1px solid #2a3a2a}
+.badge-aiml{background:#2a1a2a;color:#ec4899;border:1px solid #3a2a3a}
+.badge-mcp{background:#1a2a2a;color:#06b6d4;border:1px solid #2a3a3a}
+.badge-security{background:#2a2a1a;color:#eab308;border:1px solid #3a3a2a}
+.badge-platform{background:#1a1a2a;color:#8b5cf6;border:1px solid #2a2a3a}
+.badge-frontend{background:#2a1a1a;color:#f97316;border:1px solid #3a2a2a}
+.badge-docs{background:#1a1a1a;color:#b0ada6;border:1px solid #2a2a2a}
+.badge-agentforge{background:#2a1a2a;color:#a855f7;border:1px solid #3a2a3a}
+.badge-lang{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.repo-card .desc{font-size:13px;color:var(--text2);flex:1;margin-bottom:10px}
+.repo-card .tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tag{font-size:10px;color:var(--text2);background:var(--bg);padding:2px 8px;border-radius:4px}
+.repo-card .arch-link{font-size:12px;color:var(--accent);margin-top:auto}
+.repo-card .arch-link:hover{color:var(--accent2)}
+
+footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text2);font-size:12px;margin-top:48px}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="inner">
+<a class="brand" href="index.html">KO // Portfolio</a>
+<div class="links">
+<a href="index.html">Overview</a>
+<a href="repos.html">Repository Catalog</a>
+<a href="../kehinde-architecture-diagram/">Architecture Diagrams</a>
+</div>
+</div>
+</nav>
+
+<main class="container">
+<h1 class="page-title">Repository Catalog</h1>
+<p class="page-subtitle">111 production-ready repositories across AWS, Azure, GCP, AI/ML, and DevSecOps</p>
+
+<div class="controls">
+<input type="text" class="search-box" id="search" placeholder="Search repositories by name, description, or tag...">
+<div class="filter-row" id="catFilters">
+<label>Category</label>
+<button class="filter-btn active" data-cat="all">All</button>
+<button class="filter-btn" data-cat="infrastructure">Infrastructure</button>
+<button class="filter-btn" data-cat="aiml">AI/ML</button>
+<button class="filter-btn" data-cat="api">API/Service</button>
+<button class="filter-btn" data-cat="security">Security</button>
+<button class="filter-btn" data-cat="platform">Platform</button>
+<button class="filter-btn" data-cat="frontend">Frontend</button>
+<button class="filter-btn" data-cat="documentation">Documentation</button>
+</div>
+<div class="filter-row" id="cloudFilters">
+<label>Cloud</label>
+<button class="filter-btn active" data-cloud="all">All</button>
+<button class="filter-btn" data-cloud="aws">AWS</button>
+<button class="filter-btn" data-cloud="azure">Azure</button>
+<button class="filter-btn" data-cloud="gcp">GCP</button>
+<button class="filter-btn" data-cloud="multi">Multi-Cloud</button>
+</div>
+</div>
+
+<div class="results-count" id="resultsCount">Showing 111 of 111 repositories</div>
+<div class="repo-grid" id="repoGrid"></div>
+</main>
+
+<footer>
+<p>&copy; 2026 Kehinde Ogunlowo. All rights reserved.</p>
+</footer>
+
+<script>
+var repos = [
+  // Terraform AWS (31)
+  {name:"terraform-aws-alb",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Production-ready Application Load Balancer module with HTTPS, WAF integration, and target group management.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-aws-amazon-q-developer",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Amazon Q Developer workspace provisioning with IAM policies, identity center integration, and secure access controls.",industries:["SaaS","Education"]},
+  {name:"terraform-aws-api-gateway-v2",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"HTTP/WebSocket API Gateway v2 module with Lambda integration, custom domains, and throttling.",industries:["SaaS","Finance","Retail"]},
+  {name:"terraform-aws-auto-healing-eks",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Self-healing EKS cluster with node auto-recovery, pod disruption budgets, and automated rollback.",industries:["Healthcare","Finance","SaaS"]},
+  {name:"terraform-aws-autoscaling",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Auto Scaling Group module with launch templates, scaling policies, and lifecycle hooks.",industries:["SaaS","Retail","Energy"]},
+  {name:"terraform-aws-bedrock-agents",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Amazon Bedrock Agents provisioning with knowledge bases, action groups, and guardrails.",industries:["Healthcare","Finance","Government"]},
+  {name:"terraform-aws-bedrock-platform",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Full Bedrock platform deployment with model access, fine-tuning pipelines, and evaluation frameworks.",industries:["SaaS","Healthcare","Education"]},
+  {name:"terraform-aws-cloudfront-cdn",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"CloudFront distribution module with S3 origins, Lambda@Edge, cache policies, and WAF integration.",industries:["SaaS","Retail","Education"]},
+  {name:"terraform-aws-cloudwatch",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"CloudWatch monitoring stack with dashboards, alarms, log groups, and metric filters.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-aws-dynamodb",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"DynamoDB table module with GSIs, auto-scaling, point-in-time recovery, and encryption.",industries:["SaaS","Finance","Retail"]},
+  {name:"terraform-aws-ec2-instance",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"EC2 instance module with EBS volumes, security groups, IAM profiles, and user data scripts.",industries:["SaaS","Government","Education"]},
+  {name:"terraform-aws-ecs-fargate",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"ECS Fargate service module with task definitions, service discovery, and auto-scaling.",industries:["SaaS","Healthcare","Retail"]},
+  {name:"terraform-aws-efs",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Elastic File System module with mount targets, access points, lifecycle policies, and encryption.",industries:["SaaS","Education","Energy"]},
+  {name:"terraform-aws-eks",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Production EKS cluster with managed node groups, IRSA, cluster autoscaler, and add-ons.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-aws-elasticache-redis",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"ElastiCache Redis cluster with replication groups, parameter groups, and subnet groups.",industries:["SaaS","Retail","Finance"]},
+  {name:"terraform-aws-guardduty-ai",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"GuardDuty with AI-powered threat detection, automated remediation, and finding aggregation.",industries:["Government","Finance","Healthcare"]},
+  {name:"terraform-aws-healthlake",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"AWS HealthLake FHIR datastore with KMS encryption, IAM policies, and S3 export configuration.",industries:["Healthcare"]},
+  {name:"terraform-aws-kms",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"KMS key management module with key policies, aliases, grants, and automatic rotation.",industries:["Finance","Healthcare","Government"]},
+  {name:"terraform-aws-lambda",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Lambda function module with layers, VPC config, event source mappings, and alias management.",industries:["SaaS","Finance","Retail"]},
+  {name:"terraform-aws-network-firewall",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"AWS Network Firewall with stateful/stateless rules, rule groups, and logging configuration.",industries:["Government","Finance","Healthcare"]},
+  {name:"terraform-aws-privatelink",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"PrivateLink endpoint services and interface endpoints with DNS and security group management.",industries:["Finance","Healthcare","Government"]},
+  {name:"terraform-aws-rag-pipeline",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"RAG pipeline infrastructure with Bedrock, OpenSearch Serverless, S3, and Lambda orchestration.",industries:["SaaS","Healthcare","Education"]},
+  {name:"terraform-aws-rds-aurora",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"RDS Aurora cluster module with read replicas, global databases, and automated backups.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-aws-route53",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Route 53 hosted zones, records, health checks, and routing policies module.",industries:["SaaS","Retail","Education"]},
+  {name:"terraform-aws-s3-bucket",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"S3 bucket module with versioning, lifecycle rules, replication, encryption, and access logging.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-aws-sagemaker-mlops",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"SageMaker MLOps pipeline with model registry, endpoints, feature store, and CI/CD integration.",industries:["SaaS","Healthcare","Finance"]},
+  {name:"terraform-aws-sagemaker-studio",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"SageMaker Studio domain with user profiles, apps, lifecycle configs, and VPC integration.",industries:["SaaS","Education","Healthcare"]},
+  {name:"terraform-aws-security-baseline",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"AWS security baseline with Config rules, CloudTrail, Security Hub, and IAM access analyzer.",industries:["Government","Finance","Healthcare"]},
+  {name:"terraform-aws-sns-sqs",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"SNS topics and SQS queues with subscriptions, DLQ, encryption, and access policies.",industries:["SaaS","Retail","Finance"]},
+  {name:"terraform-aws-transit-gateway",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Transit Gateway with attachments, route tables, peering, and multi-account sharing.",industries:["Government","Finance","Energy"]},
+  {name:"terraform-aws-vpc-complete",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"Complete VPC module with public/private subnets, NAT gateways, flow logs, and NACLs.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-aws-waf",cat:"infrastructure",cloud:"aws",lang:"HCL",desc:"WAF v2 web ACL with managed rule groups, custom rules, IP sets, and logging.",industries:["SaaS","Finance","Government"]},
+
+  // Terraform Azure (23)
+  {name:"terraform-azure-aks",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure Kubernetes Service cluster with node pools, AAD integration, and network policies.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-azure-ai-agent-service",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure AI Agent Service with model deployments, prompt flow, and content safety integration.",industries:["SaaS","Healthcare","Education"]},
+  {name:"terraform-azure-ai-studio",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure AI Studio workspace with hub, project, compute, and connected resources.",industries:["SaaS","Education","Healthcare"]},
+  {name:"terraform-azure-application-gateway",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Application Gateway v2 with WAF policy, SSL termination, and URL-based routing.",industries:["SaaS","Retail","Finance"]},
+  {name:"terraform-azure-automanage-ai",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure Automanage with AI-driven configuration profiles, compliance auditing, and drift remediation.",industries:["Government","Finance","Healthcare"]},
+  {name:"terraform-azure-container-apps",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Container Apps environment with Dapr, scaling rules, managed identity, and ingress config.",industries:["SaaS","Retail","Education"]},
+  {name:"terraform-azure-cosmos-db",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Cosmos DB account with SQL/MongoDB APIs, global distribution, and consistency policies.",industries:["SaaS","Retail","Finance"]},
+  {name:"terraform-azure-event-hub",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Event Hub namespace with hubs, consumer groups, capture, and geo-disaster recovery.",industries:["SaaS","Finance","Energy"]},
+  {name:"terraform-azure-front-door",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure Front Door with WAF policies, custom domains, caching rules, and routing rules.",industries:["SaaS","Retail","Education"]},
+  {name:"terraform-azure-hub-spoke-network",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Hub-spoke network topology with VNet peering, Azure Firewall, and route tables.",industries:["Government","Finance","Energy"]},
+  {name:"terraform-azure-key-vault",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Key Vault with access policies, secrets, certificates, RBAC, and private endpoints.",industries:["Finance","Healthcare","Government"]},
+  {name:"terraform-azure-monitor",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure Monitor with Log Analytics workspace, diagnostic settings, alerts, and action groups.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-azure-openai-platform",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure OpenAI Service with model deployments, content filtering, and private networking.",industries:["SaaS","Healthcare","Education"]},
+  {name:"terraform-azure-postgresql-flexible",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"PostgreSQL Flexible Server with HA, read replicas, firewall rules, and extensions.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-azure-private-endpoint",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Private Endpoint module with DNS zone groups, subnet integration, and service connections.",industries:["Finance","Healthcare","Government"]},
+  {name:"terraform-azure-security-center",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Defender for Cloud with security contacts, auto-provisioning, and regulatory compliance.",industries:["Government","Finance","Healthcare"]},
+  {name:"terraform-azure-sentinel-ai",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Microsoft Sentinel with AI-driven analytics rules, playbooks, and threat intelligence.",industries:["Government","Finance","Healthcare"]},
+  {name:"terraform-azure-service-bus",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Service Bus namespace with queues, topics, subscriptions, and premium tier features.",industries:["SaaS","Finance","Retail"]},
+  {name:"terraform-azure-sql-database",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Azure SQL Database with elastic pools, failover groups, auditing, and TDE.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-azure-storage-account",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Storage Account with blob containers, lifecycle management, network rules, and encryption.",industries:["SaaS","Healthcare","Government"]},
+  {name:"terraform-azure-virtual-machine-linux",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Linux VM module with managed disks, boot diagnostics, extensions, and availability sets.",industries:["SaaS","Education","Government"]},
+  {name:"terraform-azure-virtual-machine-windows",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Windows VM module with managed disks, domain join, auto-shutdown, and backup config.",industries:["Government","Finance","Education"]},
+  {name:"terraform-azure-virtual-network",cat:"infrastructure",cloud:"azure",lang:"HCL",desc:"Virtual Network with subnets, NSGs, route tables, service endpoints, and DDoS protection.",industries:["SaaS","Finance","Healthcare"]},
+
+  // Terraform GCP (16)
+  {name:"terraform-gcp-artifact-registry",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Artifact Registry repository with IAM bindings, cleanup policies, and vulnerability scanning.",industries:["SaaS","Education"]},
+  {name:"terraform-gcp-bigquery",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"BigQuery dataset and tables with IAM, scheduled queries, and data transfer configs.",industries:["Finance","Retail","Energy"]},
+  {name:"terraform-gcp-cloud-armor",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Cloud Armor security policies with WAF rules, rate limiting, and adaptive protection.",industries:["SaaS","Finance","Government"]},
+  {name:"terraform-gcp-cloud-run",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Cloud Run service with traffic splitting, IAM invoker, custom domains, and VPC connector.",industries:["SaaS","Retail","Education"]},
+  {name:"terraform-gcp-cloud-sql",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Cloud SQL instance with HA, read replicas, private IP, backup configuration, and flags.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-gcp-composer",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Cloud Composer (Airflow) environment with custom configs, private IP, and GKE integration.",industries:["Energy","Finance","SaaS"]},
+  {name:"terraform-gcp-gcs-bucket",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"GCS bucket with lifecycle rules, versioning, CORS, retention policies, and IAM.",industries:["SaaS","Healthcare","Government"]},
+  {name:"terraform-gcp-gemini-platform",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Google Gemini platform deployment with model endpoints, tuning, and evaluation pipelines.",industries:["SaaS","Education","Healthcare"]},
+  {name:"terraform-gcp-gke",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"GKE cluster with node pools, workload identity, network policy, and cluster autoscaler.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"terraform-gcp-iam",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"IAM module with custom roles, service accounts, workload identity federation, and org policies.",industries:["Government","Finance","Healthcare"]},
+  {name:"terraform-gcp-pubsub",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Pub/Sub topics and subscriptions with dead-letter, filtering, schemas, and push configs.",industries:["SaaS","Retail","Energy"]},
+  {name:"terraform-gcp-secret-manager",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Secret Manager secrets with versions, IAM bindings, rotation, and replication policies.",industries:["Finance","Healthcare","Government"]},
+  {name:"terraform-gcp-spanner",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Cloud Spanner instance and database with IAM, backup schedules, and processing units.",industries:["Finance","Retail","SaaS"]},
+  {name:"terraform-gcp-vertex-ai-agents",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Vertex AI Agent Builder with data stores, search engines, and conversation profiles.",industries:["SaaS","Healthcare","Education"]},
+  {name:"terraform-gcp-vertex-ai-platform",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"Vertex AI platform with custom training, pipelines, model registry, and feature store.",industries:["SaaS","Healthcare","Finance"]},
+  {name:"terraform-gcp-vpc-network",cat:"infrastructure",cloud:"gcp",lang:"HCL",desc:"VPC network with subnets, firewall rules, Cloud NAT, Cloud Router, and shared VPC.",industries:["SaaS","Finance","Government"]},
+
+  // AI/ML (8)
+  {name:"agentforge-portal",cat:"aiml",cloud:"multi",lang:"Python",desc:"Interactive portal for the AgentForge AI agent specialization suite with multi-cloud deployment.",industries:["SaaS","Healthcare","Finance"]},
+  {name:"ai-agent-soc-triage",cat:"aiml",cloud:"multi",lang:"Python",desc:"AI-powered SOC analyst agent for automated security alert triage and incident response.",industries:["Government","Finance","Healthcare"]},
+  {name:"ai-evaluation-prompts",cat:"aiml",cloud:"multi",lang:"Python",desc:"Comprehensive AI model evaluation prompt library with bias testing, accuracy benchmarks, and safety checks.",industries:["SaaS","Education"]},
+  {name:"ai-finops-optimization-agent",cat:"aiml",cloud:"multi",lang:"Python",desc:"AI agent for cloud cost optimization with anomaly detection and rightsizing recommendations.",industries:["Finance","SaaS","Energy"]},
+  {name:"langchain-multi-agent-framework",cat:"aiml",cloud:"multi",lang:"Python",desc:"Multi-agent orchestration framework built on LangChain with tool use, memory, and planning.",industries:["SaaS","Healthcare","Education"]},
+  {name:"multi-industry-ai-assistant",cat:"aiml",cloud:"multi",lang:"Python",desc:"Industry-specific AI assistant with healthcare, finance, and government domain specializations.",industries:["Healthcare","Finance","Government"]},
+  {name:"rag-pipeline-hallucination-mitigation",cat:"aiml",cloud:"multi",lang:"Python",desc:"RAG pipeline with hallucination detection, citation verification, and grounding techniques.",industries:["Healthcare","Finance","Education"]},
+  {name:"AI-Agent-Specializations",cat:"aiml",cloud:"multi",lang:"Python",desc:"AI agent specialization templates covering 8 enterprise domains with evaluation frameworks.",industries:["SaaS","Healthcare","Finance"]},
+
+  // AgentForge Private (8)
+  {name:"agentforge-01-conversational-copilot",cat:"aiml",cloud:"multi",lang:"Python",desc:"Conversational AI copilot agent with multi-turn dialogue, context management, and tool integration.",industries:["SaaS","Education"]},
+  {name:"agentforge-02-data-analytics",cat:"aiml",cloud:"multi",lang:"Python",desc:"Data analytics agent with natural language querying, visualization generation, and insight extraction.",industries:["Finance","Retail","Energy"]},
+  {name:"agentforge-03-devops-automation",cat:"aiml",cloud:"multi",lang:"Python",desc:"DevOps automation agent for CI/CD pipeline management, infrastructure provisioning, and incident response.",industries:["SaaS","Finance"]},
+  {name:"agentforge-04-security-compliance",cat:"aiml",cloud:"multi",lang:"Python",desc:"Security compliance agent with policy enforcement, vulnerability assessment, and audit reporting.",industries:["Government","Finance","Healthcare"]},
+  {name:"agentforge-05-document-intelligence",cat:"aiml",cloud:"multi",lang:"Python",desc:"Document intelligence agent with OCR, entity extraction, classification, and summarization.",industries:["Healthcare","Government","Finance"]},
+  {name:"agentforge-06-customer-experience",cat:"aiml",cloud:"multi",lang:"Python",desc:"Customer experience agent with sentiment analysis, routing, personalization, and feedback loops.",industries:["Retail","SaaS","Finance"]},
+  {name:"agentforge-07-research-synthesis",cat:"aiml",cloud:"multi",lang:"Python",desc:"Research synthesis agent for literature review, evidence aggregation, and hypothesis generation.",industries:["Healthcare","Education","Energy"]},
+  {name:"agentforge-08-cross-cloud-agnostic",cat:"aiml",cloud:"multi",lang:"Python",desc:"Cloud-agnostic agent framework with provider abstraction, unified APIs, and portable deployments.",industries:["SaaS","Finance","Government"]},
+
+  // MCP Servers (8)
+  {name:"mcp-server-aws",cat:"api",cloud:"aws",lang:"TypeScript",desc:"Model Context Protocol server for AWS services with resource management and observability.",industries:["SaaS","Finance"]},
+  {name:"mcp-server-azure",cat:"api",cloud:"azure",lang:"TypeScript",desc:"MCP server for Azure services with Entra ID integration and resource graph queries.",industries:["SaaS","Government"]},
+  {name:"mcp-server-database",cat:"api",cloud:"multi",lang:"TypeScript",desc:"MCP server for database operations supporting PostgreSQL, MySQL, DynamoDB, and Cosmos DB.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"mcp-server-devops",cat:"api",cloud:"multi",lang:"TypeScript",desc:"MCP server for DevOps tooling with CI/CD integration, monitoring, and incident management.",industries:["SaaS","Finance"]},
+  {name:"mcp-server-github",cat:"api",cloud:"multi",lang:"TypeScript",desc:"MCP server for GitHub with repository management, PR workflows, and code search.",industries:["SaaS","Education"]},
+  {name:"mcp-server-kubernetes",cat:"api",cloud:"multi",lang:"TypeScript",desc:"MCP server for Kubernetes cluster management, workload deployment, and troubleshooting.",industries:["SaaS","Finance","Healthcare"]},
+  {name:"mcp-server-terraform",cat:"api",cloud:"multi",lang:"TypeScript",desc:"MCP server for Terraform operations with plan/apply, state management, and module registry.",industries:["SaaS","Government"]},
+  {name:"mcp-server-vector-db",cat:"api",cloud:"multi",lang:"TypeScript",desc:"MCP server for vector databases supporting Pinecone, Weaviate, and pgvector.",industries:["SaaS","Healthcare","Education"]},
+
+  // Platforms (3)
+  {name:"claude-mcp-platform",cat:"platform",cloud:"multi",lang:"TypeScript",desc:"Full MCP platform for Claude with server orchestration, tool management, and monitoring.",industries:["SaaS","Education"]},
+  {name:"claude-python-sdk-extended",cat:"platform",cloud:"multi",lang:"Python",desc:"Extended Python SDK for Claude with streaming, batching, caching, and structured outputs.",industries:["SaaS","Education"]},
+  {name:"claude-prompts-library",cat:"platform",cloud:"multi",lang:"Markdown",desc:"Curated prompt library for Claude covering enterprise workflows, coding, and analysis tasks.",industries:["SaaS","Education"]},
+
+  // Security (4)
+  {name:"devops-devsecops-pipeline",cat:"security",cloud:"multi",lang:"YAML",desc:"End-to-end DevSecOps pipeline with SAST, DAST, SCA, container scanning, and compliance gates.",industries:["Government","Finance","Healthcare"]},
+  {name:"entra-iam-zero-trust",cat:"security",cloud:"azure",lang:"HCL",desc:"Microsoft Entra ID zero-trust architecture with conditional access, PIM, and identity governance.",industries:["Government","Finance","Healthcare"]},
+  {name:"aws-enterprise-deployment",cat:"security",cloud:"aws",lang:"HCL",desc:"AWS enterprise landing zone with Control Tower, Organizations, SSO, and security baselines.",industries:["Government","Finance","Energy"]},
+  {name:"azure-healthcare-lift-shift",cat:"security",cloud:"azure",lang:"HCL",desc:"HIPAA-compliant Azure landing zone for healthcare workload migration with data encryption and auditing.",industries:["Healthcare"]},
+
+  // Frontend/UI (5)
+  {name:"ai-soc-sentinel",cat:"frontend",cloud:"azure",lang:"TypeScript",desc:"SOC analyst dashboard with AI-powered threat detection, incident timeline, and response automation.",industries:["Government","Finance"]},
+  {name:"cloud-ops-intelligence-hub",cat:"frontend",cloud:"multi",lang:"TypeScript",desc:"Multi-cloud operations dashboard with cost analytics, security posture, and resource inventory.",industries:["SaaS","Finance","Energy"]},
+  {name:"kehinde-architecture",cat:"frontend",cloud:"multi",lang:"HTML",desc:"Architecture documentation site with interactive diagrams and technical decision records.",industries:["SaaS"]},
+  {name:"kehinde-architecture-diagram",cat:"frontend",cloud:"multi",lang:"HTML",desc:"Interactive architecture diagram viewer with zoom, pan, and component detail overlays.",industries:["SaaS"]},
+  {name:"kogunlowo123.github.io",cat:"frontend",cloud:"multi",lang:"HTML",desc:"Personal GitHub Pages portfolio site and documentation hub.",industries:["SaaS"]},
+
+  // Other (5)
+  {name:"devops-prompts",cat:"documentation",cloud:"multi",lang:"Markdown",desc:"Curated DevOps prompt templates for infrastructure automation, troubleshooting, and CI/CD.",industries:["SaaS"]},
+  {name:"growth-content",cat:"documentation",cloud:"multi",lang:"Markdown",desc:"Technical content and growth strategy materials for cloud and AI thought leadership.",industries:["SaaS","Education"]},
+  {name:"kogunlowo123",cat:"documentation",cloud:"multi",lang:"Markdown",desc:"GitHub profile README with portfolio overview, stats, and contribution highlights.",industries:["SaaS"]},
+  {name:"multi-cloud-landing-zone",cat:"infrastructure",cloud:"multi",lang:"HCL",desc:"Multi-cloud landing zone with governance, networking, identity, and security baselines for AWS, Azure, and GCP.",industries:["Government","Finance","Energy"]}
+];
+
+var catMap={infrastructure:"Infrastructure",aiml:"AI/ML",api:"API/Service",security:"Security",platform:"Platform",frontend:"Frontend",documentation:"Documentation"};
+var badgeMap={infrastructure:"badge-aws",aiml:"badge-aiml",api:"badge-mcp",security:"badge-security",platform:"badge-platform",frontend:"badge-frontend",documentation:"badge-docs"};
+
+function cloudBadgeClass(c){return{aws:"badge-aws",azure:"badge-azure",gcp:"badge-gcp",multi:"badge-platform"}[c]||"badge-docs"}
+
+var activeCat="all",activeCloud="all";
+
+function renderRepos(){
+  var q=document.getElementById("search").value.toLowerCase();
+  var grid=document.getElementById("repoGrid");
+  grid.innerHTML="";
+  var count=0;
+  repos.forEach(function(r){
+    if(activeCat!=="all"&&r.cat!==activeCat)return;
+    if(activeCloud!=="all"&&r.cloud!==activeCloud)return;
+    var searchStr=(r.name+" "+r.desc+" "+r.industries.join(" ")+" "+r.lang+" "+r.cat+" "+r.cloud).toLowerCase();
+    if(q&&searchStr.indexOf(q)===-1)return;
+    count++;
+    var card=document.createElement("div");
+    card.className="repo-card";
+    card.innerHTML='<div class="repo-name"><a href="https://github.com/kogunlowo123/'+r.name+'" target="_blank" rel="noopener">'+r.name+'</a></div>'+
+      '<div class="badges"><span class="badge '+(badgeMap[r.cat]||"badge-docs")+'">'+catMap[r.cat]+'</span>'+
+      '<span class="badge '+cloudBadgeClass(r.cloud)+'">'+r.cloud.toUpperCase()+'</span>'+
+      '<span class="badge badge-lang">'+r.lang+'</span></div>'+
+      '<div class="desc">'+r.desc+'</div>'+
+      '<div class="tags">'+r.industries.map(function(t){return'<span class="tag">'+t+'</span>'}).join("")+'</div>'+
+      '<a class="arch-link" href="../docs/'+r.name+'/architecture.html">View Architecture &rarr;</a>';
+    grid.appendChild(card);
+  });
+  document.getElementById("resultsCount").textContent="Showing "+count+" of "+repos.length+" repositories";
+}
+
+document.getElementById("search").addEventListener("input",renderRepos);
+
+document.querySelectorAll("#catFilters .filter-btn").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    document.querySelectorAll("#catFilters .filter-btn").forEach(function(b){b.classList.remove("active")});
+    btn.classList.add("active");
+    activeCat=btn.getAttribute("data-cat");
+    renderRepos();
+  });
+});
+
+document.querySelectorAll("#cloudFilters .filter-btn").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    document.querySelectorAll("#cloudFilters .filter-btn").forEach(function(b){b.classList.remove("active")});
+    btn.classList.add("active");
+    activeCloud=btn.getAttribute("data-cloud");
+    renderRepos();
+  });
+});
+
+renderRepos();
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Cloud WAN Is the Future of Enterprise Networking — Kehinde Ogunlowo</title>
+    <meta name="description" content="AWS Cloud WAN promises to unify global networking with policy-driven segmentation. Is it ready to replace Transit Gateway and third-party SD-WAN solutions?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none} a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}
+        .node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}
+        .node.aws{border-color:rgba(255,153,0,0.3)} .node.aws:hover{border-color:#FF9900}
+        .node.generic{border-color:rgba(16,185,129,0.3)} .node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>AWS Cloud WAN Is the Future of Enterprise Networking</h1>
+        <p class="hook">Managing Transit Gateways per region, peering them together, configuring route tables manually — it's 2020-era complexity. Cloud WAN gives you a single global network with policy-driven segmentation. But is it mature enough for production?</p>
+
+        <div class="tags">
+            <span class="tag">#CloudWAN</span>
+            <span class="tag">#AWS</span>
+            <span class="tag">#Enterprise</span>
+            <span class="tag">#Networking</span>
+            <span class="tag">#SDWAN</span>
+        </div>
+
+        <section class="diagram">
+            <h2>Cloud WAN Architecture</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/vpc/latest/cloudwan/what-is-cloudwan.html" class="node aws">
+                        <span class="label">Cloud WAN</span>
+                        <span class="sub">Global core network</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/vpc/latest/cloudwan/cloudwan-core-network-policy.html" class="node aws">
+                        <span class="label">Network Policy</span>
+                        <span class="sub">Segmentation rules</span>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/vpc/latest/cloudwan/cloudwan-segments.html" class="node aws">
+                        <span class="label">Segments</span>
+                        <span class="sub">Prod / Dev / Shared</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html" class="node aws">
+                        <span class="label">Transit Gateway</span>
+                        <span class="sub">Regional hub (legacy)</span>
+                    </a>
+                    <span class="vs">VS</span>
+                    <a href="https://docs.aws.amazon.com/vpc/latest/cloudwan/cloudwan-attachments.html" class="node aws">
+                        <span class="label">Core Network Edge</span>
+                        <span class="sub">Cloud WAN regional</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html" class="node generic">
+                        <span class="label">VPCs</span>
+                        <span class="sub">Auto-attached</span>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html" class="node generic">
+                        <span class="label">Branch Sites</span>
+                        <span class="sub">VPN attachments</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Policy-driven networking is the right model:</strong> Define segments (prod, dev, shared) and policies (who can talk to whom) declaratively. Cloud WAN enforces them globally. No more per-region TGW route table management.</li>
+                <li><strong>Cost is higher than TGW:</strong> Cloud WAN charges core network edge fees, attachment fees, and peering fees on top of standard data transfer. For simple hub-and-spoke, TGW is cheaper. Cloud WAN's value shows at 5+ regions.</li>
+                <li><strong>Maturity concerns are valid:</strong> Cloud WAN is still relatively new. Feature parity with TGW isn't complete, documentation is sparse, and community knowledge is limited. Early adopters carry risk.</li>
+                <li><strong>SD-WAN integration is the differentiator:</strong> Cloud WAN integrates with third-party SD-WAN appliances (Cisco, Aruba, VMware). This makes it a genuine WAN replacement, not just a cloud networking tool.</li>
+                <li><strong>Migration from TGW is non-trivial:</strong> Moving from TGW to Cloud WAN requires careful planning. Both can coexist, but routing complexity increases during migration. Plan for a 3-6 month transition.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p><strong>What's your take?</strong> Is Cloud WAN ready for production, or should you stick with Transit Gateway?</p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

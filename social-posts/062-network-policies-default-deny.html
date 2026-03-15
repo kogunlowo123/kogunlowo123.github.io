@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default-Deny Network Policies Should Be Mandatory — Kehinde Ogunlowo</title>
+    <meta name="description" content="Debate: Should every Kubernetes namespace have default-deny network policies? Or does it cripple developer velocity?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none}a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem;color:#e2e8f0}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0}
+        .node .sub{font-size:0.7rem;color:#64748b;margin-top:0.25rem}
+        .node.k8s{border-color:rgba(50,108,229,0.3)}.node.k8s:hover{border-color:#326CE5}
+        .node.generic{border-color:rgba(16,185,129,0.3)}.node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem;letter-spacing:0.05em}
+        .breakdown{margin:2rem 0}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .cta p{color:#94a3b8;font-size:0.95rem}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Default-Deny Network Policies Should Be Mandatory</h1>
+        <p class="hook">By default, every pod in Kubernetes can talk to every other pod. That means a compromised container can reach your database, your secrets store, and your control plane. Default-deny is not optional — it's negligent to skip.</p>
+        <div class="tags">
+            <span class="tag">#NetworkPolicy</span><span class="tag">#Kubernetes</span><span class="tag">#MicroSegmentation</span><span class="tag">#ZeroTrust</span><span class="tag">#CloudNative</span>
+        </div>
+        <section class="diagram">
+            <h2>Architecture: Network Policy Enforcement</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/" class="node k8s"><div class="label">NetworkPolicy</div><div class="sub">K8s Native</div></a>
+                    <a href="https://docs.tigera.io/calico/latest/about/" class="node generic"><div class="label">Calico</div><div class="sub">CNI + Policy</div></a>
+                    <a href="https://cilium.io/docs/" class="node generic"><div class="label">Cilium</div><div class="sub">eBPF-Based CNI</div></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/#default-deny-all-ingress-traffic" class="node k8s"><div class="label">Default Deny Ingress</div><div class="sub">Block All Inbound</div></a>
+                    <a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/#default-deny-all-egress-traffic" class="node k8s"><div class="label">Default Deny Egress</div><div class="sub">Block All Outbound</div></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.tigera.io/calico/latest/network-policy/get-started/calico-policy/calico-network-policy" class="node generic"><div class="label">Allow Rules</div><div class="sub">Explicit Whitelist</div></a>
+                    <a href="https://cilium.io/docs/security/policy/" class="node generic"><div class="label">L7 Policies</div><div class="sub">HTTP/gRPC Filtering</div></a>
+                    <a href="https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/" class="node k8s"><div class="label">CoreDNS Allow</div><div class="sub">DNS Egress Rule</div></a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Default-deny breaks dev environments:</strong> Developers deploying new services need to write NetworkPolicies before anything works. That adds friction to every deployment and slows iteration.</li>
+                <li><strong>Egress deny is the hardest part:</strong> You need to allow DNS, external APIs, cloud metadata endpoints, and more. One missing egress rule and your app silently fails with timeout errors.</li>
+                <li><strong>Not all CNIs support it:</strong> The default kubenet CNI in some managed K8s services doesn't enforce NetworkPolicies. You need Calico, Cilium, or another CNI that actually implements the spec.</li>
+                <li><strong>Lateral movement prevention is worth the pain:</strong> The 2021 Codecov breach showed how a compromised CI container accessed secrets across services. Default-deny would have contained the blast radius.</li>
+                <li><strong>Service mesh provides an alternative:</strong> Istio and Linkerd offer mTLS-based authorization policies that can replace NetworkPolicies with identity-based controls. But now you're running a service mesh.</li>
+            </ul>
+        </section>
+        <div class="cta">
+            <p>What's your take? Drop your opinion below.</p>
+            <p>Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

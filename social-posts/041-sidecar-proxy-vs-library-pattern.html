@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidecar Proxy vs Library Pattern: Service Mesh or Fat Dependencies? — Kehinde Ogunlowo</title>
+    <meta name="description" content="Sidecar proxies like Envoy decouple networking from app code. Library patterns keep it in-process. Which approach fits your microservices?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0e1a;color:#e2e8f0;font-family:'Inter',sans-serif;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto;}
+        h1{font-size:2rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#00d4ff,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        h2{font-size:1.3rem;font-weight:700;color:#00d4ff;margin:2rem 0 1rem;}
+        .hook{font-size:1.1rem;color:#94a3b8;margin-bottom:2rem;border-left:3px solid #00d4ff;padding-left:1rem;}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0;}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+        .flow-row{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+        .node{background:#111827;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1rem 1.5rem;text-decoration:none;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:0.85rem;transition:all 0.3s;text-align:center;min-width:140px;}
+        .node:hover{border-color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,0.15);}
+        .node.aws{border-color:rgba(255,153,0,0.4);} .node.aws:hover{border-color:#FF9900;box-shadow:0 0 20px rgba(255,153,0,0.2);}
+        .node.azure{border-color:rgba(0,120,212,0.4);} .node.azure:hover{border-color:#0078D4;box-shadow:0 0 20px rgba(0,120,212,0.2);}
+        .node.gcp{border-color:rgba(66,133,244,0.4);} .node.gcp:hover{border-color:#4285F4;box-shadow:0 0 20px rgba(66,133,244,0.2);}
+        .node.k8s{border-color:rgba(50,108,229,0.4);} .node.k8s:hover{border-color:#326CE5;}
+        .node.tf{border-color:rgba(123,66,188,0.4);} .node.tf:hover{border-color:#7B42BC;}
+        .node-label{font-weight:600;margin-bottom:0.25rem;}
+        .node-sub{font-size:0.75rem;color:#64748b;}
+        .arrow{color:#00d4ff;font-size:1.5rem;text-align:center;}
+        .vs-badge{background:linear-gradient(135deg,#FF9900,#00d4ff);color:#0a0e1a;font-weight:700;padding:0.5rem 1.5rem;border-radius:20px;font-size:0.9rem;}
+        .breakdown{margin:2rem 0;}
+        .breakdown ul{list-style:none;padding:0;}
+        .breakdown li{padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.95rem;}
+        .breakdown li::before{content:"⚡";margin-right:0.5rem;}
+        .breakdown a{color:#00d4ff;text-decoration:none;} .breakdown a:hover{text-decoration:underline;}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(16,185,129,0.08));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:2rem;text-align:center;margin:2rem 0;}
+        .cta a{color:#00d4ff;text-decoration:none;font-weight:600;}
+        .tag{display:inline-block;background:rgba(0,212,255,0.1);color:#00d4ff;padding:0.2rem 0.6rem;border-radius:4px;font-size:0.75rem;font-family:'JetBrains Mono',monospace;margin:0.2rem;}
+    </style>
+</head>
+<body>
+    <article>
+        <div style="margin-bottom:1rem;">
+            <span class="tag">#ServiceMesh</span>
+            <span class="tag">#SidecarProxy</span>
+            <span class="tag">#Envoy</span>
+            <span class="tag">#Microservices</span>
+        </div>
+        <h1>Sidecar Proxy vs Library Pattern: Service Mesh or Fat Dependencies?</h1>
+        <p class="hook">Istio promised to solve microservices networking with sidecar proxies — then teams discovered each pod now runs two containers, consuming 50% more memory. Meanwhile, library-based approaches like gRPC interceptors keep networking in-process but couple your app to a specific language. Is the sidecar overhead justified?</p>
+
+        <section class="diagram">
+            <h2>Architecture Comparison</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/app-mesh/latest/userguide/what-is-app-mesh.html" class="node aws" target="_blank">
+                        <div class="node-label">AWS App Mesh</div>
+                        <div class="node-sub">Envoy Sidecar Mesh</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html" class="node aws" target="_blank">
+                        <div class="node-label">ALB + SDK</div>
+                        <div class="node-sub">Library-Based Routing</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="vs-badge">SIDECAR PROXY vs LIBRARY PATTERN</div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/" class="node k8s" target="_blank">
+                        <div class="node-label">K8s Sidecar Containers</div>
+                        <div class="node-sub">Native Sidecar Support</div>
+                    </a>
+                    <a href="https://learn.microsoft.com/en-us/azure/aks/istio-about" class="node azure" target="_blank">
+                        <div class="node-label">AKS + Istio Add-on</div>
+                        <div class="node-sub">Managed Service Mesh</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://cloud.google.com/traffic-director/docs/overview" class="node gcp" target="_blank">
+                        <div class="node-label">Traffic Director</div>
+                        <div class="node-sub">Managed xDS Control</div>
+                    </a>
+                    <a href="https://cloud.google.com/service-mesh/docs/overview" class="node gcp" target="_blank">
+                        <div class="node-label">GKE Service Mesh</div>
+                        <div class="node-sub">Anthos Mesh</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/xray/latest/devguide/aws-xray.html" class="node aws" target="_blank">
+                        <div class="node-label">X-Ray SDK</div>
+                        <div class="node-sub">Library-Based Tracing</div>
+                    </a>
+                    <a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/" class="node k8s" target="_blank">
+                        <div class="node-label">Network Policies</div>
+                        <div class="node-sub">No-Mesh Security</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li>Sidecar proxies via <a href="https://docs.aws.amazon.com/app-mesh/latest/userguide/what-is-app-mesh.html" target="_blank">AWS App Mesh</a> give you mTLS, retries, and observability without changing app code — but each Envoy sidecar adds ~50MB RAM and 1-2ms latency per hop.</li>
+                <li>Library patterns using <a href="https://docs.aws.amazon.com/xray/latest/devguide/aws-xray.html" target="_blank">X-Ray SDK</a> keep everything in-process with zero latency overhead — but you need to maintain libraries for every language your services use.</li>
+                <li><a href="https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/" target="_blank">Kubernetes native sidecar containers</a> (KEP-753) finally make sidecars first-class citizens with proper lifecycle management — addressing the startup ordering issues that plagued early mesh adopters.</li>
+                <li><a href="https://cloud.google.com/traffic-director/docs/overview" target="_blank">Traffic Director</a> from GCP takes a proxyless approach — gRPC services get mesh features without Envoy sidecars. Best of both worlds?</li>
+                <li>At 500+ services, the sidecar approach wins. Updating a library across 500 services takes months. Updating Envoy across a mesh takes minutes.</li>
+                <li>For smaller deployments, <a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/" target="_blank">Kubernetes Network Policies</a> + an ingress controller give you 80% of what a service mesh provides at 10% of the complexity.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">What's your take? Drop your opinion below.</p>
+            <p>Full architecture guides → <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

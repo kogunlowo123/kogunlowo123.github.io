@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copilot vs CodeWhisperer vs Cursor: The AI Coding Assistant Showdown — Kehinde Ogunlowo</title>
+    <meta name="description" content="Comparing GitHub Copilot, AWS CodeWhisperer, and Cursor for real-world infrastructure and application development workflows.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none} a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}
+        .node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}
+        .node.aws{border-color:rgba(255,153,0,0.3)} .node.aws:hover{border-color:#FF9900}
+        .node.azure{border-color:rgba(0,120,212,0.3)} .node.azure:hover{border-color:#0078D4}
+        .node.gcp{border-color:rgba(66,133,244,0.3)} .node.gcp:hover{border-color:#4285F4}
+        .node.k8s{border-color:rgba(50,108,229,0.3)} .node.k8s:hover{border-color:#326CE5}
+        .node.tf{border-color:rgba(123,66,188,0.3)} .node.tf:hover{border-color:#7B42BC}
+        .node.generic{border-color:rgba(16,185,129,0.3)} .node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Copilot vs CodeWhisperer vs Cursor: The AI Coding Assistant Showdown</h1>
+        <p class="hook">GitHub Copilot has 1.8 million paid subscribers. AWS CodeWhisperer is free and optimized for AWS services. Cursor rewrote the IDE from scratch around AI. Each excels in different workflows — Copilot for inline completions, CodeWhisperer for Terraform and CloudFormation, Cursor for multi-file refactoring. Choosing wrong means paying for features you do not use.</p>
+        <div class="tags">
+            <span class="tag">#Copilot</span>
+            <span class="tag">#CodeWhisperer</span>
+            <span class="tag">#Cursor</span>
+            <span class="tag">#AICoding</span>
+            <span class="tag">#DevTools</span>
+        </div>
+        <section class="diagram">
+            <h2>AI Coding Assistant Comparison</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.github.com/en/copilot" class="node generic"><span class="label">GitHub Copilot</span><span class="sub">$19/mo Individual</span></a>
+                    <div class="vs">VS</div>
+                    <a href="https://docs.aws.amazon.com/codewhisperer/" class="node aws"><span class="label">CodeWhisperer</span><span class="sub">Free Tier Available</span></a>
+                    <div class="vs">VS</div>
+                    <a href="https://docs.cursor.com/" class="node generic"><span class="label">Cursor</span><span class="sub">$20/mo Pro</span></a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://code.visualstudio.com/docs" class="node generic"><span class="label">VS Code</span><span class="sub">Extension Model</span></a>
+                    <a href="https://docs.aws.amazon.com/toolkit-for-vscode/" class="node aws"><span class="label">AWS Toolkit</span><span class="sub">IDE Integration</span></a>
+                    <a href="https://docs.cursor.com/" class="node generic"><span class="label">Cursor IDE</span><span class="sub">Native AI IDE</span></a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-chat-in-your-ide" class="node generic"><span class="label">Chat + Inline</span><span class="sub">Completions</span></a>
+                    <a href="https://docs.aws.amazon.com/codewhisperer/latest/userguide/security-scans.html" class="node aws"><span class="label">Security Scans</span><span class="sub">Built-in SAST</span></a>
+                    <a href="https://docs.cursor.com/" class="node generic"><span class="label">Multi-file Edit</span><span class="sub">Codebase-aware</span></a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Copilot wins on ecosystem breadth:</strong> Best inline completions across all languages, deep GitHub integration for PR descriptions, and Copilot Chat understands your repo context. The default choice for most developers.</li>
+                <li><strong>CodeWhisperer wins for AWS-heavy teams:</strong> Free tier with no usage limits, built-in security scanning, and superior suggestions for CloudFormation, CDK, and boto3. If you live in AWS, this is a no-brainer addition.</li>
+                <li><strong>Cursor wins for large refactoring tasks:</strong> Its codebase indexing and multi-file editing capabilities make it the best tool for "change this pattern across 50 files" tasks. It thinks in projects, not individual files.</li>
+                <li><strong>License compliance matters more than features:</strong> Copilot has a code reference filter for open-source attribution. CodeWhisperer flags code similar to open-source training data. Cursor relies on upstream model policies. For regulated industries, this is the deciding factor.</li>
+                <li><strong>Use multiple tools — they are not exclusive:</strong> Run CodeWhisperer for AWS work, Copilot for general coding, and Cursor for major refactors. The $40/month total cost is trivial compared to developer productivity gains.</li>
+            </ul>
+        </section>
+        <div class="cta">
+            <p><strong>What's your take?</strong> Which AI coding assistant has actually changed how you work?</p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

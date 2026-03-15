@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untagged Resources Should Be Auto-Deleted — Kehinde Ogunlowo</title>
+    <meta name="description" content="If a cloud resource has no cost allocation tags after 7 days, should it be automatically terminated? The case for aggressive tag enforcement.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}a{color:#00d4ff;text-decoration:none}a:hover{color:#10b981}h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}.hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}.diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}.flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}.flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}.node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}.node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}.node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}.node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}.node.aws{border-color:rgba(255,153,0,0.3)}.node.aws:hover{border-color:#FF9900}.node.generic{border-color:rgba(16,185,129,0.3)}.node.generic:hover{border-color:#10b981}.arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}.vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}.breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}.breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}.breakdown li strong{color:#e2e8f0}.cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}.tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}.tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}</style>
+</head>
+<body>
+    <article>
+        <h1>Untagged Resources Should Be Auto-Deleted</h1>
+        <p class="hook">20% of your cloud bill is untagged resources nobody owns. You send Slack reminders. Nobody responds. You create Jira tickets. They rot in the backlog. The only thing that works? Automated termination after 7 days. Harsh? Yes. Effective? Absolutely.</p>
+        <div class="tags"><span class="tag">#Tagging</span><span class="tag">#FinOps</span><span class="tag">#CostOptimization</span><span class="tag">#AWS</span><span class="tag">#Governance</span></div>
+        <section class="diagram">
+            <h2>Tag Enforcement Pipeline</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/config/latest/developerguide/required-tags.html" class="node aws"><span class="label">AWS Config Rule</span><span class="sub">required-tags check</span></a>
+                    <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_tag-policies.html" class="node aws"><span class="label">Tag Policies</span><span class="sub">Organizations-level</span></a>
+                </div>
+                <div class="arrow">↓ detect untagged</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/aws-events.html" class="node aws"><span class="label">EventBridge</span><span class="sub">Non-compliance event</span></a>
+                    <a href="https://docs.aws.amazon.com/sns/latest/dg/welcome.html" class="node aws"><span class="label">SNS Notification</span><span class="sub">Warn resource owner</span></a>
+                </div>
+                <div class="arrow">↓ 7 days later</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" class="node aws"><span class="label">Lambda Enforcer</span><span class="sub">Stop → Terminate</span></a>
+                    <span class="vs">OR</span>
+                    <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-automation.html" class="node aws"><span class="label">SSM Automation</span><span class="sub">Remediation runbook</span></a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Auto-deletion is the nuclear option:</strong> It works because it creates real consequences. But deleting production resources because someone forgot a tag is a career-ending incident. Start with stop, not terminate. Add a 48-hour warning period.</li>
+                <li><strong>Prevention beats remediation:</strong> Use SCPs or IAM policies to prevent resource creation without required tags. Block at the API level, not after the fact. This is cheaper and safer than cleanup automation.</li>
+                <li><strong>Not all resources support tags:</strong> Some AWS resources still don't support tags well. Data transfer, support charges, and certain managed services are difficult to attribute. Accept that 100% tagging is aspirational.</li>
+                <li><strong>IaC should enforce tags automatically:</strong> Terraform modules, CloudFormation defaults, and CDK constructs should include required tags by default. If tags come from code, humans don't forget them.</li>
+                <li><strong>Tag hygiene degrades over time:</strong> Even with enforcement, tag values drift — teams rename, projects end, owners leave. Regular tag audits (monthly) are necessary to maintain allocation accuracy.</li>
+            </ul>
+        </section>
+        <div class="cta">
+            <p><strong>What's your take?</strong> Auto-delete untagged resources, or is that too aggressive for your organization?</p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;"><p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p><p style="margin-top:0.5rem;"><a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> | <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> | <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> | <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a></p></footer>
+</body>
+</html>

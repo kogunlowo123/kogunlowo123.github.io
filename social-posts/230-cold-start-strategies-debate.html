@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold Start Strategies: The Serverless Performance Debate — Kehinde Ogunlowo</title>
+    <meta name="description" content="Cold starts are serverless's biggest pain point. Provisioned concurrency, SnapStart, warm-up pings — which strategy actually works?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none} a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}
+        .node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}
+        .node.aws{border-color:rgba(255,153,0,0.3)} .node.aws:hover{border-color:#FF9900}
+        .node.azure{border-color:rgba(0,120,212,0.3)} .node.azure:hover{border-color:#0078D4}
+        .node.gcp{border-color:rgba(66,133,244,0.3)} .node.gcp:hover{border-color:#4285F4}
+        .node.generic{border-color:rgba(16,185,129,0.3)} .node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Cold Start Strategies: The Serverless Performance Debate</h1>
+        <p class="hook">A Java Lambda with a VPC attachment can take 10+ seconds to cold start. Provisioned concurrency fixes it but costs money 24/7. SnapStart promises the best of both worlds. Warm-up pings are a hack that sort of works. Every strategy has a catch — let's break them down.</p>
+        <div class="tags">
+            <span class="tag">#ColdStart</span>
+            <span class="tag">#Lambda</span>
+            <span class="tag">#Serverless</span>
+            <span class="tag">#Performance</span>
+            <span class="tag">#AWS</span>
+            <span class="tag">#SnapStart</span>
+        </div>
+        <section class="diagram">
+            <h2>Cold Start Mitigation Architecture</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html" class="node aws">
+                        <span class="label">Cold Start</span>
+                        <span class="sub">Init + Code Load + Handler</span>
+                    </a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html" class="node aws">
+                        <span class="label">Provisioned Concurrency</span>
+                        <span class="sub">Pre-warmed instances</span>
+                    </a>
+                    <span class="vs">VS</span>
+                    <a href="https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html" class="node aws">
+                        <span class="label">SnapStart</span>
+                        <span class="sub">Snapshot & Restore</span>
+                    </a>
+                    <span class="vs">VS</span>
+                    <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-create-rule-schedule.html" class="node aws">
+                        <span class="label">Scheduled Warm-ups</span>
+                        <span class="sub">EventBridge ping</span>
+                    </a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html" class="node aws">
+                        <span class="label">Execution Environment</span>
+                        <span class="sub">Warm instance ready</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>Strategy Comparison</h2>
+            <ul>
+                <li><strong>Provisioned Concurrency is expensive insurance:</strong> You're paying for always-on Lambda instances — defeating the pay-per-use model. At $0.015/GB-hr, keeping 10 instances warm at 1GB costs ~$108/month. It works perfectly, but the bill is predictable and non-trivial.</li>
+                <li><strong>SnapStart changes the Java cold start game:</strong> Snapshots the initialized execution environment after the init phase. Restores in ~200ms instead of 5-10 seconds. But it's Java-only, requires careful handling of unique state, and doesn't work with provisioned concurrency.</li>
+                <li><strong>Scheduled warm-ups are a hack with limits:</strong> An EventBridge rule pinging your Lambda every 5 minutes keeps one instance warm. But it only warms ONE concurrent instance. A burst of 50 simultaneous requests means 49 cold starts.</li>
+                <li><strong>Runtime choice is the biggest lever:</strong> Python and Node.js cold start in 100-300ms. Java and .NET cold start in 1-10 seconds. Switching from Java to Node.js often eliminates the cold start problem entirely — no provisioned concurrency needed.</li>
+                <li><strong>The VPC cold start myth (now solved):</strong> Lambda VPC cold starts used to add 8-10 seconds for ENI attachment. Since AWS introduced Hyperplane in 2019, VPC-attached Lambdas cold start in under 1 second. If you're still avoiding VPC Lambdas for this reason, update your mental model.</li>
+            </ul>
+        </section>
+        <div class="cta">
+            <p><strong>What's your take?</strong> How do you handle cold starts in production?</p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

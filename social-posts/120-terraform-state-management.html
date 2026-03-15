@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform State Is Its Biggest Weakness — Kehinde Ogunlowo</title>
+    <meta name="description" content="Terraform state files: the single point of failure that makes IaC fragile. State locking, corruption, and the alternatives.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none} a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}
+        .node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}
+        .node.tf{border-color:rgba(123,66,188,0.3)} .node.tf:hover{border-color:#7B42BC}
+        .node.aws{border-color:rgba(255,153,0,0.3)} .node.aws:hover{border-color:#FF9900}
+        .node.generic{border-color:rgba(16,185,129,0.3)} .node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Terraform State Is Its Biggest Weakness</h1>
+        <p class="hook">Terraform's state file is a single point of failure that contains your secrets in plaintext, requires locking to prevent corruption, and can drift from reality at any time. One corrupted state file can bring your entire IaC workflow to a halt. Why do we accept this?</p>
+        <div class="tags">
+            <span class="tag">#Terraform</span>
+            <span class="tag">#TerraformState</span>
+            <span class="tag">#IaC</span>
+            <span class="tag">#DevOps</span>
+            <span class="tag">#Infrastructure</span>
+        </div>
+
+        <section class="diagram">
+            <h2>Architecture: Terraform State Management</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://developer.hashicorp.com/terraform/language/state" class="node tf">
+                        <span class="label">Terraform State</span>
+                        <span class="sub">Resource mapping</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://developer.hashicorp.com/terraform/language/settings/backends/s3" class="node aws">
+                        <span class="label">S3 Backend</span>
+                        <span class="sub">Remote state storage</span>
+                    </a>
+                    <a href="https://developer.hashicorp.com/terraform/language/settings/backends/gcs" class="node generic">
+                        <span class="label">GCS Backend</span>
+                        <span class="sub">Google Cloud</span>
+                    </a>
+                    <a href="https://developer.hashicorp.com/terraform/cloud-docs" class="node tf">
+                        <span class="label">Terraform Cloud</span>
+                        <span class="sub">Managed state</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://developer.hashicorp.com/terraform/language/state/locking" class="node tf">
+                        <span class="label">State Locking</span>
+                        <span class="sub">DynamoDB / GCS</span>
+                    </a>
+                    <a href="https://developer.hashicorp.com/terraform/cli/commands/state" class="node tf">
+                        <span class="label">State Commands</span>
+                        <span class="sub">mv, rm, import</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://opentofu.org/docs/" class="node generic">
+                        <span class="label">OpenTofu</span>
+                        <span class="sub">Fork with state encryption</span>
+                    </a>
+                    <a href="https://www.pulumi.com/docs/concepts/state/" class="node generic">
+                        <span class="label">Pulumi State</span>
+                        <span class="sub">Alternative approach</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>State contains secrets in plaintext:</strong> Database passwords, API keys, and connection strings are stored in the state file. S3 encryption-at-rest helps, but anyone with state access sees everything.</li>
+                <li><strong>State drift is inevitable:</strong> Someone clicks in the console. An auto-scaling event changes instance counts. Now your state doesn't match reality, and the next apply might destroy resources.</li>
+                <li><strong>State locking prevents concurrent corruption:</strong> Without DynamoDB locking, two engineers running apply simultaneously can corrupt state. But stale locks also block legitimate operations.</li>
+                <li><strong>OpenTofu adds state encryption:</strong> The open-source fork addresses the plaintext secrets problem with native state encryption. This alone might justify the switch for security-conscious teams.</li>
+                <li><strong>State is architecturally necessary:</strong> Without state, Terraform can't map config to real resources. The alternative (Pulumi, Crossplane) just moves the state problem elsewhere — they still need a source of truth.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p><strong>What's your worst Terraform state horror story?</strong></p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

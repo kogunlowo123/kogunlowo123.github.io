@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Lake vs Data Warehouse: Are You Building a Data Swamp? — Kehinde Ogunlowo</title>
+    <meta name="description" content="Data lakes promise flexibility but often become ungoverned swamps. Data warehouses enforce structure but limit agility. Which architecture wins?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0e1a;color:#e2e8f0;font-family:'Inter',sans-serif;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto;}
+        h1{font-size:2rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#00d4ff,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        h2{font-size:1.3rem;font-weight:700;color:#00d4ff;margin:2rem 0 1rem;}
+        .hook{font-size:1.1rem;color:#94a3b8;margin-bottom:2rem;border-left:3px solid #00d4ff;padding-left:1rem;}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0;}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+        .flow-row{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+        .node{background:#111827;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1rem 1.5rem;text-decoration:none;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:0.85rem;transition:all 0.3s;text-align:center;min-width:140px;}
+        .node:hover{border-color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,0.15);}
+        .node.aws{border-color:rgba(255,153,0,0.4);} .node.aws:hover{border-color:#FF9900;box-shadow:0 0 20px rgba(255,153,0,0.2);}
+        .node.azure{border-color:rgba(0,120,212,0.4);} .node.azure:hover{border-color:#0078D4;box-shadow:0 0 20px rgba(0,120,212,0.2);}
+        .node.gcp{border-color:rgba(66,133,244,0.4);} .node.gcp:hover{border-color:#4285F4;box-shadow:0 0 20px rgba(66,133,244,0.2);}
+        .node.k8s{border-color:rgba(50,108,229,0.4);} .node.k8s:hover{border-color:#326CE5;}
+        .node.tf{border-color:rgba(123,66,188,0.4);} .node.tf:hover{border-color:#7B42BC;}
+        .node-label{font-weight:600;margin-bottom:0.25rem;}
+        .node-sub{font-size:0.75rem;color:#64748b;}
+        .arrow{color:#00d4ff;font-size:1.5rem;text-align:center;}
+        .vs-badge{background:linear-gradient(135deg,#FF9900,#00d4ff);color:#0a0e1a;font-weight:700;padding:0.5rem 1.5rem;border-radius:20px;font-size:0.9rem;}
+        .breakdown{margin:2rem 0;}
+        .breakdown ul{list-style:none;padding:0;}
+        .breakdown li{padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.95rem;}
+        .breakdown li::before{content:"⚡";margin-right:0.5rem;}
+        .breakdown a{color:#00d4ff;text-decoration:none;} .breakdown a:hover{text-decoration:underline;}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(16,185,129,0.08));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:2rem;text-align:center;margin:2rem 0;}
+        .cta a{color:#00d4ff;text-decoration:none;font-weight:600;}
+        .tag{display:inline-block;background:rgba(0,212,255,0.1);color:#00d4ff;padding:0.2rem 0.6rem;border-radius:4px;font-size:0.75rem;font-family:'JetBrains Mono',monospace;margin:0.2rem;}
+    </style>
+</head>
+<body>
+    <article>
+        <div style="margin-bottom:1rem;">
+            <span class="tag">#DataLake</span>
+            <span class="tag">#DataWarehouse</span>
+            <span class="tag">#Lakehouse</span>
+            <span class="tag">#DataEngineering</span>
+        </div>
+        <h1>Data Lake vs Data Warehouse: Are You Building a Data Swamp?</h1>
+        <p class="hook">Companies dump everything into S3 and call it a "data lake." Two years later, nobody can find anything and the data quality is garbage. Meanwhile, Redshift users complain about rigid schemas. The lakehouse promises to fix both — but does it?</p>
+
+        <section class="diagram">
+            <h2>Architecture Comparison</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/lake-formation/latest/dg/what-is-lake-formation.html" class="node aws" target="_blank">
+                        <div class="node-label">Lake Formation</div>
+                        <div class="node-sub">Data Lake Governance</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html" class="node aws" target="_blank">
+                        <div class="node-label">Amazon Redshift</div>
+                        <div class="node-sub">Data Warehouse</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="vs-badge">DATA LAKE vs DATA WAREHOUSE</div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html" class="node aws" target="_blank">
+                        <div class="node-label">Amazon S3</div>
+                        <div class="node-sub">Raw Data Storage</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/athena/latest/ug/what-is.html" class="node aws" target="_blank">
+                        <div class="node-label">Amazon Athena</div>
+                        <div class="node-sub">Serverless SQL on S3</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/azure/synapse-analytics/overview-what-is" class="node azure" target="_blank">
+                        <div class="node-label">Azure Synapse</div>
+                        <div class="node-sub">Unified Analytics</div>
+                    </a>
+                    <a href="https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction" class="node azure" target="_blank">
+                        <div class="node-label">ADLS Gen2</div>
+                        <div class="node-sub">Hierarchical Data Lake</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://cloud.google.com/bigquery/docs/introduction" class="node gcp" target="_blank">
+                        <div class="node-label">BigQuery</div>
+                        <div class="node-sub">Serverless Warehouse</div>
+                    </a>
+                    <a href="https://cloud.google.com/storage/docs" class="node gcp" target="_blank">
+                        <div class="node-label">Cloud Storage</div>
+                        <div class="node-sub">Object-Based Lake</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li>Data lakes on <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html" target="_blank">S3</a> cost $0.023/GB — 10x cheaper than <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html" target="_blank">Redshift</a> storage. But without <a href="https://docs.aws.amazon.com/glue/latest/dg/catalog-and-crawler.html" target="_blank">Glue Crawlers</a> and governance, data becomes unfindable.</li>
+                <li><a href="https://cloud.google.com/bigquery/docs/introduction" target="_blank">BigQuery</a> blurs the line: it's a warehouse that queries external data lake files. Pay per query eliminates idle cluster costs.</li>
+                <li><a href="https://learn.microsoft.com/en-us/azure/synapse-analytics/overview-what-is" target="_blank">Azure Synapse</a> tried to unify both — dedicated SQL pools for warehouse workloads, serverless pools for lake queries. But managing both is double the operational burden.</li>
+                <li>The lakehouse approach with <a href="https://docs.aws.amazon.com/athena/latest/ug/what-is.html" target="_blank">Athena</a> + Apache Iceberg gives you ACID transactions on your data lake — closing the biggest gap between lakes and warehouses.</li>
+                <li>Data warehouses enforce schema-on-write; data lakes allow schema-on-read. If your analysts need sub-second dashboards, the warehouse's <a href="https://docs.aws.amazon.com/redshift/latest/dg/c_columnar_storage_disk_mem_mgmnt.html" target="_blank">columnar storage</a> wins every time.</li>
+                <li>For most orgs: structured business data goes in the warehouse, unstructured logs and ML training data go in the lake. Trying to put everything in one place is where architectures fail.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">What's your take? Drop your opinion below.</p>
+            <p>Full architecture guides → <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

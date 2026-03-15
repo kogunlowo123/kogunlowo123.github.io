@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exponential Backoff Without Jitter Is a DDoS on Yourself — Kehinde Ogunlowo</title>
+    <meta name="description" content="Exponential backoff without jitter is a DDoS on yourself. Synchronized retries create thundering herds.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none} a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}
+        .node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}
+        .node.aws{border-color:rgba(255,153,0,0.3)} .node.aws:hover{border-color:#FF9900}
+        .node.generic{border-color:rgba(16,185,129,0.3)} .node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Exponential Backoff Without Jitter Is a DDoS on Yourself</h1>
+        <p class="hook">Exponential backoff without jitter is a DDoS on yourself. When 1,000 clients fail at the same time, they all retry at 1s, 2s, 4s, 8s — in perfect synchronization. Add jitter or watch your recovering service immediately crash again.</p>
+        <div class="tags">
+            <span class="tag">#Retry</span>
+            <span class="tag">#Resilience</span>
+            <span class="tag">#DistributedSystems</span>
+            <span class="tag">#Patterns</span>
+        </div>
+        <section class="diagram">
+            <h2>Retry Strategy Comparison</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/general/latest/gr/api-retries.html" class="node aws">
+                        <span class="label">Failed Request</span>
+                        <span class="sub">5xx / Timeout</span>
+                    </a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/general/latest/gr/api-retries.html" class="node generic">
+                        <span class="label">No Jitter</span>
+                        <span class="sub">1s, 2s, 4s, 8s exact</span>
+                    </a>
+                    <span class="vs">VS</span>
+                    <a href="https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/" class="node generic">
+                        <span class="label">Full Jitter</span>
+                        <span class="sub">random(0, 2^attempt)</span>
+                    </a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html" class="node aws">
+                        <span class="label">AWS SDK Retries</span>
+                        <span class="sub">Built-in Jitter</span>
+                    </a>
+                    <a href="https://resilience4j.readme.io/docs/retry" class="node generic">
+                        <span class="label">Resilience4j Retry</span>
+                        <span class="sub">Configurable Strategy</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Thundering herd kills recovery:</strong> Without jitter, all failed clients retry at the exact same intervals. The downstream service starts recovering, gets slammed by synchronized retries, and crashes again. Rinse and repeat.</li>
+                <li><strong>Full jitter beats equal jitter:</strong> AWS's research shows full jitter (sleep = random(0, base * 2^attempt)) spreads load better than equal jitter (sleep = base * 2^attempt / 2 + random(0, base * 2^attempt / 2)).</li>
+                <li><strong>AWS SDKs do this correctly by default:</strong> The AWS SDK includes exponential backoff with jitter. But custom HTTP clients and third-party API calls? You must implement it yourself.</li>
+                <li><strong>Set a maximum retry count and cap:</strong> Unbounded retries with exponential backoff can wait hours between attempts. Cap at 3-5 retries with a maximum delay of 30-60 seconds, then fail to a DLQ.</li>
+                <li><strong>Not all errors are retryable:</strong> 4xx client errors should never be retried — they will fail every time. Only retry on 5xx, timeouts, and connection errors. Retrying validation errors wastes resources.</li>
+            </ul>
+        </section>
+        <div class="cta">
+            <p><strong>What's your take?</strong> Full jitter, equal jitter, or decorrelated jitter?</p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

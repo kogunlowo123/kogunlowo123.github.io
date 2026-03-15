@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kehinde Ogunlowo — Principal Cloud & AI Architect</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0c0b;--bg2:#141514;--bg3:#1a1b1a;--text:#f5f2eb;--text2:#b0ada6;--accent:#c8420a;--accent2:#e05a1a;--border:#2a2b2a;--green:#2ea043;--blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4}
+html{scroll-behavior:smooth}
+body{font-family:'Cascadia Code','Fira Code','SF Mono','Consolas',monospace;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+a{color:var(--accent2);text-decoration:none;transition:color .2s}
+a:hover{color:var(--text)}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+nav .inner{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+nav .brand{font-size:14px;font-weight:700;color:var(--accent)}
+nav .links{display:flex;gap:24px;flex-wrap:wrap}
+nav .links a{font-size:13px;color:var(--text2);letter-spacing:.5px;text-transform:uppercase}
+nav .links a:hover{color:var(--accent2)}
+
+/* HERO */
+.hero{text-align:center;padding:80px 24px 48px;border-bottom:1px solid var(--border)}
+.hero h1{font-size:clamp(24px,4vw,40px);font-weight:700;margin-bottom:8px}
+.hero h1 span{color:var(--accent)}
+.hero .subtitle{font-size:clamp(13px,2vw,16px);color:var(--text2);max-width:700px;margin:0 auto}
+
+/* CONTAINER */
+.container{max-width:1200px;margin:0 auto;padding:48px 24px}
+.section-title{font-size:22px;font-weight:700;margin-bottom:32px;padding-bottom:12px;border-bottom:2px solid var(--accent);display:inline-block}
+
+/* STATS GRID */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:56px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px 20px;text-align:center;transition:border-color .2s,transform .2s}
+.stat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.stat-card .num{font-size:36px;font-weight:700;color:var(--accent);display:block}
+.stat-card .label{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+/* CATEGORY BREAKDOWN */
+.categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:56px}
+.cat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;display:flex;justify-content:space-between;align-items:center;transition:border-color .2s}
+.cat-card:hover{border-color:var(--accent)}
+.cat-card .cat-name{font-size:14px;font-weight:600}
+.cat-card .cat-count{font-size:20px;font-weight:700;color:var(--accent);background:var(--bg3);padding:4px 14px;border-radius:20px;min-width:40px;text-align:center}
+
+/* INDUSTRY */
+.industries{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:56px}
+.industry-tag{background:var(--bg2);border:1px solid var(--border);padding:10px 20px;border-radius:6px;font-size:13px;color:var(--text2);transition:border-color .2s,color .2s}
+.industry-tag:hover{border-color:var(--accent);color:var(--text)}
+
+/* LINKS SECTION */
+.quick-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:56px}
+.link-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px;transition:border-color .2s,transform .2s;display:block}
+.link-card:hover{border-color:var(--accent);transform:translateY(-2px);color:var(--text)}
+.link-card h3{font-size:16px;margin-bottom:8px;color:var(--text)}
+.link-card p{font-size:13px;color:var(--text2)}
+.link-card .arrow{color:var(--accent);font-size:18px;margin-top:12px;display:inline-block}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text2);font-size:12px}
+footer .links{margin-bottom:12px;display:flex;justify-content:center;gap:24px}
+footer .links a{color:var(--text2);font-size:13px}
+footer .links a:hover{color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="inner">
+<a class="brand" href="#">KO // Portfolio</a>
+<div class="links">
+<a href="#overview">Overview</a>
+<a href="repos.html">Repository Catalog</a>
+<a href="../kehinde-architecture-diagram/">Architecture Diagrams</a>
+</div>
+</div>
+</nav>
+
+<header class="hero">
+<h1>Kehinde Ogunlowo — <span>Principal Cloud & AI Architect</span></h1>
+<p class="subtitle">111 Production-Ready Repositories &middot; AWS &middot; Azure &middot; GCP &middot; AI/ML &middot; DevSecOps</p>
+</header>
+
+<main class="container" id="overview">
+
+<h2 class="section-title">Portfolio Overview</h2>
+<div class="stats">
+<div class="stat-card"><span class="num">111</span><span class="label">Total Repos</span></div>
+<div class="stat-card"><span class="num">70</span><span class="label">Terraform Modules</span></div>
+<div class="stat-card"><span class="num">31</span><span class="label">AWS Modules</span></div>
+<div class="stat-card"><span class="num">23</span><span class="label">Azure Modules</span></div>
+<div class="stat-card"><span class="num">16</span><span class="label">GCP Modules</span></div>
+<div class="stat-card"><span class="num">12</span><span class="label">AI/ML Projects</span></div>
+<div class="stat-card"><span class="num">8</span><span class="label">MCP Servers</span></div>
+<div class="stat-card"><span class="num">3</span><span class="label">Security / Compliance</span></div>
+<div class="stat-card"><span class="num">3</span><span class="label">Platforms</span></div>
+</div>
+
+<h2 class="section-title">Category Breakdown</h2>
+<div class="categories">
+<div class="cat-card"><span class="cat-name">Terraform &mdash; AWS</span><span class="cat-count">31</span></div>
+<div class="cat-card"><span class="cat-name">Terraform &mdash; Azure</span><span class="cat-count">23</span></div>
+<div class="cat-card"><span class="cat-name">Terraform &mdash; GCP</span><span class="cat-count">16</span></div>
+<div class="cat-card"><span class="cat-name">AI / ML Projects</span><span class="cat-count">8</span></div>
+<div class="cat-card"><span class="cat-name">AgentForge Private</span><span class="cat-count">8</span></div>
+<div class="cat-card"><span class="cat-name">MCP Servers</span><span class="cat-count">8</span></div>
+<div class="cat-card"><span class="cat-name">Frontend / UI</span><span class="cat-count">5</span></div>
+<div class="cat-card"><span class="cat-name">Security / Compliance</span><span class="cat-count">4</span></div>
+<div class="cat-card"><span class="cat-name">Platforms</span><span class="cat-count">3</span></div>
+<div class="cat-card"><span class="cat-name">Other / Docs</span><span class="cat-count">5</span></div>
+</div>
+
+<h2 class="section-title">Industry Coverage</h2>
+<div class="industries">
+<span class="industry-tag">Healthcare</span>
+<span class="industry-tag">Finance</span>
+<span class="industry-tag">Government</span>
+<span class="industry-tag">Retail</span>
+<span class="industry-tag">Education</span>
+<span class="industry-tag">Energy</span>
+<span class="industry-tag">SaaS</span>
+</div>
+
+<h2 class="section-title">Quick Links</h2>
+<div class="quick-links">
+<a class="link-card" href="repos.html">
+<h3>Repository Catalog</h3>
+<p>Browse, search, and filter all 111 repositories with descriptions, categories, and architecture links.</p>
+<span class="arrow">&rarr;</span>
+</a>
+<a class="link-card" href="../agentforge-portal/">
+<h3>AgentForge Portal</h3>
+<p>Interactive portal for the AgentForge AI agent specialization suite.</p>
+<span class="arrow">&rarr;</span>
+</a>
+<a class="link-card" href="../kehinde-architecture-diagram/">
+<h3>Architecture Diagrams</h3>
+<p>Visual architecture diagrams for every Terraform module and platform project.</p>
+<span class="arrow">&rarr;</span>
+</a>
+</div>
+
+</main>
+
+<footer>
+<div class="links">
+<a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>
+<a href="https://linkedin.com/in/kogunlowo" target="_blank" rel="noopener">LinkedIn</a>
+<a href="repos.html">Repos</a>
+</div>
+<p>&copy; 2026 Kehinde Ogunlowo. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

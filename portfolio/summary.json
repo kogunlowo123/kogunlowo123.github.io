@@ -1,0 +1,47 @@
+{
+  "portfolio": {
+    "owner": "Kehinde Ogunlowo",
+    "github": "kogunlowo123",
+    "title": "Principal Cloud & AI Architect",
+    "generated": "2026-03-15"
+  },
+  "total_repos": 111,
+  "public_count": 103,
+  "private_count": 8,
+  "categories": {
+    "terraform_aws": 31,
+    "terraform_azure": 23,
+    "terraform_gcp": 16,
+    "terraform_total": 70,
+    "ai_ml": 8,
+    "agentforge_private": 8,
+    "mcp_servers": 8,
+    "frontend_ui": 5,
+    "security_compliance": 4,
+    "platforms": 3,
+    "other_docs": 5
+  },
+  "languages": {
+    "HCL": 74,
+    "Python": 18,
+    "TypeScript": 11,
+    "HTML": 3,
+    "Markdown": 3,
+    "YAML": 1
+  },
+  "cloud_coverage": {
+    "aws": 33,
+    "azure": 26,
+    "gcp": 16,
+    "multi_cloud": 36
+  },
+  "industry_coverage": [
+    "Healthcare",
+    "Finance",
+    "Government",
+    "Retail",
+    "Education",
+    "Energy",
+    "SaaS"
+  ]
+}

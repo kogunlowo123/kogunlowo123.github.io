@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTelemetry Is the Only Observability Standard That Matters — Kehinde Ogunlowo</title>
+    <meta name="description" content="OpenTelemetry vs proprietary agents: vendor neutrality, maturity gaps, and the future of observability instrumentation.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none} a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}
+        .node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}
+        .node.generic{border-color:rgba(16,185,129,0.3)} .node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>OpenTelemetry Is the Only Observability Standard That Matters</h1>
+        <p class="hook">Datadog agents, New Relic agents, Dynatrace OneAgent — every vendor wants you locked into their instrumentation. OpenTelemetry gives you vendor-neutral telemetry that works with any backend. The question isn't if you should adopt OTel — it's why you haven't already.</p>
+        <div class="tags">
+            <span class="tag">#OpenTelemetry</span>
+            <span class="tag">#Observability</span>
+            <span class="tag">#Datadog</span>
+            <span class="tag">#VendorNeutral</span>
+            <span class="tag">#CNCF</span>
+        </div>
+
+        <section class="diagram">
+            <h2>Architecture: OTel vs Proprietary Agents</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://opentelemetry.io/docs/instrumentation/" class="node generic">
+                        <span class="label">OTel SDK</span>
+                        <span class="sub">Vendor-neutral instrumentation</span>
+                    </a>
+                    <span class="vs">VS</span>
+                    <a href="https://docs.datadoghq.com/agent/" class="node">
+                        <span class="label">Proprietary Agent</span>
+                        <span class="sub">Vendor lock-in</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://opentelemetry.io/docs/collector/" class="node generic">
+                        <span class="label">OTel Collector</span>
+                        <span class="sub">Receive, process, export</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://grafana.com/oss/tempo/" class="node generic">
+                        <span class="label">Grafana Tempo</span>
+                        <span class="sub">Traces backend</span>
+                    </a>
+                    <a href="https://www.jaegertracing.io/docs/" class="node generic">
+                        <span class="label">Jaeger</span>
+                        <span class="sub">Distributed tracing</span>
+                    </a>
+                    <a href="https://docs.datadoghq.com/opentelemetry/" class="node">
+                        <span class="label">Datadog OTLP</span>
+                        <span class="sub">OTel-compatible</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://opentelemetry.io/docs/specs/otel/overview/" class="node generic">
+                        <span class="label">Switch Backends</span>
+                        <span class="sub">No code changes</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>OTel auto-instrumentation gaps:</strong> Proprietary agents often have better out-of-box coverage for specific frameworks. OTel's auto-instrumentation is improving but still lags for some languages and libraries.</li>
+                <li><strong>Vendor features beyond telemetry:</strong> Datadog's APM, error tracking, and anomaly detection are deeply integrated with their agent. OTel gives you raw data — you build the intelligence yourself.</li>
+                <li><strong>Collector adds operational overhead:</strong> Running OTel Collectors is another thing to deploy, scale, and monitor. Proprietary agents are fire-and-forget. That simplicity has value.</li>
+                <li><strong>Vendor portability is real freedom:</strong> Unhappy with your observability vendor's pricing? With OTel, swap backends in a config change. With proprietary agents, it's a re-instrumentation project.</li>
+                <li><strong>The industry is converging on OTel:</strong> Even Datadog and New Relic accept OTLP. OTel is the second-most active CNCF project after Kubernetes. The momentum is unstoppable.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p><strong>Have you migrated to OpenTelemetry yet? What's holding you back?</strong></p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

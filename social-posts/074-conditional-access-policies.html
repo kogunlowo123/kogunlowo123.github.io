@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conditional Access Is the Most Under-Used Azure Feature — Kehinde Ogunlowo</title>
+    <meta name="description" content="Debate: Is Azure Conditional Access the single most impactful security control that most organizations aren't using properly?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}a{color:#00d4ff;text-decoration:none}a:hover{color:#10b981}h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem;color:#e2e8f0}.hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}.diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}.flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}.flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}.node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s}.node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}.node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0}.node .sub{font-size:0.7rem;color:#64748b;margin-top:0.25rem}.node.azure{border-color:rgba(0,120,212,0.3)}.node.azure:hover{border-color:#0078D4}.node.generic{border-color:rgba(16,185,129,0.3)}.node.generic:hover{border-color:#10b981}.arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}.breakdown{margin:2rem 0}.breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}.breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}.breakdown li strong{color:#e2e8f0}.cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}.cta p{color:#94a3b8;font-size:0.95rem}.tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}.tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}</style>
+</head>
+<body>
+    <article>
+        <h1>Conditional Access Is the Most Under-Used Azure Feature</h1>
+        <p class="hook">Most organizations have Entra ID P1 licenses but only use Conditional Access to require MFA. You're sitting on a Zero Trust policy engine that can enforce device compliance, location-based restrictions, risk-based authentication, and app-specific controls. Stop leaving money on the table.</p>
+        <div class="tags"><span class="tag">#ConditionalAccess</span><span class="tag">#EntraID</span><span class="tag">#ZeroTrust</span><span class="tag">#Azure</span><span class="tag">#Identity</span></div>
+        <section class="diagram">
+            <h2>Architecture: Conditional Access Policy Engine</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview" class="node azure"><div class="label">Conditional Access</div><div class="sub">Policy Engine</div></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-conditions" class="node azure"><div class="label">Conditions</div><div class="sub">User / Device / Location / Risk</div></a>
+                    <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-grant" class="node azure"><div class="label">Grant Controls</div><div class="sub">MFA / Compliant Device</div></a>
+                    <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-session" class="node azure"><div class="label">Session Controls</div><div class="sub">App Restrictions</div></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/entra/identity/protection/overview-identity-protection" class="node azure"><div class="label">Identity Protection</div><div class="sub">Risk Detection</div></a>
+                    <a href="https://learn.microsoft.com/en-us/mem/intune/protect/compliance-policy-create-windows" class="node azure"><div class="label">Intune Compliance</div><div class="sub">Device Health</div></a>
+                    <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/location-condition" class="node azure"><div class="label">Named Locations</div><div class="sub">IP / Country Filtering</div></a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Complexity breeds misconfiguration:</strong> Conflicting CA policies can lock out admins, break service principals, or create gaps. Testing CA policies in report-only mode is essential but rarely done.</li>
+                <li><strong>Device compliance is the game-changer:</strong> Requiring managed, compliant devices eliminates BYOD risk entirely. But it also means contractors, vendors, and personal devices are blocked — which impacts flexibility.</li>
+                <li><strong>Risk-based policies are underrated:</strong> Identity Protection can detect impossible travel, anonymous IPs, and password spray attacks — then automatically require step-up authentication. This is Zero Trust in action.</li>
+                <li><strong>CA policies require P1/P2 licenses:</strong> Basic CA requires Entra ID P1. Risk-based policies require P2. For organizations on free Entra ID, this entire capability is gated behind licensing.</li>
+                <li><strong>Service principals need CA too:</strong> Workload identity CA policies are newer but critical. An automated service account without conditional access is an unprotected backdoor.</li>
+            </ul>
+        </section>
+        <div class="cta"><p>What's your take? Drop your opinion below.</p><p>Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p></div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;"><p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p><p style="margin-top:0.5rem;"><a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> | <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> | <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> | <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a></p></footer>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Computing on Cloud Is a Decade from Useful — Kehinde Ogunlowo</title>
+    <meta name="description" content="Debating whether quantum computing cloud services are worth exploring today or remain a decade away from solving real business problems.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}a{color:#00d4ff;text-decoration:none}a:hover{color:#10b981}h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}.hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}.diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}.flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}.flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}.node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}.node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}.node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}.node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}.node.aws{border-color:rgba(255,153,0,0.3)}.node.aws:hover{border-color:#FF9900}.node.azure{border-color:rgba(0,120,212,0.3)}.node.azure:hover{border-color:#0078D4}.node.gcp{border-color:rgba(66,133,244,0.3)}.node.gcp:hover{border-color:#4285F4}.node.k8s{border-color:rgba(50,108,229,0.3)}.node.k8s:hover{border-color:#326CE5}.node.tf{border-color:rgba(123,66,188,0.3)}.node.tf:hover{border-color:#7B42BC}.node.generic{border-color:rgba(16,185,129,0.3)}.node.generic:hover{border-color:#10b981}.arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}.vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}.breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}.breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}.breakdown li strong{color:#e2e8f0}.cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}.tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}.tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}</style>
+</head>
+<body>
+    <article>
+        <h1>Quantum Computing on Cloud Is a Decade from Useful</h1>
+        <p class="hook">AWS Braket, Azure Quantum, and IBM Quantum are available today. But what real-world problem can they solve that a GPU cluster can't? Error rates are too high, qubit counts too low, and the algorithms for business problems don't exist yet. Quantum cloud is a science experiment, not a business tool.</p>
+        <div class="tags"><span class="tag">#QuantumComputing</span><span class="tag">#AWS</span><span class="tag">#Azure</span><span class="tag">#CloudComputing</span><span class="tag">#FutureTech</span></div>
+        <section class="diagram">
+            <h2>Quantum Cloud Services</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/braket/" class="node aws"><span class="label">AWS Braket</span><span class="sub">Quantum Service</span></a>
+                    <a href="https://learn.microsoft.com/en-us/azure/quantum/" class="node azure"><span class="label">Azure Quantum</span><span class="sub">Quantum Platform</span></a>
+                    <a href="https://cloud.google.com/quantum" class="node gcp"><span class="label">Google Quantum AI</span><span class="sub">Sycamore</span></a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://qiskit.org/documentation/" class="node generic"><span class="label">Qiskit</span><span class="sub">IBM Framework</span></a>
+                    <div class="vs">VS</div>
+                    <a href="https://docs.aws.amazon.com/sagemaker/" class="node aws"><span class="label">Classical ML</span><span class="sub">GPU Clusters</span></a>
+                </div>
+                <div class="arrow">&#8595;</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/braket/latest/developerguide/braket-devices.html" class="node generic"><span class="label">NISQ Devices</span><span class="sub">Noisy Intermediate</span></a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Error correction is unsolved:</strong> Current quantum computers make too many errors for useful computation. Fault-tolerant quantum computing requires millions of physical qubits — we have hundreds.</li>
+                <li><strong>Cryptography is the real threat:</strong> Post-quantum cryptography migration should start now. When quantum computers break RSA, you need to have already migrated. Start planning today.</li>
+                <li><strong>Quantum simulation has promise:</strong> Drug discovery, materials science, and molecular simulation — these are genuine use cases where quantum advantage may arrive first.</li>
+                <li><strong>Cloud access democratizes research:</strong> Even if quantum isn't production-ready, cloud quantum services let teams experiment without buying $15M hardware. That has value.</li>
+                <li><strong>Quantum-inspired algorithms work now:</strong> Classical algorithms inspired by quantum approaches (quantum annealing simulations) run on regular hardware and solve optimization problems today.</li>
+            </ul>
+        </section>
+        <div class="cta">
+            <p><strong>What's your take?</strong> Is quantum cloud worth exploring today?</p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;"><p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p><p style="margin-top:0.5rem;"><a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> | <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> | <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> | <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a></p></footer>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserved Instances vs Savings Plans: Which Commitment Model Saves More? — Kehinde Ogunlowo</title>
+    <meta name="description" content="RIs lock you to instance families for up to 72% savings. Savings Plans offer flexibility for up to 66% savings. The 6% gap might not be worth the operational rigidity.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}a{color:#00d4ff;text-decoration:none}a:hover{color:#10b981}h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}.hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}.diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}.flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}.flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}.node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}.node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}.node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}.node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}.node.aws{border-color:rgba(255,153,0,0.3)}.node.aws:hover{border-color:#FF9900}.node.azure{border-color:rgba(0,120,212,0.3)}.node.azure:hover{border-color:#0078D4}.node.gcp{border-color:rgba(66,133,244,0.3)}.node.gcp:hover{border-color:#4285F4}.node.generic{border-color:rgba(16,185,129,0.3)}.node.generic:hover{border-color:#10b981}.arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}.vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}.breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}.breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}.breakdown li strong{color:#e2e8f0}.cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}.tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}.tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}</style>
+</head>
+<body>
+    <article>
+        <h1>Reserved Instances vs Savings Plans: Which Commitment Model Saves More?</h1>
+        <p class="hook">Standard RIs offer up to 72% savings but lock you to a specific instance type in a specific region. Compute Savings Plans give up to 66% savings and apply across instance families, regions, and even Fargate/Lambda. That 6% gap is the price of flexibility — and for most organizations, flexibility wins.</p>
+        <div class="tags"><span class="tag">#ReservedInstances</span><span class="tag">#SavingsPlans</span><span class="tag">#AWS</span><span class="tag">#CostOptimization</span><span class="tag">#FinOps</span><span class="tag">#CloudCost</span></div>
+        <section class="diagram">
+            <h2>Commitment Model Comparison</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html" class="node aws"><span class="label">Reserved Instances</span><span class="sub">Up to 72% savings</span></a>
+                    <span class="vs">VS</span>
+                    <a href="https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html" class="node aws"><span class="label">Savings Plans</span><span class="sub">Up to 66% savings</span></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ri-convertible-exchange.html" class="node aws"><span class="label">Convertible RIs</span><span class="sub">Exchange for different types</span></a>
+                    <a href="https://docs.aws.amazon.com/savingsplans/latest/userguide/sp-applying.html" class="node aws"><span class="label">Compute Savings Plan</span><span class="sub">Any instance, any region</span></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ri-market-general.html" class="node aws"><span class="label">RI Marketplace</span><span class="sub">Sell unused Standard RIs</span></a>
+                    <a href="https://docs.aws.amazon.com/savingsplans/latest/userguide/sp-inventory.html" class="node aws"><span class="label">SP Inventory</span><span class="sub">View utilization + coverage</span></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/cost-management/latest/userguide/ce-rightsizing.html" class="node generic"><span class="label">Cost Explorer Recommendations</span><span class="sub">RI + SP purchase advisor</span></a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Savings Plans are the default for new purchases:</strong> Unless you have a very specific reason, Compute Savings Plans should be your first commitment. They apply automatically to the most expensive on-demand usage first, work across EC2, Fargate, and Lambda, and survive architecture changes.</li>
+                <li><strong>Standard RIs still win for stable, predictable workloads:</strong> If you're running the same m5.xlarge database server 24/7 for 3 years, a Standard RI with all-upfront payment saves 6% more than the equivalent Savings Plan. For infrastructure that truly never changes, that premium matters at scale.</li>
+                <li><strong>The RI Marketplace is a safety net:</strong> Standard RIs can be resold if your needs change. Savings Plans cannot. If your organization frequently pivots architecture or acquires/divests business units, the ability to sell unused capacity has real value.</li>
+                <li><strong>Convertible RIs are the worst of both worlds:</strong> They offer ~54% savings — less than Compute Savings Plans — while still requiring you to manage conversions manually. There's almost no scenario where Convertible RIs beat Compute Savings Plans on flexibility or savings.</li>
+                <li><strong>Layer your commitments strategically:</strong> Cover your absolute baseline (always-on instances) with Standard RIs for maximum savings. Cover the next tier of predictable usage with Compute Savings Plans for flexibility. Leave variable workloads on-demand or Spot. This tiered approach maximizes total savings.</li>
+            </ul>
+        </section>
+        <div class="cta">
+            <p><strong>What's your take?</strong> Should AWS retire Reserved Instances entirely and go all-in on Savings Plans, or do RIs still serve a purpose?</p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;"><p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p><p style="margin-top:0.5rem;"><a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> | <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> | <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> | <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a></p></footer>
+</body>
+</html>

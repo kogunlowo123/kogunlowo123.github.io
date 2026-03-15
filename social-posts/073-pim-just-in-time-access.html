@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standing Admin Access Should Be a Fireable Offense — Kehinde Ogunlowo</title>
+    <meta name="description" content="Debate: Should permanent admin access be eliminated entirely in favor of just-in-time privileged access?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}a{color:#00d4ff;text-decoration:none}a:hover{color:#10b981}h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem;color:#e2e8f0}.hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}.diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}.flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}.flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}.node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s}.node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}.node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0}.node .sub{font-size:0.7rem;color:#64748b;margin-top:0.25rem}.node.aws{border-color:rgba(255,153,0,0.3)}.node.aws:hover{border-color:#FF9900}.node.azure{border-color:rgba(0,120,212,0.3)}.node.azure:hover{border-color:#0078D4}.node.generic{border-color:rgba(16,185,129,0.3)}.node.generic:hover{border-color:#10b981}.arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}.vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem;letter-spacing:0.05em}.breakdown{margin:2rem 0}.breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}.breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}.breakdown li strong{color:#e2e8f0}.cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}.cta p{color:#94a3b8;font-size:0.95rem}.tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}.tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}</style>
+</head>
+<body>
+    <article>
+        <h1>Standing Admin Access Should Be a Fireable Offense</h1>
+        <p class="hook">Your team has 15 people with permanent Global Admin in Entra ID. None of them need it 99% of the time. One compromised account and it's game over. Just-in-time access exists. There is no excuse for standing privileges.</p>
+        <div class="tags"><span class="tag">#PIM</span><span class="tag">#JustInTime</span><span class="tag">#PrivilegedAccess</span><span class="tag">#ZeroTrust</span><span class="tag">#IAM</span></div>
+        <section class="diagram">
+            <h2>Architecture: Privileged Identity Management</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure" class="node azure"><div class="label">Entra PIM</div><div class="sub">Just-In-Time Activation</div></a>
+                    <a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/" class="node aws"><div class="label">IAM Identity Center</div><div class="sub">Permission Sets</div></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-how-to-add-role-to-user" class="node azure"><div class="label">Eligible Roles</div><div class="sub">Require Activation</div></a>
+                    <a href="https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-how-to-require-approval" class="node azure"><div class="label">Approval Workflow</div><div class="sub">Manager Approval</div></a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview" class="node azure"><div class="label">Access Reviews</div><div class="sub">Periodic Recertification</div></a>
+                    <a href="https://developer.hashicorp.com/vault/docs/secrets/databases" class="node generic"><div class="label">Vault Dynamic Secrets</div><div class="sub">Ephemeral Credentials</div></a>
+                    <a href="https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html" class="node aws"><div class="label">AWS STS</div><div class="sub">Temporary Credentials</div></a>
+                </div>
+            </div>
+        </section>
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Incident response needs instant access:</strong> When production is down at 3AM, waiting 30 minutes for PIM approval and MFA verification costs real money. Break-glass procedures must be fast.</li>
+                <li><strong>PIM friction reduces risky changes:</strong> Having to justify and activate elevated access makes engineers think twice before running destructive commands. Friction is a feature, not a bug.</li>
+                <li><strong>Audit trails are invaluable:</strong> PIM logs every activation — who, when, why, and for how long. Standing access has no audit trail because there's nothing to log.</li>
+                <li><strong>Not everything supports JIT:</strong> AWS root account, hypervisor access, and legacy systems often require standing credentials. The goal is minimizing standing access, not eliminating it entirely.</li>
+                <li><strong>Access reviews catch creep:</strong> Monthly access reviews through Entra ID Governance ensure that eligible roles are still justified. Without reviews, eligible access becomes de facto standing access.</li>
+            </ul>
+        </section>
+        <div class="cta"><p>What's your take? Drop your opinion below.</p><p>Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p></div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;"><p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p><p style="margin-top:0.5rem;"><a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> | <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> | <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> | <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a></p></footer>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue-Green Deployments Are Wasteful — Canary Wins — Kehinde Ogunlowo</title>
+    <meta name="description" content="Canary vs blue-green deployments: why progressive delivery beats full-environment duplication.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto}
+        a{color:#00d4ff;text-decoration:none} a:hover{color:#10b981}
+        h1{font-size:1.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.02em;line-height:1.3}
+        h2{font-size:1.3rem;font-weight:700;margin:2rem 0 1rem}
+        .hook{font-size:1.05rem;color:#94a3b8;margin-bottom:2rem;line-height:1.8;border-left:3px solid #00d4ff;padding-left:1rem}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+        .flow-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap}
+        .node{background:#1e293b;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;transition:all 0.2s;display:inline-block}
+        .node:hover{border-color:#00d4ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.15)}
+        .node .label{font-size:0.85rem;font-weight:600;color:#e2e8f0;display:block}
+        .node .sub{font-size:0.7rem;color:#64748b;display:block;margin-top:0.25rem}
+        .node.k8s{border-color:rgba(50,108,229,0.3)} .node.k8s:hover{border-color:#326CE5}
+        .node.aws{border-color:rgba(255,153,0,0.3)} .node.aws:hover{border-color:#FF9900}
+        .node.generic{border-color:rgba(16,185,129,0.3)} .node.generic:hover{border-color:#10b981}
+        .arrow{color:#00d4ff;font-size:1.5rem;font-weight:bold}
+        .vs{background:rgba(239,68,68,0.1);color:#ef4444;padding:0.5rem 1.5rem;border-radius:9999px;font-weight:800;font-size:1.1rem}
+        .breakdown ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem}
+        .breakdown li{background:#111827;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:1rem 1.25rem;font-size:0.9rem;color:#94a3b8}
+        .breakdown li strong{color:#e2e8f0}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(16,185,129,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1.5rem;text-align:center;margin:2rem 0}
+        .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0}
+        .tag{padding:0.2rem 0.6rem;background:rgba(0,212,255,0.1);border-radius:4px;color:#00d4ff;font-size:0.75rem;font-weight:500}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Blue-Green Deployments Are Wasteful — Canary Wins</h1>
+        <p class="hook">Blue-green deployments require maintaining two full production environments. That's 2x your infrastructure cost for the privilege of a fast rollback. Canary deployments give you the same safety at 1-5% extra cost, with better signal on real user behavior.</p>
+        <div class="tags">
+            <span class="tag">#CanaryDeployment</span>
+            <span class="tag">#BlueGreen</span>
+            <span class="tag">#ProgressiveDelivery</span>
+            <span class="tag">#Kubernetes</span>
+            <span class="tag">#DevOps</span>
+        </div>
+
+        <section class="diagram">
+            <h2>Architecture: Canary vs Blue-Green</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://argoproj.github.io/argo-rollouts/" class="node k8s">
+                        <span class="label">Argo Rollouts</span>
+                        <span class="sub">Canary controller</span>
+                    </a>
+                    <span class="vs">VS</span>
+                    <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html" class="node aws">
+                        <span class="label">ALB Blue-Green</span>
+                        <span class="sub">Full environment swap</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://flagger.app/" class="node k8s">
+                        <span class="label">Flagger</span>
+                        <span class="sub">Progressive delivery</span>
+                    </a>
+                    <a href="https://istio.io/latest/docs/tasks/traffic-management/traffic-shifting/" class="node k8s">
+                        <span class="label">Istio Traffic Split</span>
+                        <span class="sub">Weighted routing</span>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html" class="node aws">
+                        <span class="label">CodeDeploy</span>
+                        <span class="sub">Blue/green swap</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://prometheus.io/docs/introduction/overview/" class="node generic">
+                        <span class="label">Metrics Analysis</span>
+                        <span class="sub">Canary vs baseline</span>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-weighted.html" class="node aws">
+                        <span class="label">Route 53 Weighted</span>
+                        <span class="sub">DNS-level switching</span>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://argoproj.github.io/argo-rollouts/features/analysis/" class="node generic">
+                        <span class="label">Auto Rollback</span>
+                        <span class="sub">On metric degradation</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li><strong>Blue-green is simpler to reason about:</strong> You have green (live) and blue (new). Swap the load balancer. Done. No traffic splitting, no metric comparison. Simplicity has value.</li>
+                <li><strong>Canary gives real user signal:</strong> 5% of real traffic hitting the new version catches issues that staging never will. You test with actual user behavior, not synthetic tests.</li>
+                <li><strong>Database migrations break blue-green:</strong> If your schema changed, you can't just swap back. Both strategies struggle with stateful changes — canary at least limits blast radius.</li>
+                <li><strong>Cost is a real factor:</strong> Blue-green doubles your compute during deployment windows. For large-scale services, this can be massive. Canary adds incremental capacity.</li>
+                <li><strong>Canary requires observability maturity:</strong> You need good metrics, automated analysis, and clear SLIs to run canary well. Blue-green just needs a health check.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p><strong>Which deployment strategy does your team use?</strong></p>
+            <p style="margin-top:0.5rem;">Full guides: <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

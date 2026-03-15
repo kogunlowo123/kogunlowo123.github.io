@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud-Native vs Lift-and-Shift: The Migration Debate — Kehinde Ogunlowo</title>
+    <meta name="description" content="Should you refactor for cloud-native or lift-and-shift your workloads? Explore the real trade-offs of cloud migration strategies.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0e1a;color:#e2e8f0;font-family:'Inter',sans-serif;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto;}
+        h1{font-size:2rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#00d4ff,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        h2{font-size:1.3rem;font-weight:700;color:#00d4ff;margin:2rem 0 1rem;}
+        .hook{font-size:1.1rem;color:#94a3b8;margin-bottom:2rem;border-left:3px solid #00d4ff;padding-left:1rem;}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0;}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+        .flow-row{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+        .node{background:#111827;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1rem 1.5rem;text-decoration:none;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:0.85rem;transition:all 0.3s;text-align:center;min-width:140px;}
+        .node:hover{border-color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,0.15);}
+        .node.aws{border-color:rgba(255,153,0,0.4);} .node.aws:hover{border-color:#FF9900;box-shadow:0 0 20px rgba(255,153,0,0.2);}
+        .node.azure{border-color:rgba(0,120,212,0.4);} .node.azure:hover{border-color:#0078D4;box-shadow:0 0 20px rgba(0,120,212,0.2);}
+        .node.gcp{border-color:rgba(66,133,244,0.4);} .node.gcp:hover{border-color:#4285F4;box-shadow:0 0 20px rgba(66,133,244,0.2);}
+        .node.k8s{border-color:rgba(50,108,229,0.4);} .node.k8s:hover{border-color:#326CE5;}
+        .node.tf{border-color:rgba(123,66,188,0.4);} .node.tf:hover{border-color:#7B42BC;}
+        .node-label{font-weight:600;margin-bottom:0.25rem;}
+        .node-sub{font-size:0.75rem;color:#64748b;}
+        .arrow{color:#00d4ff;font-size:1.5rem;text-align:center;}
+        .vs-badge{background:linear-gradient(135deg,#FF9900,#00d4ff);color:#0a0e1a;font-weight:700;padding:0.5rem 1.5rem;border-radius:20px;font-size:0.9rem;}
+        .breakdown{margin:2rem 0;}
+        .breakdown ul{list-style:none;padding:0;}
+        .breakdown li{padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.95rem;}
+        .breakdown li::before{content:"⚡";margin-right:0.5rem;}
+        .breakdown a{color:#00d4ff;text-decoration:none;} .breakdown a:hover{text-decoration:underline;}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(16,185,129,0.08));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:2rem;text-align:center;margin:2rem 0;}
+        .cta a{color:#00d4ff;text-decoration:none;font-weight:600;}
+        .tag{display:inline-block;background:rgba(0,212,255,0.1);color:#00d4ff;padding:0.2rem 0.6rem;border-radius:4px;font-size:0.75rem;font-family:'JetBrains Mono',monospace;margin:0.2rem;}
+    </style>
+</head>
+<body>
+    <article>
+        <div style="margin-bottom:1rem;">
+            <span class="tag">#CloudMigration</span>
+            <span class="tag">#CloudNative</span>
+            <span class="tag">#LiftAndShift</span>
+            <span class="tag">#Replatforming</span>
+        </div>
+        <h1>Cloud-Native vs Lift-and-Shift: Are You Wasting Millions on the Wrong Strategy?</h1>
+        <p class="hook">80% of lift-and-shift migrations end up costing more in the cloud than on-premises. Yet refactoring everything for cloud-native takes 3x longer and burns through engineering budgets. Which poison are you picking — and is there a middle ground nobody talks about?</p>
+
+        <section class="diagram">
+            <h2>Architecture Comparison</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/strategy-migration/" class="node aws" target="_blank">
+                        <div class="node-label">AWS Migration Hub</div>
+                        <div class="node-sub">7 R's Strategy</div>
+                    </a>
+                    <a href="https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/migrate/" class="node azure" target="_blank">
+                        <div class="node-label">Azure Migrate</div>
+                        <div class="node-sub">Cloud Adoption Framework</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="vs-badge">LIFT-AND-SHIFT vs CLOUD-NATIVE</div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/mgn/latest/ug/what-is-application-migration-service.html" class="node aws" target="_blank">
+                        <div class="node-label">AWS MGN</div>
+                        <div class="node-sub">Rehost VMs as-is</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" class="node aws" target="_blank">
+                        <div class="node-label">AWS Lambda</div>
+                        <div class="node-sub">Serverless Refactor</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/azure/migrate/migrate-services-overview" class="node azure" target="_blank">
+                        <div class="node-label">Azure Migrate</div>
+                        <div class="node-sub">VM Replication</div>
+                    </a>
+                    <a href="https://learn.microsoft.com/en-us/azure/container-apps/overview" class="node azure" target="_blank">
+                        <div class="node-label">Azure Container Apps</div>
+                        <div class="node-sub">Cloud-Native Containers</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://cloud.google.com/migrate/compute-engine/docs" class="node gcp" target="_blank">
+                        <div class="node-label">GCP Migrate for CE</div>
+                        <div class="node-sub">Compute Rehost</div>
+                    </a>
+                    <a href="https://cloud.google.com/run/docs" class="node gcp" target="_blank">
+                        <div class="node-label">Cloud Run</div>
+                        <div class="node-sub">Serverless Containers</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li>Lift-and-shift gets you to the cloud in weeks, but you inherit on-prem inefficiencies — oversized VMs, no auto-scaling, and <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html" target="_blank">right-sizing headaches</a> from day one.</li>
+                <li>Cloud-native refactoring unlocks <a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html" target="_blank">auto-scaling</a>, <a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview" target="_blank">serverless economics</a>, and managed services — but your team needs 6-12 months to redesign everything.</li>
+                <li>The hidden cost of lift-and-shift: you still need <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html" target="_blank">CloudWatch monitoring</a>, <a href="https://learn.microsoft.com/en-us/azure/backup/backup-overview" target="_blank">Azure Backup</a>, and patching — none of which are free.</li>
+                <li>Cloud-native approaches using <a href="https://kubernetes.io/docs/concepts/overview/" target="_blank">Kubernetes</a> or <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html" target="_blank">ECS</a> introduce operational complexity your team may not be ready for.</li>
+                <li>The smart play might be the "6 R's" approach: <a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/migration-retiring-applications/overview.html" target="_blank">Retire</a> 30% of your apps, rehost the commodities, refactor only the differentiators.</li>
+                <li>Consider <a href="https://www.terraform.io/docs" target="_blank">Terraform</a> to manage both strategies — IaC gives you the flexibility to evolve from rehosted VMs to cloud-native over time.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">What's your take? Drop your opinion below.</p>
+            <p>Full architecture guides → <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Sourcing vs CRUD: Is Your Data Model Lying to You? — Kehinde Ogunlowo</title>
+    <meta name="description" content="Event sourcing captures every state change while CRUD overwrites history. Which pattern fits your architecture and why does it matter?">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0e1a;color:#e2e8f0;font-family:'Inter',sans-serif;line-height:1.7;padding:2rem;max-width:900px;margin:0 auto;}
+        h1{font-size:2rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#00d4ff,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        h2{font-size:1.3rem;font-weight:700;color:#00d4ff;margin:2rem 0 1rem;}
+        .hook{font-size:1.1rem;color:#94a3b8;margin-bottom:2rem;border-left:3px solid #00d4ff;padding-left:1rem;}
+        .diagram{background:#111827;border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:2rem;margin:2rem 0;}
+        .flow{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+        .flow-row{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+        .node{background:#111827;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1rem 1.5rem;text-decoration:none;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:0.85rem;transition:all 0.3s;text-align:center;min-width:140px;}
+        .node:hover{border-color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,0.15);}
+        .node.aws{border-color:rgba(255,153,0,0.4);} .node.aws:hover{border-color:#FF9900;box-shadow:0 0 20px rgba(255,153,0,0.2);}
+        .node.azure{border-color:rgba(0,120,212,0.4);} .node.azure:hover{border-color:#0078D4;box-shadow:0 0 20px rgba(0,120,212,0.2);}
+        .node.gcp{border-color:rgba(66,133,244,0.4);} .node.gcp:hover{border-color:#4285F4;box-shadow:0 0 20px rgba(66,133,244,0.2);}
+        .node.k8s{border-color:rgba(50,108,229,0.4);} .node.k8s:hover{border-color:#326CE5;}
+        .node.tf{border-color:rgba(123,66,188,0.4);} .node.tf:hover{border-color:#7B42BC;}
+        .node-label{font-weight:600;margin-bottom:0.25rem;}
+        .node-sub{font-size:0.75rem;color:#64748b;}
+        .arrow{color:#00d4ff;font-size:1.5rem;text-align:center;}
+        .vs-badge{background:linear-gradient(135deg,#FF9900,#00d4ff);color:#0a0e1a;font-weight:700;padding:0.5rem 1.5rem;border-radius:20px;font-size:0.9rem;}
+        .breakdown{margin:2rem 0;}
+        .breakdown ul{list-style:none;padding:0;}
+        .breakdown li{padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.95rem;}
+        .breakdown li::before{content:"⚡";margin-right:0.5rem;}
+        .breakdown a{color:#00d4ff;text-decoration:none;} .breakdown a:hover{text-decoration:underline;}
+        .cta{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(16,185,129,0.08));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:2rem;text-align:center;margin:2rem 0;}
+        .cta a{color:#00d4ff;text-decoration:none;font-weight:600;}
+        .tag{display:inline-block;background:rgba(0,212,255,0.1);color:#00d4ff;padding:0.2rem 0.6rem;border-radius:4px;font-size:0.75rem;font-family:'JetBrains Mono',monospace;margin:0.2rem;}
+    </style>
+</head>
+<body>
+    <article>
+        <div style="margin-bottom:1rem;">
+            <span class="tag">#EventSourcing</span>
+            <span class="tag">#CRUD</span>
+            <span class="tag">#EventDriven</span>
+            <span class="tag">#DataArchitecture</span>
+        </div>
+        <h1>Event Sourcing vs CRUD: Is Your Data Model Lying to You?</h1>
+        <p class="hook">Every time you UPDATE a row in your database, you destroy history. Event sourcing preserves every state change — but at what cost? Teams adopting event sourcing report 40% more infrastructure complexity. Is the audit trail worth the engineering overhead?</p>
+
+        <section class="diagram">
+            <h2>Architecture Comparison</h2>
+            <div class="flow">
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html" class="node aws" target="_blank">
+                        <div class="node-label">DynamoDB Streams</div>
+                        <div class="node-sub">Change Data Capture</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html" class="node aws" target="_blank">
+                        <div class="node-label">EventBridge</div>
+                        <div class="node-sub">Event Bus</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="vs-badge">EVENT SOURCING vs CRUD</div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://docs.aws.amazon.com/kinesis/latest/dev/introduction.html" class="node aws" target="_blank">
+                        <div class="node-label">Kinesis Data Streams</div>
+                        <div class="node-sub">Event Store / Log</div>
+                    </a>
+                    <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html" class="node aws" target="_blank">
+                        <div class="node-label">Amazon RDS</div>
+                        <div class="node-sub">Traditional CRUD DB</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about" class="node azure" target="_blank">
+                        <div class="node-label">Azure Event Hubs</div>
+                        <div class="node-sub">Event Ingestion</div>
+                    </a>
+                    <a href="https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed" class="node azure" target="_blank">
+                        <div class="node-label">Cosmos DB Change Feed</div>
+                        <div class="node-sub">Materialized Views</div>
+                    </a>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-row">
+                    <a href="https://cloud.google.com/pubsub/docs/overview" class="node gcp" target="_blank">
+                        <div class="node-label">GCP Pub/Sub</div>
+                        <div class="node-sub">Event Distribution</div>
+                    </a>
+                    <a href="https://cloud.google.com/bigquery/docs/introduction" class="node gcp" target="_blank">
+                        <div class="node-label">BigQuery</div>
+                        <div class="node-sub">Event Replay & Analytics</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="breakdown">
+            <h2>The Real Trade-offs</h2>
+            <ul>
+                <li>Event sourcing gives you a complete audit trail and the ability to rebuild state — critical for fintech and compliance. But <a href="https://docs.aws.amazon.com/kinesis/latest/dev/key-concepts.html" target="_blank">Kinesis retention</a> caps at 365 days unless you archive to S3.</li>
+                <li>CRUD with <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.html" target="_blank">RDS</a> is straightforward — your team already knows SQL. But you lose the "why" behind every data change.</li>
+                <li>Event sourcing requires projections and read models. <a href="https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-model-partition-example" target="_blank">Cosmos DB materialized views</a> can handle this, but now you're managing eventual consistency.</li>
+                <li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html" target="_blank">DynamoDB Streams</a> give you event sourcing-like capabilities on top of a CRUD model — a pragmatic middle ground.</li>
+                <li>Schema evolution in event sourcing is brutal. When your event schema changes, every downstream consumer breaks unless you version events carefully with <a href="https://docs.aws.amazon.com/glue/latest/dg/schema-registry.html" target="_blank">AWS Glue Schema Registry</a>.</li>
+                <li>For most CRUD apps, simply enabling <a href="https://learn.microsoft.com/en-us/sql/temporal-tables/temporal-tables" target="_blank">SQL Server temporal tables</a> or DynamoDB point-in-time recovery gives you 80% of event sourcing benefits at 20% of the complexity.</li>
+            </ul>
+        </section>
+
+        <div class="cta">
+            <p style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">What's your take? Drop your opinion below.</p>
+            <p>Full architecture guides → <a href="https://kogunlowo123.github.io/blog/">kogunlowo123.github.io/blog</a></p>
+        </div>
+    </article>
+
+    <footer style="margin-top:3rem;padding:2rem;border-top:1px solid rgba(0,212,255,0.15);text-align:center;color:#94a3b8;font-size:0.85rem;">
+        <p>Designed by <strong style="color:#e2e8f0;">Kehinde Ogunlowo</strong></p>
+        <p style="margin-top:0.5rem;">
+            <a href="https://kogunlowo123.github.io/AI-Agent-Specializations/" style="color:#00d4ff;margin:0 0.5rem;">AI Agent Specializations</a> |
+            <a href="https://github.com/kogunlowo123" style="color:#00d4ff;margin:0 0.5rem;">GitHub</a> |
+            <a href="https://www.linkedin.com/in/kehinde-ogunlowo/" style="color:#00d4ff;margin:0 0.5rem;">LinkedIn</a> |
+            <a href="https://citadelcloudmanagement.com" style="color:#00d4ff;margin:0 0.5rem;">Citadel Cloud Management</a>
+        </p>
+    </footer>
+</body>
+</html>
