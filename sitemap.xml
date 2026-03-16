@@ -2,122 +2,218 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://kogunlowo123.github.io/</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
+        <loc>https://kogunlowo123.github.io/portfolio/</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/about.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
+        <loc>https://kogunlowo123.github.io/portfolio/repos.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/404.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.3</priority>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/01-conversational-copilot-assistants.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/02-autonomous-task-agents.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/03-developer-devops-agents.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/04-data-analytics-agents.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/05-security-governance-agents.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/06-industry-specific-agents.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/07-infrastructure-orchestration-agents.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/agentforge-portal/diagrams/08-cross-cloud-agnostic-patterns.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/kehinde-architecture-diagram/</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/production-rag-pipelines-aws.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
+        <loc>https://kogunlowo123.github.io/kehinde-architecture/</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/AI-Agent-Specializations/</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/azure-sentinel-soc-automation.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/cloud-ops-intelligence-hub/</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/ai-agents-enterprise-devops.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-aws-eks/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/finops-multi-cloud-cost-optimization.html</loc>
-        <lastmod>2024-03-07</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-aws-vpc-complete/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/terraform-azure-aks-production.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-aws-s3-bucket/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/aws-bedrock-agents-autonomous-workflows.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-aws-rds-aurora/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/devsecops-pipeline-multi-cloud.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-aws-security-baseline/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/gcp-gke-autopilot-terraform.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-aws-lambda/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/microsoft-entra-zero-trust-iam.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-aws-waf/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-azure-aks/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/kubernetes-security-hardening.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-azure-hub-spoke-network/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-azure-key-vault/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/aws-lambda-serverless-patterns.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-gcp-gke/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://kogunlowo123.github.io/blog/cloud-disaster-recovery-terraform.html</loc>
-        <lastmod>2024-03-08</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>https://kogunlowo123.github.io/terraform-gcp-vpc-network/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/langchain-multi-agent-framework/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/claude-mcp-platform/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/multi-cloud-landing-zone/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/mcp-server-aws/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/mcp-server-kubernetes/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/entra-iam-zero-trust/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://kogunlowo123.github.io/rag-pipeline-hallucination-mitigation/architecture.html</loc>
+        <lastmod>2026-03-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
 </urlset>
