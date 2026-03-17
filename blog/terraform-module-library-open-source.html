@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>Open-Sourcing 70+ Production Terraform Modules | Kehinde Ogunlowo</title>
+    <meta name="description" content="How we open-sourced 70+ production Terraform modules covering AWS, Azure, and GCP with automated testing, documentation generation, and semantic versioning.">
+    <meta name="keywords" content="Terraform modules, open source, infrastructure as code, AWS Terraform, Azure Terraform, GCP Terraform, module library, production Terraform">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Open-Sourcing 70+ Production Terraform Modules">
+    <meta property="og:description" content="How we open-sourced 70+ production Terraform modules covering AWS, Azure, and GCP with automated testing, documentation generation, and semantic versioning.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-15">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Open-Sourcing 70+ Production Terraform Modules">
+    <meta name="twitter:description" content="How we open-sourced 70+ production Terraform modules covering AWS, Azure, and GCP with automated testing, documentation generation, and semantic versioning.">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Open-Sourcing 70+ Production Terraform Modules",
+        "author": { "@type": "Person", "name": "Kehinde Ogunlowo", "url": "https://linkedin.com/in/kehinde-ogunlowo" },
+        "publisher": { "@type": "Organization", "name": "Citadel Cloud Management" },
+        "datePublished": "2026-03-15",
+        "dateModified": "2026-03-15",
+        "description": "How we open-sourced 70+ production Terraform modules covering AWS, Azure, and GCP with automated testing, documentation generation, and semantic versioning.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "Open-Sourcing 70+ Production Terraform Modules"}
+        ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        .article-meta span { display: flex; align-items: center; gap: 0.3rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid rgba(0,212,255,0.15); padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(0,212,255,0.1); color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0; }
+        .tags span { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+        .share-buttons { display: flex; gap: 0.75rem; margin: 2rem 0; flex-wrap: wrap; }
+        .share-btn { padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(0,212,255,0.3); background: #111827; color: #e2e8f0; transition: all 0.2s; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); border-color: #00d4ff; }
+        .cta { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .author-bio { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .author-info h3 { margin: 0 0 0.25rem; color: #ffffff; }
+        .author-info .title { color: #00d4ff; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .author-links { display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .author-links a { font-size: 0.85rem; }
+        .related { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related h2 { margin-top: 0; }
+        .related ul { list-style: none; padding: 0; }
+        .related li { padding: 0.5rem 0; border-bottom: 1px solid rgba(0,212,255,0.08); }
+        .related li:last-child { border: none; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(0,212,255,0.1); margin-top: 3rem; }
+        @media (max-width: 768px) { h1 { font-size: 1.6rem; } h2 { font-size: 1.25rem; } .container { padding: 1rem; } nav { padding: 1rem; } table { font-size: 0.8rem; } th, td { padding: 0.5rem; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+    <div class="nav-links">
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+        <a href="https://kogunlowo123.github.io/about/">About</a>
+        <a href="https://github.com/kogunlowo123">GitHub</a>
+        <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> &rsaquo; <a href="https://kogunlowo123.github.io/blog/">Blog</a> &rsaquo; Open-Sourcing 70+ Production Terraform Modules
+</div>
+
+<main class="container">
+    <article>
+        <header class="article-header">
+            <h1>Open-Sourcing 70+ Production Terraform Modules</h1>
+            <div class="article-meta">
+                <span>Kehinde Ogunlowo</span>
+                <span>|</span>
+                <span>March 15, 2026</span>
+                <span>|</span>
+                <span>10 min read</span>
+                <span>|</span>
+                <span>Infrastructure</span>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#why-open-source">Why We Open-Sourced Our Module Library</a></li>
+                <li><a href="#library-overview">Library Overview: 70+ Modules Across 3 Clouds</a></li>
+                <li><a href="#module-standards">Module Design Standards</a></li>
+                <li><a href="#testing">Automated Testing with Terratest and Native Tests</a></li>
+                <li><a href="#documentation">Documentation Generation Pipeline</a></li>
+                <li><a href="#versioning">Semantic Versioning and Release Automation</a></li>
+                <li><a href="#usage">Using the Modules in Your Projects</a></li>
+            </ol>
+        </nav>
+
+        <section id="why-open-source">
+            <h2>Why We Open-Sourced Our Module Library</h2>
+            <p>Over the past three years at <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>, we accumulated a library of Terraform modules that power production infrastructure across dozens of enterprise clients. Each module had been battle-tested through hundreds of deployments, refined through incident post-mortems, and hardened with security best practices. We made the decision to open-source the entire library because we believe the infrastructure community benefits more from production-tested patterns than from yet another "getting started" tutorial.</p>
+
+            <p>The library is available across individual repositories on <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>, each following a consistent naming convention: <code>terraform-{provider}-{resource}</code>. Every module includes comprehensive documentation, example configurations, automated tests, and an interactive architecture diagram.</p>
+        </section>
+
+        <section id="library-overview">
+            <h2>Library Overview: 70+ Modules Across 3 Clouds</h2>
+            <p>The library spans AWS, Azure, and GCP with modules organized by service domain. Here is a summary of the coverage.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Domain</th>
+                        <th>AWS Modules</th>
+                        <th>Azure Modules</th>
+                        <th>GCP Modules</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Networking</td><td>VPC, Transit Gateway, PrivateLink</td><td>VNet, Hub-Spoke, Front Door</td><td>VPC, Cloud NAT, Interconnect</td></tr>
+                    <tr><td>Compute</td><td>EKS, ECS, Lambda</td><td>AKS, Container Apps, Functions</td><td>GKE, Cloud Run, Cloud Functions</td></tr>
+                    <tr><td>Security</td><td>GuardDuty, SecurityHub, WAF</td><td>Defender, Sentinel, Key Vault</td><td>SCC, Armor, KMS</td></tr>
+                    <tr><td>Identity</td><td>IAM, SSO, Organizations</td><td>Entra ID, PIM, RBAC</td><td>IAM, Workload Identity</td></tr>
+                    <tr><td>Data</td><td>RDS, DynamoDB, S3</td><td>SQL, CosmosDB, Storage</td><td>Cloud SQL, Spanner, GCS</td></tr>
+                    <tr><td>Observability</td><td>CloudWatch, X-Ray</td><td>Monitor, App Insights</td><td>Cloud Monitoring, Trace</td></tr>
+                    <tr><td>Landing Zone</td><td>Control Tower, SCPs</td><td>Management Groups, Policy</td><td>Org Policy, Folders</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="module-standards">
+            <h2>Module Design Standards</h2>
+            <p>Consistency across 70+ modules requires strict design standards. Every module adheres to the following conventions.</p>
+
+            <p>All modules use a flat variable structure with sensible defaults. Required variables have no defaults; optional variables always have a default value that represents the most secure configuration. For example, encryption is always enabled by default, public access is always disabled by default, and logging is always enabled by default.</p>
+
+            <pre><code># Module structure standard
+# Every module follows this directory layout
+
+terraform-aws-eks-cluster/
+  main.tf              # Primary resource definitions
+  variables.tf         # Input variables with descriptions and validation
+  outputs.tf           # Output values for downstream consumption
+  versions.tf          # Provider and Terraform version constraints
+  locals.tf            # Computed values and naming conventions
+  data.tf              # Data sources for existing resources
+  README.md            # Auto-generated documentation
+  diagram.html         # Interactive architecture diagram
+  examples/
+    basic/             # Minimal configuration example
+    complete/          # Full-featured configuration example
+  tests/
+    basic_test.go      # Terratest for basic example
+    complete_test.go   # Terratest for complete example
+    unit.tftest.hcl    # Native Terraform test</code></pre>
+
+            <p>Every variable includes a <code>description</code>, a <code>type</code> constraint, and a <code>validation</code> block where applicable. This ensures that users get meaningful error messages before <code>terraform plan</code> ever runs.</p>
+
+            <pre><code># Example: variable validation in terraform-aws-eks-cluster
+variable "cluster_version" {
+  description = "Kubernetes version for the EKS cluster"
+  type        = string
+  default     = "1.29"
+
+  validation {
+    condition     = contains(["1.27", "1.28", "1.29", "1.30"], var.cluster_version)
+    error_message = "Cluster version must be one of: 1.27, 1.28, 1.29, 1.30."
+  }
+}
+
+variable "node_instance_types" {
+  description = "List of EC2 instance types for the managed node group"
+  type        = list(string)
+  default     = ["m6i.large", "m6i.xlarge"]
+
+  validation {
+    condition     = length(var.node_instance_types) > 0
+    error_message = "At least one instance type must be specified."
+  }
+}</code></pre>
+        </section>
+
+        <section id="testing">
+            <h2>Automated Testing with Terratest and Native Tests</h2>
+            <p>Every module ships with two layers of tests. Terratest integration tests deploy real infrastructure, validate the outputs, and tear it down. Native Terraform tests (<code>.tftest.hcl</code>) validate plan-time behavior without deploying resources, making them fast enough to run on every pull request.</p>
+
+            <p>Our CI pipeline runs native tests on every PR and Terratest integration tests on a nightly schedule against dedicated test accounts in each cloud provider. Test accounts are provisioned with the minimum IAM permissions required for each module, ensuring that the tests validate the documented permission requirements.</p>
+
+            <pre><code># Native Terraform test example (unit.tftest.hcl)
+run "validates_cluster_name_length" {
+  command = plan
+
+  variables {
+    cluster_name = "this-name-is-way-too-long-for-eks-and-should-fail-validation"
+    vpc_id       = "vpc-12345678"
+    subnet_ids   = ["subnet-abc", "subnet-def"]
+  }
+
+  expect_failures = [var.cluster_name]
+}
+
+run "creates_cluster_with_defaults" {
+  command = plan
+
+  variables {
+    cluster_name = "test-cluster"
+    vpc_id       = "vpc-12345678"
+    subnet_ids   = ["subnet-abc", "subnet-def"]
+  }
+
+  assert {
+    condition     = aws_eks_cluster.this.version == "1.29"
+    error_message = "Default cluster version should be 1.29"
+  }
+}</code></pre>
+        </section>
+
+        <section id="documentation">
+            <h2>Documentation Generation Pipeline</h2>
+            <p>Documentation is generated automatically from the Terraform code using <code>terraform-docs</code> and a custom pipeline that produces the <code>README.md</code>, the interactive architecture diagram, and the Terraform Registry metadata. When a module is updated, the CI pipeline regenerates all documentation and commits it alongside the code change.</p>
+
+            <p>The interactive architecture diagrams are generated as standalone HTML files using our <a href="https://kogunlowo123.github.io/blog/architecture-diagrams-as-code.html">architecture-diagrams-as-code</a> toolchain. Each diagram shows the resources created by the module, their relationships, and the data flows between them. Users can click on any resource to see its Terraform configuration.</p>
+        </section>
+
+        <section id="versioning">
+            <h2>Semantic Versioning and Release Automation</h2>
+            <p>Every module follows strict semantic versioning. Breaking changes (removed variables, changed defaults, provider version bumps) increment the major version. New features and optional variables increment the minor version. Bug fixes and documentation updates increment the patch version.</p>
+
+            <p>Releases are automated through GitHub Actions. When a PR is merged to <code>main</code>, the CI pipeline analyzes the commit messages (following Conventional Commits), determines the appropriate version bump, generates a changelog, creates a GitHub release, and publishes to the Terraform Registry. The entire process requires zero manual intervention.</p>
+        </section>
+
+        <section id="usage">
+            <h2>Using the Modules in Your Projects</h2>
+            <p>All modules are available directly from GitHub. Reference them in your Terraform configurations using the GitHub source with a version pin.</p>
+
+            <pre><code># Using a module from the library
+module "eks_cluster" {
+  source  = "github.com/kogunlowo123/terraform-aws-eks-cluster?ref=v3.2.1"
+
+  cluster_name    = "production"
+  cluster_version = "1.29"
+  vpc_id          = module.vpc.vpc_id
+  subnet_ids      = module.vpc.private_subnet_ids
+
+  node_groups = {
+    general = {
+      instance_types = ["m6i.xlarge"]
+      min_size       = 3
+      max_size       = 10
+      desired_size   = 5
+    }
+  }
+
+  enable_cluster_autoscaler = true
+  enable_metrics_server     = true
+  enable_aws_load_balancer  = true
+}
+
+module "vpc" {
+  source  = "github.com/kogunlowo123/terraform-aws-vpc-network?ref=v2.8.0"
+
+  vpc_name   = "production"
+  cidr_block = "10.0.0.0/16"
+  azs        = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+  enable_nat_gateway   = true
+  enable_flow_logs     = true
+  enable_transit_gateway = false
+}</code></pre>
+
+            <p>We recommend pinning to a specific version tag and using Dependabot or Renovate to automate version updates. Each release includes a detailed changelog that documents any migration steps required for breaking changes.</p>
+
+            <p>Explore the full library on <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a> and star the repositories you find useful. Contributions are welcome through pull requests following our contributing guide.</p>
+        </section>
+
+        <div class="tags">
+            <span>Terraform</span>
+            <span>Open Source</span>
+            <span>AWS</span>
+            <span>Azure</span>
+            <span>GCP</span>
+            <span>Infrastructure as Code</span>
+            <span>Modules</span>
+            <span>DevOps</span>
+        </div>
+
+        <div class="share-buttons">
+            <a class="share-btn" href="https://twitter.com/intent/tweet?text=Open-Sourcing%2070%2B%20Production%20Terraform%20Modules&url=https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html" target="_blank" rel="noopener">Share on Twitter</a>
+            <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html" target="_blank" rel="noopener">Share on LinkedIn</a>
+            <button class="share-btn" onclick="navigator.clipboard.writeText('https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy Link'},2000)})">Copy Link</button>
+        </div>
+
+        <div class="cta">
+            <h3>Need Production-Grade Terraform Infrastructure?</h3>
+            <p>Kehinde Ogunlowo and the team at Citadel Cloud Management build and maintain enterprise Terraform module libraries for organizations operating across AWS, Azure, and GCP.</p>
+            <p><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Contact Kehinde at citadelcloudmanagement.com</a></p>
+        </div>
+
+        <div class="author-bio">
+            <div class="author-info">
+                <h3>Kehinde Ogunlowo</h3>
+                <div class="title">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</div>
+                <p>Kehinde architects secure, scalable multi-cloud platforms for enterprises. With deep expertise across AWS, Azure, and GCP, he specializes in zero trust security, infrastructure-as-code, and AI agent systems engineering. He shares open-source Terraform modules and architectural patterns through his GitHub and blog.</p>
+                <div class="author-links">
+                    <a href="https://linkedin.com/in/kehinde-ogunlowo" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="related">
+            <h2>Related Articles</h2>
+            <ul>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-eks-complete-guide.html">Terraform EKS Complete Guide: Production-Ready Clusters</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/multi-cloud-landing-zone-terraform.html">One Landing Zone for Three Clouds</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/architecture-diagrams-as-code.html">Architecture Diagrams as Code: Interactive HTML for Every Module</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/kubernetes-multi-cloud-terraform.html">EKS vs AKS vs GKE: One Terraform Interface</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-security-baseline-aws.html">AWS Security Baseline: GuardDuty to SecurityHub in One Apply</a></li>
+            </ul>
+        </div>
+    </article>
+</main>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+</footer>
+
+</body>
+</html>

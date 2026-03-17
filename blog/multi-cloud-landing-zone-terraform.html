@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>One Landing Zone for Three Clouds | Kehinde Ogunlowo</title>
+    <meta name="description" content="Design and deploy a unified multi-cloud landing zone across AWS, Azure, and GCP using a single Terraform codebase with consistent governance, networking, and security.">
+    <meta name="keywords" content="multi-cloud landing zone, Terraform landing zone, AWS landing zone, Azure landing zone, GCP landing zone, cloud governance, hub-spoke networking">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/multi-cloud-landing-zone-terraform.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="One Landing Zone for Three Clouds">
+    <meta property="og:description" content="Design and deploy a unified multi-cloud landing zone across AWS, Azure, and GCP using a single Terraform codebase with consistent governance, networking, and security.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/multi-cloud-landing-zone-terraform.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-15">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="One Landing Zone for Three Clouds">
+    <meta name="twitter:description" content="Design and deploy a unified multi-cloud landing zone across AWS, Azure, and GCP using a single Terraform codebase.">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "One Landing Zone for Three Clouds",
+        "author": { "@type": "Person", "name": "Kehinde Ogunlowo", "url": "https://linkedin.com/in/kehinde-ogunlowo" },
+        "publisher": { "@type": "Organization", "name": "Citadel Cloud Management" },
+        "datePublished": "2026-03-15",
+        "dateModified": "2026-03-15",
+        "description": "Design and deploy a unified multi-cloud landing zone across AWS, Azure, and GCP using a single Terraform codebase with consistent governance, networking, and security.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/multi-cloud-landing-zone-terraform.html"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "One Landing Zone for Three Clouds"}
+        ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        .article-meta span { display: flex; align-items: center; gap: 0.3rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid rgba(0,212,255,0.15); padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(0,212,255,0.1); color: #00d4ff; font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0; }
+        .tags span { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+        .share-buttons { display: flex; gap: 0.75rem; margin: 2rem 0; flex-wrap: wrap; }
+        .share-btn { padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(0,212,255,0.3); background: #111827; color: #e2e8f0; transition: all 0.2s; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); border-color: #00d4ff; }
+        .cta { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .author-bio { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .author-info h3 { margin: 0 0 0.25rem; color: #ffffff; }
+        .author-info .title { color: #00d4ff; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .author-links { display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .author-links a { font-size: 0.85rem; }
+        .related { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related h2 { margin-top: 0; }
+        .related ul { list-style: none; padding: 0; }
+        .related li { padding: 0.5rem 0; border-bottom: 1px solid rgba(0,212,255,0.08); }
+        .related li:last-child { border: none; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(0,212,255,0.1); margin-top: 3rem; }
+        @media (max-width: 768px) { h1 { font-size: 1.6rem; } h2 { font-size: 1.25rem; } .container { padding: 1rem; } nav { padding: 1rem; } table { font-size: 0.8rem; } th, td { padding: 0.5rem; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+    <div class="nav-links">
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+        <a href="https://kogunlowo123.github.io/about/">About</a>
+        <a href="https://github.com/kogunlowo123">GitHub</a>
+        <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> &rsaquo; <a href="https://kogunlowo123.github.io/blog/">Blog</a> &rsaquo; One Landing Zone for Three Clouds
+</div>
+
+<main class="container">
+    <article>
+        <header class="article-header">
+            <h1>One Landing Zone for Three Clouds</h1>
+            <div class="article-meta">
+                <span>Kehinde Ogunlowo</span>
+                <span>|</span>
+                <span>March 15, 2026</span>
+                <span>|</span>
+                <span>12 min read</span>
+                <span>|</span>
+                <span>Infrastructure</span>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#problem">The Multi-Cloud Landing Zone Problem</a></li>
+                <li><a href="#architecture">Unified Architecture Design</a></li>
+                <li><a href="#account-structure">Account and Project Structure</a></li>
+                <li><a href="#networking">Cross-Cloud Networking</a></li>
+                <li><a href="#governance">Unified Governance Layer</a></li>
+                <li><a href="#implementation">Terraform Implementation</a></li>
+                <li><a href="#day-two">Day-Two Operations</a></li>
+            </ol>
+        </nav>
+
+        <section id="problem">
+            <h2>The Multi-Cloud Landing Zone Problem</h2>
+            <p>Every enterprise that operates across AWS, Azure, and GCP faces the same challenge: each cloud provider has its own landing zone framework (AWS Control Tower, Azure Landing Zones, GCP Cloud Foundation Toolkit), but none of them talk to each other. You end up with three separate governance models, three networking architectures, three identity systems, and three sets of compliance controls. Drift between them is inevitable, and auditing consistency is a full-time job.</p>
+
+            <p>Our <a href="https://github.com/kogunlowo123/multi-cloud-landing-zone" target="_blank" rel="noopener">multi-cloud-landing-zone</a> repository solves this by providing a single Terraform codebase that deploys a consistent landing zone across all three providers. The configuration is parameterized at the top level, and cloud-specific implementation details are abstracted behind a unified module interface.</p>
+        </section>
+
+        <section id="architecture">
+            <h2>Unified Architecture Design</h2>
+            <p>The landing zone architecture is built on four pillars: organization structure, networking, identity federation, and security baseline. Each pillar has a unified interface that maps to provider-specific implementations underneath.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pillar</th>
+                        <th>AWS Implementation</th>
+                        <th>Azure Implementation</th>
+                        <th>GCP Implementation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Organization</td><td>AWS Organizations + SCPs</td><td>Management Groups + Azure Policy</td><td>Organization + Folder Policies</td></tr>
+                    <tr><td>Networking</td><td>Transit Gateway + VPCs</td><td>Virtual WAN + Hub-Spoke VNets</td><td>Shared VPC + Cloud Interconnect</td></tr>
+                    <tr><td>Identity</td><td>IAM Identity Center (SSO)</td><td>Entra ID (Native)</td><td>Workload Identity Federation</td></tr>
+                    <tr><td>Security</td><td>GuardDuty + SecurityHub</td><td>Defender for Cloud + Sentinel</td><td>Security Command Center</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="account-structure">
+            <h2>Account and Project Structure</h2>
+            <p>The landing zone creates a standardized hierarchy across all three providers. At the top level, organizational units map to management groups map to folders. Each environment (development, staging, production) gets its own OU/management group/folder with corresponding policy guardrails.</p>
+
+            <pre><code># Unified organization structure definition
+# Repository: https://github.com/kogunlowo123/multi-cloud-landing-zone
+
+organization = {
+  name = "citadel-corp"
+
+  units = {
+    platform = {
+      accounts = {
+        networking  = { budget = 5000 }
+        security    = { budget = 3000 }
+        shared-svcs = { budget = 4000 }
+      }
+    }
+    workloads = {
+      environments = {
+        dev = {
+          accounts_per_team = 1
+          allow_public_access = true
+          budget_per_account  = 2000
+        }
+        staging = {
+          accounts_per_team = 1
+          allow_public_access = false
+          budget_per_account  = 5000
+        }
+        production = {
+          accounts_per_team = 2  # primary + DR
+          allow_public_access = false
+          budget_per_account  = 20000
+          require_mfa         = true
+          require_encryption  = true
+        }
+      }
+    }
+    sandbox = {
+      auto_nuke_after_days = 7
+      budget_per_account   = 500
+    }
+  }
+}</code></pre>
+
+            <p>This single configuration generates AWS accounts via Organizations, Azure subscriptions via Management Groups, and GCP projects via Folders. Each account/subscription/project inherits the governance policies defined at its level in the hierarchy.</p>
+        </section>
+
+        <section id="networking">
+            <h2>Cross-Cloud Networking</h2>
+            <p>The networking pillar deploys a hub-spoke topology within each cloud and establishes encrypted tunnels between the hubs. AWS Transit Gateway connects to Azure Virtual WAN via IPSec VPN, and both connect to GCP through Cloud Interconnect or VPN. All inter-cloud traffic traverses these encrypted tunnels, and each spoke network is isolated with firewall rules that default to deny-all.</p>
+
+            <p>CIDR allocation is managed centrally to prevent overlap. The landing zone reserves non-overlapping ranges for each cloud and each environment, with room for growth. Our IPAM module tracks allocations in a DynamoDB table and validates new requests against existing assignments.</p>
+
+            <pre><code># Cross-cloud network configuration
+networking = {
+  cidr_allocation = {
+    aws   = "10.0.0.0/12"    # 10.0.0.0 - 10.15.255.255
+    azure = "10.16.0.0/12"   # 10.16.0.0 - 10.31.255.255
+    gcp   = "10.32.0.0/12"   # 10.32.0.0 - 10.47.255.255
+  }
+
+  cross_cloud_vpn = {
+    aws_to_azure = { enabled = true, bandwidth = "1Gbps" }
+    aws_to_gcp   = { enabled = true, bandwidth = "1Gbps" }
+    azure_to_gcp = { enabled = true, bandwidth = "1Gbps" }
+  }
+
+  dns = {
+    primary_zone   = "citadel-corp.internal"
+    forwarding     = true  # Cross-cloud DNS resolution
+  }
+}</code></pre>
+        </section>
+
+        <section id="governance">
+            <h2>Unified Governance Layer</h2>
+            <p>Governance policies are defined once in a cloud-agnostic format and compiled to provider-specific policy languages. For example, a rule that says "all storage must be encrypted with customer-managed keys" translates to an AWS SCP that denies <code>s3:CreateBucket</code> without encryption, an Azure Policy that audits storage accounts without CMK encryption, and a GCP Organization Policy constraint that requires CMEK for Cloud Storage.</p>
+
+            <p>The governance module currently supports 45 policies covering encryption, public access, network restrictions, tagging requirements, and resource location constraints. Each policy includes a severity level, a remediation guide, and a Terraform module that can fix non-compliant resources automatically.</p>
+        </section>
+
+        <section id="implementation">
+            <h2>Terraform Implementation</h2>
+            <p>The landing zone is deployed in phases to handle provider-specific bootstrapping requirements. Phase one creates the organization structure and IAM roles. Phase two deploys networking and VPN tunnels. Phase three enables security services and monitoring. Phase four creates workload accounts and applies governance policies.</p>
+
+            <pre><code># Deploy the landing zone
+# Repository: https://github.com/kogunlowo123/multi-cloud-landing-zone
+
+module "landing_zone" {
+  source = "./modules/multi-cloud-landing-zone"
+
+  organization = local.organization
+  networking   = local.networking
+  governance   = local.governance
+
+  providers = {
+    aws   = aws.management
+    azurerm = azurerm.management
+    google  = google.organization
+  }
+
+  # Phase control - deploy incrementally
+  enable_phase_1_org       = true
+  enable_phase_2_network   = true
+  enable_phase_3_security  = true
+  enable_phase_4_workloads = true
+}
+
+output "aws_account_ids" {
+  value = module.landing_zone.aws_accounts
+}
+
+output "azure_subscription_ids" {
+  value = module.landing_zone.azure_subscriptions
+}
+
+output "gcp_project_ids" {
+  value = module.landing_zone.gcp_projects
+}</code></pre>
+        </section>
+
+        <section id="day-two">
+            <h2>Day-Two Operations</h2>
+            <p>A landing zone is only as good as its day-two operations. The repository includes a drift detection pipeline that runs hourly, comparing the actual state of each cloud against the Terraform state. Any drift triggers a Slack notification with a diff and a one-click remediation button that creates a PR to bring the environment back into compliance.</p>
+
+            <p>New workload accounts are provisioned through a self-service portal backed by a GitHub Actions workflow. Teams submit a YAML request, the workflow validates it against organizational policies, creates the accounts across all requested clouds, and provisions the networking and security baseline automatically. Average provisioning time from request to ready-to-use is under 15 minutes.</p>
+
+            <p>Explore the full implementation in the <a href="https://github.com/kogunlowo123/multi-cloud-landing-zone" target="_blank" rel="noopener">multi-cloud-landing-zone</a> repository on GitHub.</p>
+        </section>
+
+        <div class="tags">
+            <span>Landing Zone</span>
+            <span>Multi-Cloud</span>
+            <span>Terraform</span>
+            <span>AWS</span>
+            <span>Azure</span>
+            <span>GCP</span>
+            <span>Governance</span>
+            <span>Networking</span>
+        </div>
+
+        <div class="share-buttons">
+            <a class="share-btn" href="https://twitter.com/intent/tweet?text=One%20Landing%20Zone%20for%20Three%20Clouds&url=https://kogunlowo123.github.io/blog/multi-cloud-landing-zone-terraform.html" target="_blank" rel="noopener">Share on Twitter</a>
+            <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/multi-cloud-landing-zone-terraform.html" target="_blank" rel="noopener">Share on LinkedIn</a>
+            <button class="share-btn" onclick="navigator.clipboard.writeText('https://kogunlowo123.github.io/blog/multi-cloud-landing-zone-terraform.html').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy Link'},2000)})">Copy Link</button>
+        </div>
+
+        <div class="cta">
+            <h3>Need a Multi-Cloud Landing Zone?</h3>
+            <p>Kehinde Ogunlowo and the team at Citadel Cloud Management design and deploy multi-cloud landing zones for enterprises operating across AWS, Azure, and GCP.</p>
+            <p><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Contact Kehinde at citadelcloudmanagement.com</a></p>
+        </div>
+
+        <div class="author-bio">
+            <div class="author-info">
+                <h3>Kehinde Ogunlowo</h3>
+                <div class="title">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</div>
+                <p>Kehinde architects secure, scalable multi-cloud platforms for enterprises. With deep expertise across AWS, Azure, and GCP, he specializes in zero trust security, infrastructure-as-code, and AI agent systems engineering. He shares open-source Terraform modules and architectural patterns through his GitHub and blog.</p>
+                <div class="author-links">
+                    <a href="https://linkedin.com/in/kehinde-ogunlowo" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="related">
+            <h2>Related Articles</h2>
+            <ul>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html">Open-Sourcing 70+ Production Terraform Modules</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-azure-landing-zone.html">Building Azure Landing Zones with Terraform</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/multi-cloud-zero-trust-architecture.html">Building Zero Trust Architecture Across AWS, Azure, and GCP</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-aws-vpc-networking-guide.html">AWS VPC Networking with Terraform</a></li>
+            </ul>
+        </div>
+    </article>
+</main>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+</footer>
+
+</body>
+</html>

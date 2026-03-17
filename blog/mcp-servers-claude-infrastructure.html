@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="4E2B7B629DD8A2EC0E6080B144B066AC" />
+    <meta name="google-site-verification" content="BLbxnp_dj2b7Aip6f74SmtVbVn4xIJVusdcOrFw4Uao" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <title>MCP Servers: Letting Claude Manage Your Cloud | Kehinde Ogunlowo</title>
+    <meta name="description" content="Build Model Context Protocol servers that give Claude direct access to AWS, Azure, and Terraform for infrastructure management with guardrails and audit trails.">
+    <meta name="keywords" content="MCP servers, Model Context Protocol, Claude, AI infrastructure, Terraform MCP, AWS MCP, cloud management, AI DevOps">
+    <link rel="canonical" href="https://kogunlowo123.github.io/blog/mcp-servers-claude-infrastructure.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="MCP Servers: Letting Claude Manage Your Cloud">
+    <meta property="og:description" content="Build Model Context Protocol servers that give Claude direct access to AWS, Azure, and Terraform for infrastructure management with guardrails and audit trails.">
+    <meta property="og:url" content="https://kogunlowo123.github.io/blog/mcp-servers-claude-infrastructure.html">
+    <meta property="og:site_name" content="Kehinde Ogunlowo">
+    <meta property="article:author" content="Kehinde Ogunlowo">
+    <meta property="article:published_time" content="2026-03-15">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MCP Servers: Letting Claude Manage Your Cloud">
+    <meta name="twitter:description" content="Build Model Context Protocol servers that give Claude direct access to AWS, Azure, and Terraform for infrastructure management with guardrails and audit trails.">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "MCP Servers: Letting Claude Manage Your Cloud",
+        "author": { "@type": "Person", "name": "Kehinde Ogunlowo", "url": "https://linkedin.com/in/kehinde-ogunlowo" },
+        "publisher": { "@type": "Organization", "name": "Citadel Cloud Management" },
+        "datePublished": "2026-03-15",
+        "dateModified": "2026-03-15",
+        "description": "Build Model Context Protocol servers that give Claude direct access to AWS, Azure, and Terraform for infrastructure management with guardrails and audit trails.",
+        "mainEntityOfPage": "https://kogunlowo123.github.io/blog/mcp-servers-claude-infrastructure.html"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://kogunlowo123.github.io"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kogunlowo123.github.io/blog/"},
+            {"@type": "ListItem", "position": 3, "name": "MCP Servers: Letting Claude Manage Your Cloud"}
+        ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e1a; color: #e2e8f0; line-height: 1.8; }
+        a { color: #00d4ff; text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        nav { background: #111827; border-bottom: 1px solid rgba(0,212,255,0.15); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: #00d4ff; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #e2e8f0; font-size: 0.9rem; font-weight: 500; }
+        .nav-links a:hover { color: #00d4ff; }
+        .breadcrumb { max-width: 900px; margin: 1.5rem auto 0; padding: 0 2rem; font-size: 0.85rem; color: #94a3b8; }
+        .breadcrumb a { color: #94a3b8; }
+        .breadcrumb a:hover { color: #00d4ff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { margin-bottom: 2.5rem; }
+        .article-meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+        .article-meta span { display: flex; align-items: center; gap: 0.3rem; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #ffffff; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #ffffff; border-left: 3px solid #00d4ff; padding-left: 0.75rem; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #e2e8f0; }
+        p { margin-bottom: 1.25rem; }
+        .toc { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+        .toc h2 { font-size: 1.1rem; margin: 0 0 1rem; border: none; padding: 0; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        pre { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 1.5rem; overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; }
+        code { background: rgba(0,212,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        pre code { background: none; padding: 0; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0; }
+        .tags span { background: rgba(0,212,255,0.1); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+        .share-buttons { display: flex; gap: 0.75rem; margin: 2rem 0; flex-wrap: wrap; }
+        .share-btn { padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(0,212,255,0.3); background: #111827; color: #e2e8f0; transition: all 0.2s; }
+        .share-btn:hover { background: rgba(0,212,255,0.1); border-color: #00d4ff; }
+        .cta { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; text-align: center; }
+        .cta h3 { color: #00d4ff; margin-bottom: 0.75rem; }
+        .author-bio { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .author-info h3 { margin: 0 0 0.25rem; color: #ffffff; }
+        .author-info .title { color: #00d4ff; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .author-links { display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .author-links a { font-size: 0.85rem; }
+        .related { background: #111827; border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 2rem; margin: 2.5rem 0; }
+        .related h2 { margin-top: 0; }
+        .related ul { list-style: none; padding: 0; }
+        .related li { padding: 0.5rem 0; border-bottom: 1px solid rgba(0,212,255,0.08); }
+        .related li:last-child { border: none; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(0,212,255,0.1); margin-top: 3rem; }
+        @media (max-width: 768px) { h1 { font-size: 1.6rem; } h2 { font-size: 1.25rem; } .container { padding: 1rem; } nav { padding: 1rem; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="https://kogunlowo123.github.io" class="nav-logo">Kehinde Ogunlowo</a>
+    <div class="nav-links">
+        <a href="https://kogunlowo123.github.io/blog/">Blog</a>
+        <a href="https://kogunlowo123.github.io/about/">About</a>
+        <a href="https://github.com/kogunlowo123">GitHub</a>
+        <a href="https://citadelcloudmanagement.com">Citadel Cloud</a>
+    </div>
+</nav>
+
+<div class="breadcrumb">
+    <a href="https://kogunlowo123.github.io">Home</a> &rsaquo; <a href="https://kogunlowo123.github.io/blog/">Blog</a> &rsaquo; MCP Servers: Letting Claude Manage Your Cloud
+</div>
+
+<main class="container">
+    <article>
+        <header class="article-header">
+            <h1>MCP Servers: Letting Claude Manage Your Cloud</h1>
+            <div class="article-meta">
+                <span>Kehinde Ogunlowo</span>
+                <span>|</span>
+                <span>March 15, 2026</span>
+                <span>|</span>
+                <span>10 min read</span>
+                <span>|</span>
+                <span>AI Agents</span>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#what-is-mcp">What is the Model Context Protocol?</a></li>
+                <li><a href="#why-mcp-infra">Why MCP for Infrastructure Management</a></li>
+                <li><a href="#terraform-mcp">Building a Terraform MCP Server</a></li>
+                <li><a href="#aws-mcp">AWS MCP Server: Read and Remediate</a></li>
+                <li><a href="#guardrails">Guardrails and Approval Gates</a></li>
+                <li><a href="#audit">Audit Trail and Compliance</a></li>
+                <li><a href="#deployment">Deploying MCP Servers in Production</a></li>
+            </ol>
+        </nav>
+
+        <section id="what-is-mcp">
+            <h2>What is the Model Context Protocol?</h2>
+            <p>The Model Context Protocol (MCP) is an open standard that defines how AI models connect to external tools and data sources. Rather than embedding tool-calling logic inside application code, MCP provides a standardized server interface that any compatible AI client can discover and invoke. Think of it as a USB-C port for AI: a universal interface that any model can plug into.</p>
+
+            <p>An MCP server exposes three primitives: <strong>tools</strong> (actions the model can invoke), <strong>resources</strong> (data the model can read), and <strong>prompts</strong> (templated instructions for common tasks). When Claude connects to an MCP server, it automatically discovers the available tools and can invoke them during conversations with full context about parameter types and return values.</p>
+
+            <p>At <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>, we built a suite of MCP servers that give Claude direct access to our infrastructure management toolchain. The result is an AI assistant that can query AWS resources, run Terraform plans, check security compliance, and draft remediation PRs, all within a natural conversation. The servers are available in our <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub repositories</a>.</p>
+        </section>
+
+        <section id="why-mcp-infra">
+            <h2>Why MCP for Infrastructure Management</h2>
+            <p>Infrastructure engineers spend enormous time on context-switching: jumping between the AWS console, Terraform files, monitoring dashboards, and Slack threads to diagnose and resolve issues. MCP servers collapse this context into a single conversational interface where Claude can access all these data sources simultaneously.</p>
+
+            <p>The key advantage over traditional chatbot integrations is that MCP is stateless and discoverable. You do not need to hard-code tool descriptions into your application. The MCP server self-describes its capabilities, and Claude adapts its behavior based on what tools are available. Add a new Terraform workspace tool and Claude immediately knows how to use it.</p>
+
+            <p>We measured a 40% reduction in mean time to resolution (MTTR) for infrastructure incidents after deploying MCP servers. Engineers ask Claude to diagnose the issue, and Claude pulls metrics from CloudWatch, checks recent deployments from Terraform Cloud, reviews pod logs from Kubernetes, and synthesizes a root cause analysis in seconds rather than the minutes it takes to manually navigate each system.</p>
+        </section>
+
+        <section id="terraform-mcp">
+            <h2>Building a Terraform MCP Server</h2>
+            <p>The Terraform MCP server exposes five core tools that Claude can invoke to manage infrastructure. Here is the server implementation using the MCP Python SDK.</p>
+
+            <pre><code># Terraform MCP Server
+# Repository: https://github.com/kogunlowo123/mcp-server-terraform
+
+from mcp.server import Server
+from mcp.types import Tool, TextContent
+import subprocess
+import json
+
+server = Server("terraform-mcp")
+
+@server.tool()
+async def terraform_plan(workspace: str, target: str = None) -> str:
+    """Run terraform plan on a workspace and return the plan summary."""
+    cmd = ["terraform", "plan", "-no-color", "-json"]
+    if target:
+        cmd.extend(["-target", target])
+
+    result = subprocess.run(
+        cmd,
+        cwd=f"/workspaces/{workspace}",
+        capture_output=True, text=True, timeout=300
+    )
+
+    plan_data = parse_plan_output(result.stdout)
+    return json.dumps({
+        "workspace": workspace,
+        "adds": plan_data["resource_changes"]["add"],
+        "changes": plan_data["resource_changes"]["change"],
+        "destroys": plan_data["resource_changes"]["destroy"],
+        "summary": plan_data["summary"]
+    })
+
+@server.tool()
+async def terraform_state_list(workspace: str) -> str:
+    """List all resources in a Terraform workspace state."""
+    result = subprocess.run(
+        ["terraform", "state", "list"],
+        cwd=f"/workspaces/{workspace}",
+        capture_output=True, text=True
+    )
+    return result.stdout
+
+@server.tool()
+async def terraform_output(workspace: str, name: str = None) -> str:
+    """Get outputs from a Terraform workspace."""
+    cmd = ["terraform", "output", "-json"]
+    if name:
+        cmd.append(name)
+
+    result = subprocess.run(
+        cmd,
+        cwd=f"/workspaces/{workspace}",
+        capture_output=True, text=True
+    )
+    return result.stdout
+
+@server.tool()
+async def terraform_show_resource(workspace: str, address: str) -> str:
+    """Show the current state of a specific Terraform resource."""
+    result = subprocess.run(
+        ["terraform", "state", "show", address],
+        cwd=f"/workspaces/{workspace}",
+        capture_output=True, text=True
+    )
+    return result.stdout</code></pre>
+
+            <p>Notice that the server does not expose <code>terraform apply</code> as a direct tool. Applies require an approval gate, which we implement through a separate workflow described in the guardrails section below.</p>
+        </section>
+
+        <section id="aws-mcp">
+            <h2>AWS MCP Server: Read and Remediate</h2>
+            <p>The AWS MCP server provides read access to AWS resources and the ability to generate remediation Terraform code. It uses boto3 with an IAM role that has read-only access to the target account, plus write access to a dedicated Git repository for remediation PRs.</p>
+
+            <pre><code># AWS MCP Server - Resource Discovery Tool
+@server.tool()
+async def aws_describe_security_groups(
+    vpc_id: str,
+    filter_public: bool = True
+) -> str:
+    """List security groups, optionally filtering for public access rules."""
+    ec2 = boto3.client("ec2")
+    response = ec2.describe_security_groups(
+        Filters=[{"Name": "vpc-id", "Values": [vpc_id]}]
+    )
+
+    groups = []
+    for sg in response["SecurityGroups"]:
+        public_rules = [
+            rule for rule in sg["IpPermissions"]
+            if any(ip["CidrIp"] == "0.0.0.0/0" for ip in rule.get("IpRanges", []))
+        ]
+        if filter_public and not public_rules:
+            continue
+        groups.append({
+            "id": sg["GroupId"],
+            "name": sg["GroupName"],
+            "public_rules": len(public_rules),
+            "description": sg["Description"]
+        })
+
+    return json.dumps(groups, indent=2)</code></pre>
+
+            <p>When Claude identifies a misconfigured resource, it generates a Terraform remediation plan and opens a pull request in the infrastructure repository. The engineer reviews and approves the PR, and the CI/CD pipeline applies the change. This maintains the human-in-the-loop requirement while dramatically accelerating the remediation cycle.</p>
+        </section>
+
+        <section id="guardrails">
+            <h2>Guardrails and Approval Gates</h2>
+            <p>Giving an AI model access to cloud infrastructure requires robust guardrails. Our MCP servers enforce three layers of protection. First, IAM-level restrictions ensure the MCP server's credentials can only perform read operations on production resources. Second, tool-level guardrails validate every invocation against an allowlist of permitted operations. Third, workflow-level approval gates require human sign-off before any state-changing operation executes.</p>
+
+            <p>The approval gate works through GitHub pull requests. When Claude determines that a Terraform apply is needed, it creates a PR with the planned changes, tags the appropriate reviewers, and includes a summary of why the change is necessary. Only after a human approves and merges the PR does the CI pipeline execute the apply.</p>
+        </section>
+
+        <section id="audit">
+            <h2>Audit Trail and Compliance</h2>
+            <p>Every MCP server invocation is logged to CloudWatch Logs with the full request and response payload, the identity of the user who initiated the conversation, and a correlation ID that links the MCP call back to the Claude conversation. This audit trail satisfies SOC 2 Type II requirements for access logging and provides forensic capability for incident investigation.</p>
+
+            <p>We also export MCP server metrics to Datadog, tracking tool invocation counts, latency percentiles, error rates, and the distribution of tool usage across users. This telemetry helps us identify which tools are most valuable and where to invest in improving the user experience.</p>
+        </section>
+
+        <section id="deployment">
+            <h2>Deploying MCP Servers in Production</h2>
+            <p>Our MCP servers run as containerized services on ECS Fargate, deployed via the Terraform modules from our <a href="https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html">open-source library</a>. Each server runs in its own task with a dedicated IAM role, and inter-server communication is encrypted with mutual TLS via the service mesh. The deployment is fully automated through GitHub Actions and requires zero manual intervention.</p>
+
+            <p>To get started with MCP servers for your infrastructure, explore our reference implementations on <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>. Each server includes a Terraform module for deployment, a test suite, and detailed configuration documentation.</p>
+        </section>
+
+        <div class="tags">
+            <span>MCP</span>
+            <span>Claude</span>
+            <span>AI Infrastructure</span>
+            <span>Terraform</span>
+            <span>AWS</span>
+            <span>DevOps</span>
+            <span>Model Context Protocol</span>
+        </div>
+
+        <div class="share-buttons">
+            <a class="share-btn" href="https://twitter.com/intent/tweet?text=MCP%20Servers%3A%20Letting%20Claude%20Manage%20Your%20Cloud&url=https://kogunlowo123.github.io/blog/mcp-servers-claude-infrastructure.html" target="_blank" rel="noopener">Share on Twitter</a>
+            <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://kogunlowo123.github.io/blog/mcp-servers-claude-infrastructure.html" target="_blank" rel="noopener">Share on LinkedIn</a>
+            <button class="share-btn" onclick="navigator.clipboard.writeText('https://kogunlowo123.github.io/blog/mcp-servers-claude-infrastructure.html').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy Link'},2000)})">Copy Link</button>
+        </div>
+
+        <div class="cta">
+            <h3>Ready to Let AI Manage Your Cloud?</h3>
+            <p>Kehinde Ogunlowo and the team at Citadel Cloud Management build custom MCP servers and AI-powered infrastructure management systems for enterprises.</p>
+            <p><a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Contact Kehinde at citadelcloudmanagement.com</a></p>
+        </div>
+
+        <div class="author-bio">
+            <div class="author-info">
+                <h3>Kehinde Ogunlowo</h3>
+                <div class="title">Principal Multi-Cloud DevSecOps Architect | Citadel Cloud Management</div>
+                <p>Kehinde architects secure, scalable multi-cloud platforms for enterprises. With deep expertise across AWS, Azure, and GCP, he specializes in zero trust security, infrastructure-as-code, and AI agent systems engineering. He shares open-source Terraform modules and architectural patterns through his GitHub and blog.</p>
+                <div class="author-links">
+                    <a href="https://linkedin.com/in/kehinde-ogunlowo" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/kogunlowo123" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://citadelcloudmanagement.com" target="_blank" rel="noopener">Citadel Cloud Management</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="related">
+            <h2>Related Articles</h2>
+            <ul>
+                <li><a href="https://kogunlowo123.github.io/blog/agentforge-ai-agent-curriculum.html">AgentForge: Building Enterprise AI Agents Across 8 Categories</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/ai-agents-enterprise-devops.html">AI Agents in Enterprise DevOps: Beyond the Hype</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/terraform-module-library-open-source.html">Open-Sourcing 70+ Production Terraform Modules</a></li>
+                <li><a href="https://kogunlowo123.github.io/blog/ai-finops-cloud-cost-optimization.html">Building an AI Agent for Cloud Cost Optimization</a></li>
+            </ul>
+        </div>
+    </article>
+</main>
+
+<footer>
+    <p>&copy; 2026 Kehinde Ogunlowo. All rights reserved. | <a href="https://citadelcloudmanagement.com">Citadel Cloud Management</a></p>
+</footer>
+
+</body>
+</html>
